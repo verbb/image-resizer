@@ -1,0 +1,30 @@
+{% import "_includes/forms" as forms %}
+
+{{ forms.lightswitchField({
+    label: 'Enabled' | t,
+    instructions: 'Whether uploaded images should be resized or not.' | t,
+    id: 'enabled',
+    name: 'enabled',
+    on: settings.enabled,
+    first: true,
+}) }}
+
+{{ forms.textField({
+    label: 'Image Width' | t,
+    instructions: 'The maximum width in pixels allowed for uploaded images.' | t,
+    id: 'imageWidth',
+    name: 'imageWidth',
+    value: settings.imageWidth,
+    size: 10,
+}) }}
+
+{{ forms.textField({
+    label: 'Image Height' | t,
+    instructions: 'The maximum height in pixels allowed for uploaded images.' | t,
+    id: 'imageHeight',
+    name: 'imageHeight',
+    value: settings.imageHeight,
+    size: 10,
+}) }}
+
+<hr>
