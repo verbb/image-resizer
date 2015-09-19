@@ -13,17 +13,23 @@ The aspect ratio of images are maintained, and will always match the maximum wid
 
 - Enable/Disable resizing images on upload.
 - Set the maximum width/height (in pixels) for uploaded images. Set to 2048px by default.
+- Select which Asset sources you want resizing to be performed on.
 
 
 ## Roadmap
 
 - Batch processing of existing assets.
-- Update assetRecord after image resize, to reflect new size.
-- Restrict to specific Assets sources.
 - Add image quality option.
+- Provide cropping options for uploaded images.
 
 
 ## Changelog
+
+#### 0.0.2
+
+- Moved hook from `onBeforeSaveAsset` to `onSaveAsset`.
+- Asset record is updated after resize, reflecting new image width/height/size.
+- Added option to restrict resizing to specific Asset sources.
 
 #### 0.0.1
 

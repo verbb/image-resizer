@@ -27,4 +27,13 @@
     size: 10,
 }) }}
 
+{{ forms.checkboxSelectField({
+    label: 'Asset Sources' | t,
+    instructions: 'Select which asset sources you want to allow Image Resizer work with.' | t,
+    id: 'assetSources',
+    name: 'assetSources',
+    values: settings.assetSources,
+    options: sourceOptions,
+}) }}
+
 <hr>

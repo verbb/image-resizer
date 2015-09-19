@@ -20,6 +20,12 @@ class ImageResizerService extends BaseApplicationComponent
 	{
 		// Get the full path of the asset we want to resize
 		$path = $this->_getImagePath($asset);
+
+		// If the path is false, we're not allowed to modify images in the source - kill it!
+		if (!$path) {
+			return true;
+		}
+
 		$image = craft()->images->loadImage($path);
 
 		// Our maximum width/height for assets from plugin settings
@@ -38,6 +44,14 @@ class ImageResizerService extends BaseApplicationComponent
 		}
 
 		$image->saveAs($path);
+
+		// Then, make sure we update the asset info as stored in the database
+		$fileRecord = AssetFileRecord::model()->findById($asset->id);
+		$fileRecord->size         = IOHelper::getFileSize($path);
+		$fileRecord->width        = $image->getWidth();
+		$fileRecord->height       = $image->getHeight();
+
+		$fileRecord->save(false);
 	}
 
 
@@ -51,7 +65,16 @@ class ImageResizerService extends BaseApplicationComponent
 
 		// Can only deal with local assets for now
 		if ($source->type != 'Local') {
-			return true;
+			return false;
+		}
+
+		// Should we be modifying images in this source?
+		$assetSources = $this->getSettings()->assetSources;
+
+		if ($assetSources != '*') {
+			if (!in_array($source->id, $assetSources)) {
+				return false;
+			}
 		}
 
 		$sourcePath = $source->settings['path'];

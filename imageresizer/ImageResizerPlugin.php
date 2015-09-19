@@ -14,7 +14,7 @@ class ImageResizerPlugin extends BasePlugin
 
     public function getVersion()
     {
-        return '0.0.1';
+        return '0.0.2';
     }
 
     public function getDeveloper()
@@ -29,8 +29,15 @@ class ImageResizerPlugin extends BasePlugin
 
     public function getSettingsHtml()
     {
+        $sourceOptions = array();
+
+        foreach (craft()->assetSources->getAllSources() as $source) {
+            $sourceOptions[] = array('label' => $source->name, 'value' => $source->id);
+        }
+
         return craft()->templates->render('imageresizer/settings', array(
             'settings' => $this->getSettings(),
+            'sourceOptions' => $sourceOptions,
         ));
     }
 
@@ -40,6 +47,7 @@ class ImageResizerPlugin extends BasePlugin
             'enabled' => array( AttributeType::Bool, 'default' => true ),
             'imageWidth' => array( AttributeType::Number, 'default' => '2048' ),
             'imageHeight' => array( AttributeType::Number, 'default' => '2048' ),
+            'assetSources' => array( AttributeType::Mixed, 'default' => '*' ),
         );
     }
 
@@ -50,7 +58,7 @@ class ImageResizerPlugin extends BasePlugin
 
     public function init()
     {
-        craft()->on('assets.onBeforeSaveAsset', function(Event $event) {
+        craft()->on('assets.onSaveAsset', function(Event $event) {
             if (craft()->imageResizer->getSettings()->enabled) {
                 $asset = $event->params['asset'];
 
