@@ -11,19 +11,33 @@ The aspect ratio of images are maintained, and will always match the maximum wid
 
 **Plugin options**
 
-- Enable/Disable resizing images on upload.
+- Enable/Disable resizing images on upload. Enabled by default.
 - Set the maximum width/height (in pixels) for uploaded images. Set to 2048px by default.
+- Set the quality for resized images between 0-100. Set to 100 by default.
 - Select which Asset sources you want resizing to be performed on.
+
+## Batch processing
+
+To batch process any images, use the Assets Index to select which image files you'd like to resize, click on the Actions button and select Resize image.
+
+<img src="https://raw.githubusercontent.com/engram-design/ImageResizer/master/screenshots/elementactions.png" />
+
+You'll be presented with a warning screen advising that the selected images will be resized according to your plugin settings.
+
+<img src="https://raw.githubusercontent.com/engram-design/ImageResizer/master/screenshots/resizeelementaction.png" />
 
 
 ## Roadmap
 
-- Batch processing of existing assets.
-- Add image quality option.
 - Provide cropping options for uploaded images.
 
 
 ## Changelog
+
+#### 0.0.3
+
+- Added batch processing for existing assets.
+- Added image quality option.
 
 #### 0.0.2
 

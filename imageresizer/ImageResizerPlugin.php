@@ -14,7 +14,7 @@ class ImageResizerPlugin extends BasePlugin
 
     public function getVersion()
     {
-        return '0.0.2';
+        return '0.0.3';
     }
 
     public function getDeveloper()
@@ -47,6 +47,7 @@ class ImageResizerPlugin extends BasePlugin
             'enabled' => array( AttributeType::Bool, 'default' => true ),
             'imageWidth' => array( AttributeType::Number, 'default' => '2048' ),
             'imageHeight' => array( AttributeType::Number, 'default' => '2048' ),
+            'imageQuality' => array( AttributeType::Number, 'default' => '100' ),
             'assetSources' => array( AttributeType::Mixed, 'default' => '*' ),
         );
     }
@@ -68,5 +69,10 @@ class ImageResizerPlugin extends BasePlugin
                 }
             }
         });
+    }
+
+    public function addAssetActions()
+    {
+        return array('ImageResizer_ResizeImage');
     }
 }

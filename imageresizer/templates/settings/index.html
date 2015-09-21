@@ -27,6 +27,15 @@
     size: 10,
 }) }}
 
+{{ forms.textField({
+    label: 'Quality' | t,
+    instructions: 'Enter a value from 0-100 for resized image quality.' | t,
+    id: 'imageQuality',
+    name: 'imageQuality',
+    size: 10,
+    value: settings.imageQuality,
+}) }}
+
 {{ forms.checkboxSelectField({
     label: 'Asset Sources' | t,
     instructions: 'Select which asset sources you want to allow Image Resizer work with.' | t,

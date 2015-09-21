@@ -34,24 +34,40 @@ class ImageResizerService extends BaseApplicationComponent
 
 		// Lets check to see if this image needs resizing. Split into two steps to ensure
 		// proper aspect ratio is preserved and no upscaling occurs.
+		$hasResized = false;
 
 		if ($image->getWidth() > $imageWidth) {
+			$hasResized = true;
 			$this->_resizeImage($image, $imageWidth, null);
 		}
 
 		if ($image->getHeight() > $imageHeight) {
+			$hasResized = true;
 			$this->_resizeImage($image, null, $imageHeight);
 		}
 
-		$image->saveAs($path);
+		if ($hasResized) {
+			// Set image quality - but normalise (for PNG)!
+			$quality = $this->_getImageQuality($asset);
+			$image->setQuality($quality);
 
-		// Then, make sure we update the asset info as stored in the database
-		$fileRecord = AssetFileRecord::model()->findById($asset->id);
-		$fileRecord->size         = IOHelper::getFileSize($path);
-		$fileRecord->width        = $image->getWidth();
-		$fileRecord->height       = $image->getHeight();
+			$image->saveAs($path);
 
-		$fileRecord->save(false);
+			// Update our model
+			$asset->size         = IOHelper::getFileSize($path);
+			$asset->width        = $image->getWidth();
+			$asset->height       = $image->getHeight();
+
+			// Then, make sure we update the asset info as stored in the database
+			$fileRecord = AssetFileRecord::model()->findById($asset->id);
+			$fileRecord->size         = $asset->size;
+			$fileRecord->width        = $asset->width;
+			$fileRecord->height       = $asset->height;
+
+			$fileRecord->save(false);
+		}
+
+		return $asset;
 	}
 
 
@@ -81,6 +97,28 @@ class ImageResizerService extends BaseApplicationComponent
 		$folderPath = $asset->getFolder()->path;
 
 		return $sourcePath . $folderPath . $asset->filename;
+	}
+
+	private function _getImageQuality($asset)
+	{
+		if ($asset->getExtension() == 'png') {
+			// Valid PNG quality settings are 0-9, so normalize and flip, because we're talking about compression
+			// levels, not quality, like jpg and gif.
+			$quality = round(($this->getSettings()->imageQuality * 9) / 100);
+			$quality = 9 - $quality;
+
+			if ($quality < 0) {
+				$quality = 0;
+			}
+
+			if ($quality > 9) {
+				$quality = 9;
+			}
+		} else {
+			$quality = $this->getSettings()->imageQuality;
+		}
+
+		return $quality;
 	}
 
 	private function _resizeImage(&$image, $width, $height)
