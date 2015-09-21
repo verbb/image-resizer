@@ -20,11 +20,11 @@ The aspect ratio of images are maintained, and will always match the maximum wid
 
 To batch process any images, use the Assets Index to select which image files you'd like to resize, click on the Actions button and select Resize image.
 
-<img src="https://raw.githubusercontent.com/engram-design/ImageResizer/master/screenshots/elementactions.png" />
+<img src="https://raw.githubusercontent.com/engram-design/ImageResizer/master/screenshots/elementactions.png" width="250" />
 
 You'll be presented with a warning screen advising that the selected images will be resized according to your plugin settings.
 
-<img src="https://raw.githubusercontent.com/engram-design/ImageResizer/master/screenshots/resizeelementaction.png" />
+<img src="https://raw.githubusercontent.com/engram-design/ImageResizer/master/screenshots/resizeelementaction.png" width="400" />
 
 
 ## Roadmap
