@@ -93,7 +93,7 @@ class ImageResizerService extends BaseApplicationComponent
             }
         }
 
-        $sourcePath = $source->settings['path'];
+        $sourcePath = craft()->config->parseEnvironmentString($source->settings['path']);
         $folderPath = $asset->getFolder()->path;
 
         return $sourcePath . $folderPath . $asset->filename;

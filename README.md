@@ -34,6 +34,10 @@ You'll be presented with a warning screen advising that the selected images will
 
 ## Changelog
 
+#### 0.0.4
+
+- Fix to make sure environment variables are parsed for asset sources.
+
 #### 0.0.3
 
 - Added batch processing for existing assets.
