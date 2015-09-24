@@ -26,6 +26,8 @@ You'll be presented with a warning screen advising that the selected images will
 
 <img src="https://raw.githubusercontent.com/engram-design/ImageResizer/master/screenshots/resizeelementaction.png" width="400" />
 
+Under the hood, the batch processing is run through Craft's Tasks service, which will allow you to process plenty of images at once, without timing out.
+
 
 ## Roadmap
 
@@ -33,6 +35,10 @@ You'll be presented with a warning screen advising that the selected images will
 
 
 ## Changelog
+
+#### 0.0.5
+
+- Performance improvements - now uses Tasks to handle batch resizing.
 
 #### 0.0.4
 

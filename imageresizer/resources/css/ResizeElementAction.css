@@ -38,3 +38,12 @@
 }
 
 
+
+.image-resizer-modal .task {
+    margin: 2.5em 0;
+}
+
+.image-resizer-modal .task .task-status {
+    text-align: center;
+    font-weight: bold;
+}

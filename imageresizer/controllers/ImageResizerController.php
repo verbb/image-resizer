@@ -10,17 +10,10 @@ class ImageResizerController extends BaseController
 
         $assetIds = craft()->request->getRequiredPost('assetIds');
 
-        $assets = array();
-        foreach ($assetIds as $assetId) {
-            $asset = craft()->assets->getFileById($assetId);
+        craft()->tasks->createTask('ImageResizer', 'Resizing images', array(
+            'assets' => $assetIds,
+        ));
 
-            // Do the resizing
-            $asset = craft()->imageResizer->resize($asset);
-
-            // We really only need the size value for the UI
-            $assets[$asset->id] = craft()->formatter->formatSize($asset->size);
-        }
-
-        $this->returnJson(array('success' => $assets));
+        craft()->end();
     }
 }

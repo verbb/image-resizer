@@ -16,8 +16,16 @@ class ImageResizerService extends BaseApplicationComponent
         return $this->getPlugin()->getSettings();
     }
 
+    public function test()
+    {
+        ImageResizerPlugin::log('fsdfgdfg', LogLevel::Error, true);
+    }
+
     public function resize($asset)
     {
+
+        ImageResizerPlugin::log(print_r($asset, true), LogLevel::Error, true);
+
         // Get the full path of the asset we want to resize
         $path = $this->_getImagePath($asset);
 
