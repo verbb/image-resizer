@@ -26,12 +26,13 @@ You'll be presented with a warning screen advising that the selected images will
 
 <img src="https://raw.githubusercontent.com/engram-design/ImageResizer/master/screenshots/resizeelementaction.png" width="400" />
 
-Under the hood, the batch processing is run through Craft's Tasks service, which will allow you to process plenty of images at once, without timing out.
+Under the hood, the batch processing is run through Craft's Tasks service, which will allow you to process plenty of images at once, without timing out or running into memory issues.
 
 
 ## Roadmap
 
 - Provide cropping options for uploaded images.
+- Allow Asset folder selection in addition to source.
 
 
 ## Changelog
