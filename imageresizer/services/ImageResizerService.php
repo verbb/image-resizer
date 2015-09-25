@@ -16,16 +16,8 @@ class ImageResizerService extends BaseApplicationComponent
         return $this->getPlugin()->getSettings();
     }
 
-    public function test()
-    {
-        ImageResizerPlugin::log('fsdfgdfg', LogLevel::Error, true);
-    }
-
     public function resize($asset)
     {
-
-        ImageResizerPlugin::log(print_r($asset, true), LogLevel::Error, true);
-
         // Get the full path of the asset we want to resize
         $path = $this->_getImagePath($asset);
 
@@ -61,26 +53,70 @@ class ImageResizerService extends BaseApplicationComponent
 
             $image->saveAs($path);
 
-            // Update our model
-            $asset->size         = IOHelper::getFileSize($path);
-            $asset->width        = $image->getWidth();
-            $asset->height       = $image->getHeight();
-
-            // Then, make sure we update the asset info as stored in the database
-            $fileRecord = AssetFileRecord::model()->findById($asset->id);
-            $fileRecord->size         = $asset->size;
-            $fileRecord->width        = $asset->width;
-            $fileRecord->height       = $asset->height;
-
-            $fileRecord->save(false);
+            // Update the asset record to reflect changes
+            $this->_updateAsset($asset, $image, $path);
         }
 
         return $asset;
     }
 
+    public function crop($asset, $x1, $x2, $y1, $y2)
+    {
+        // Get the full path for the asset being uploaded
+        $source = $asset->getSource();
+
+        // Can only deal with local assets for now
+        if ($source->type != 'Local') {
+            return false;
+        }
+
+        $sourcePath = craft()->config->parseEnvironmentString($source->settings['path']);
+        $folderPath = $asset->getFolder()->path;
+
+        $path = $sourcePath . $folderPath . $asset->filename;
+
+        // Memory checking
+        if (craft()->images->checkMemoryForImage($path)) {
+
+            $image = craft()->images->loadImage($path);
+
+            // Make sure that image quality isn't messed with for cropping
+            $quality = $this->_getImageQuality($asset, 100);
+            $image->setQuality($quality);
+
+            // Do the cropping
+            $image->crop($x1, $x2, $y1, $y2);
+            $image->saveAs($path);
+
+            // Update the asset record to reflect changes
+            $this->_updateAsset($asset, $image, $path);
+
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 
     // Private Methods
     // =========================================================================
+
+    private function _updateAsset($asset, $image, $path)
+    {
+        // Update our model
+        $asset->size         = IOHelper::getFileSize($path);
+        $asset->width        = $image->getWidth();
+        $asset->height       = $image->getHeight();
+
+        // Then, make sure we update the asset info as stored in the database
+        $fileRecord = AssetFileRecord::model()->findById($asset->id);
+        $fileRecord->size         = $asset->size;
+        $fileRecord->width        = $asset->width;
+        $fileRecord->height       = $asset->height;
+        $fileRecord->dateModified = IOHelper::getLastTimeModified($path);
+
+        $fileRecord->save(false);
+    }
 
     private function _getImagePath($asset)
     {
@@ -107,12 +143,14 @@ class ImageResizerService extends BaseApplicationComponent
         return $sourcePath . $folderPath . $asset->filename;
     }
 
-    private function _getImageQuality($asset)
+    private function _getImageQuality($asset, $quality = null)
     {
+        $desiredQuality = (!$quality) ? $this->getSettings()->imageQuality : $quality;
+
         if ($asset->getExtension() == 'png') {
             // Valid PNG quality settings are 0-9, so normalize and flip, because we're talking about compression
             // levels, not quality, like jpg and gif.
-            $quality = round(($this->getSettings()->imageQuality * 9) / 100);
+            $quality = round(($desiredQuality * 9) / 100);
             $quality = 9 - $quality;
 
             if ($quality < 0) {
@@ -123,7 +161,7 @@ class ImageResizerService extends BaseApplicationComponent
                 $quality = 9;
             }
         } else {
-            $quality = $this->getSettings()->imageQuality;
+            $quality = $desiredQuality;
         }
 
         return $quality;

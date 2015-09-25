@@ -29,13 +29,33 @@ You'll be presented with a warning screen advising that the selected images will
 Under the hood, the batch processing is run through Craft's Tasks service, which will allow you to process plenty of images at once, without timing out or running into memory issues.
 
 
+## Cropping
+
+You can crop any image through the Assets Index screen, by clicking on the Actions button, and select Crop image. You can only crop one image at a time. There are several preset options related to the aspect ratio to control how cropping is controlled, and are selected through the Crop modal window.
+
+Activating the cropping interface upon upload of new images is on the Roadmap, and will be released soon.
+
+<img src="https://raw.githubusercontent.com/engram-design/ImageResizer/master/screenshots/cropping.png" width="400" />
+
+Aspect ratio options are:
+
+- **Free:** No restrictions 
+- **Square:** Restricted to square crop
+- **Constrain:** Restricted to the aspect ratio of the image
+- **4:3:** Restricted to a 4:3 aspect ratio crop
+
+
 ## Roadmap
 
-- Provide cropping options for uploaded images.
+- Provide cropping options on-upload.
 - Allow Asset folder selection in addition to source.
 
 
 ## Changelog
+
+#### 0.0.6
+
+- Added cropping option to Element Actions.
 
 #### 0.0.5
 

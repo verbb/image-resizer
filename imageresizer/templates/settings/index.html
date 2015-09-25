@@ -1,48 +1,61 @@
 {% import "_includes/forms" as forms %}
 
-{{ forms.lightswitchField({
-    label: 'Enabled' | t,
-    instructions: 'Whether uploaded images should be resized or not.' | t,
-    id: 'enabled',
-    name: 'enabled',
-    on: settings.enabled,
-    first: true,
-}) }}
+{% includeCssResource 'imageresizer/css/Settings.css' %}
 
-{{ forms.textField({
-    label: 'Image Width' | t,
-    instructions: 'The maximum width in pixels allowed for uploaded images.' | t,
-    id: 'imageWidth',
-    name: 'imageWidth',
-    value: settings.imageWidth,
-    size: 10,
-}) }}
+<div class="pane first tableview settings-tabs">
+    <nav id="settings-tabs" class="tabs">
+        <ul>
+            <li class="label">Settings</li>
+            <li><a id="settings-tab-general" class="tab sel" href="#settings-resize" tabindex="0">Resize</a></li>
+        </ul>
+    </nav>
+</div>
 
-{{ forms.textField({
-    label: 'Image Height' | t,
-    instructions: 'The maximum height in pixels allowed for uploaded images.' | t,
-    id: 'imageHeight',
-    name: 'imageHeight',
-    value: settings.imageHeight,
-    size: 10,
-}) }}
+<div id="resize">
+    {{ forms.lightswitchField({
+        label: 'Resize on upload' | t,
+        instructions: 'Whether uploaded images should be automatically resized. This does not effect batch processing.' | t,
+        id: 'enabled',
+        name: 'enabled',
+        on: settings.enabled,
+        first: true,
+    }) }}
 
-{{ forms.textField({
-    label: 'Quality' | t,
-    instructions: 'Enter a value from 0-100 for resized image quality.' | t,
-    id: 'imageQuality',
-    name: 'imageQuality',
-    size: 10,
-    value: settings.imageQuality,
-}) }}
+    {{ forms.textField({
+        label: 'Image Width' | t,
+        instructions: 'The maximum width in pixels allowed for uploaded images.' | t,
+        id: 'imageWidth',
+        name: 'imageWidth',
+        value: settings.imageWidth,
+        size: 10,
+    }) }}
 
-{{ forms.checkboxSelectField({
-    label: 'Asset Sources' | t,
-    instructions: 'Select which asset sources you want to allow Image Resizer work with.' | t,
-    id: 'assetSources',
-    name: 'assetSources',
-    values: settings.assetSources,
-    options: sourceOptions,
-}) }}
+    {{ forms.textField({
+        label: 'Image Height' | t,
+        instructions: 'The maximum height in pixels allowed for uploaded images.' | t,
+        id: 'imageHeight',
+        name: 'imageHeight',
+        value: settings.imageHeight,
+        size: 10,
+    }) }}
+
+    {{ forms.textField({
+        label: 'Quality' | t,
+        instructions: 'Enter a value from 0-100 for resized image quality.' | t,
+        id: 'imageQuality',
+        name: 'imageQuality',
+        size: 10,
+        value: settings.imageQuality,
+    }) }}
+
+    {{ forms.checkboxSelectField({
+        label: 'Asset Sources' | t,
+        instructions: 'Select which asset sources you want to allow Image Resizer work with.' | t,
+        id: 'assetSources',
+        name: 'assetSources',
+        values: settings.assetSources,
+        options: sourceOptions,
+    }) }}
+</div>
 
 <hr>

@@ -14,7 +14,7 @@ class ImageResizerPlugin extends BasePlugin
 
     public function getVersion()
     {
-        return '0.0.5';
+        return '0.0.6';
     }
 
     public function getDeveloper()
@@ -60,8 +60,9 @@ class ImageResizerPlugin extends BasePlugin
     public function init()
     {
         craft()->on('assets.onSaveAsset', function(Event $event) {
+            $asset = $event->params['asset'];
+
             if (craft()->imageResizer->getSettings()->enabled) {
-                $asset = $event->params['asset'];
 
                 // Only process if it's a new asset being saved - and if its actually an image
                 if ($event->params['isNewAsset'] && $asset->kind == 'image') {
@@ -73,6 +74,6 @@ class ImageResizerPlugin extends BasePlugin
 
     public function addAssetActions()
     {
-        return array('ImageResizer_ResizeImage');
+        return array('ImageResizer_ResizeImage', 'ImageResizer_CropImage');
     }
 }
