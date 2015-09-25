@@ -49,6 +49,7 @@ Aspect ratio options are:
 
 - Provide cropping options on-upload.
 - Allow Asset folder selection in addition to source.
+- Provide hook for third-party Aspect Ratio options.
 
 
 ## Changelog
