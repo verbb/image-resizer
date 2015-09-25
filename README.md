@@ -2,8 +2,6 @@
 
 Image Resizer is a Craft plugin that resizes your assets when they are uploaded. This allows huge images to be resized so as not to use up unnecessary disk space, but still kept at a reasonable resolution. This plugin is not a replacement for using image transforms throughout your site.
 
-The aspect ratio of images are maintained, and will always match the maximum width/height options in your plugin settings. For example, given a 4000 x 2500px image and a max width/height of 1024px, the resulting image would be 1024 x 640px.
-
 ## Install
 
 - Add the `imageresize` directory into your `craft/plugins` directory.
@@ -16,9 +14,17 @@ The aspect ratio of images are maintained, and will always match the maximum wid
 - Set the quality for resized images between 0-100. Set to 100 by default.
 - Select which Asset sources you want resizing to be performed on.
 
-## Batch processing
 
-To batch process any images, use the Assets Index to select which image files you'd like to resize, click on the Actions button and select Resize image.
+## Resizing
+
+Resizing of images can be setup to run automatically (through the plugin settings) whenever new images are uploaded. The aspect ratio of images are maintained, and will always match the maximum width/height options in your plugin settings. For example, given a 4000 x 2500px image and a max width/height of 1024px, the resulting image would be 1024 x 640px.
+
+Please note that resizing of images will **permanently** alter the original uploaded image, so be sure to set the maximum allowed size to something that works for your purposes, while maintaining image quality.
+
+
+## Batch Resizing
+
+To batch resize images, use the Assets Index to select which image files you'd like to resize, click on the Actions button and select Resize image.
 
 <img src="https://raw.githubusercontent.com/engram-design/ImageResizer/master/screenshots/elementactions.png" width="250" />
 
@@ -31,7 +37,7 @@ Under the hood, the batch processing is run through Craft's Tasks service, which
 
 ## Cropping
 
-You can crop any image through the Assets Index screen, by clicking on the Actions button, and select Crop image. You can only crop one image at a time. There are several preset options related to the aspect ratio to control how cropping is controlled, and are selected through the Crop modal window.
+You can crop any image through the Assets Index screen, by clicking on the Actions button, and selecting Crop image. You can only crop one image at a time. There are several preset options related to the aspect ratio to control how cropping is controlled, and are selected through the Crop modal window.
 
 Activating the cropping interface upon upload of new images is on the Roadmap, and will be released soon.
 
