@@ -14,7 +14,7 @@ class ImageResizerPlugin extends BasePlugin
 
     public function getVersion()
     {
-        return '0.0.6';
+        return '0.0.7';
     }
 
     public function getDeveloper()
@@ -64,9 +64,13 @@ class ImageResizerPlugin extends BasePlugin
 
             if (craft()->imageResizer->getSettings()->enabled) {
 
-                // Only process if it's a new asset being saved - and if its actually an image
-                if ($event->params['isNewAsset'] && $asset->kind == 'image') {
-                    craft()->imageResizer->resize($asset);
+                // Only process if it's a new asset being saved.
+                if ($event->params['isNewAsset']) {
+
+                    // Is this a manipulatable image?
+                    if (ImageHelper::isImageManipulatable(IOHelper::getExtension($asset->filename))) {
+                        craft()->imageResizer->resize($asset);
+                    }
                 }
             }
         });

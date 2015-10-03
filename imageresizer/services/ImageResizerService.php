@@ -18,46 +18,52 @@ class ImageResizerService extends BaseApplicationComponent
 
     public function resize($asset)
     {
-        // Get the full path of the asset we want to resize
-        $path = $this->_getImagePath($asset);
+        try {
+            // Get the full path of the asset we want to resize
+            $path = $this->_getImagePath($asset);
 
-        // If the path is false, we're not allowed to modify images in the source - kill it!
-        if (!$path) {
-            return true;
+            // If the path is false, we're not allowed to modify images in the source - kill it!
+            if (!$path) {
+                return true;
+            }
+
+            $image = craft()->images->loadImage($path);
+
+            // Our maximum width/height for assets from plugin settings
+            $imageWidth = $this->getSettings()->imageWidth;
+            $imageHeight = $this->getSettings()->imageHeight;
+
+            // Lets check to see if this image needs resizing. Split into two steps to ensure
+            // proper aspect ratio is preserved and no upscaling occurs.
+            $hasResized = false;
+
+            if ($image->getWidth() > $imageWidth) {
+                $hasResized = true;
+                $this->_resizeImage($image, $imageWidth, null);
+            }
+
+            if ($image->getHeight() > $imageHeight) {
+                $hasResized = true;
+                $this->_resizeImage($image, null, $imageHeight);
+            }
+
+            if ($hasResized) {
+                // Set image quality - but normalise (for PNG)!
+                $quality = $this->_getImageQuality($asset);
+                $image->setQuality($quality);
+
+                $image->saveAs($path);
+
+                // Update the asset record to reflect changes
+                $this->_updateAsset($asset, $image, $path);
+            }
+
+            return $asset;
+        } catch (\Exception $e) {
+            ImageResizerPlugin::log($e->getMessage(), LogLevel::Error, true);
+
+            return false;
         }
-
-        $image = craft()->images->loadImage($path);
-
-        // Our maximum width/height for assets from plugin settings
-        $imageWidth = $this->getSettings()->imageWidth;
-        $imageHeight = $this->getSettings()->imageHeight;
-
-        // Lets check to see if this image needs resizing. Split into two steps to ensure
-        // proper aspect ratio is preserved and no upscaling occurs.
-        $hasResized = false;
-
-        if ($image->getWidth() > $imageWidth) {
-            $hasResized = true;
-            $this->_resizeImage($image, $imageWidth, null);
-        }
-
-        if ($image->getHeight() > $imageHeight) {
-            $hasResized = true;
-            $this->_resizeImage($image, null, $imageHeight);
-        }
-
-        if ($hasResized) {
-            // Set image quality - but normalise (for PNG)!
-            $quality = $this->_getImageQuality($asset);
-            $image->setQuality($quality);
-
-            $image->saveAs($path);
-
-            // Update the asset record to reflect changes
-            $this->_updateAsset($asset, $image, $path);
-        }
-
-        return $asset;
     }
 
     public function crop($asset, $x1, $x2, $y1, $y2)

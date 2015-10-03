@@ -60,6 +60,11 @@ Aspect ratio options are:
 
 ## Changelog
 
+#### 0.0.7
+
+- Fix to ensure images uploaded are both an image, and manipulatable.
+- Better error-catching for resizing.
+
 #### 0.0.6
 
 - Added cropping option to Element Actions.
