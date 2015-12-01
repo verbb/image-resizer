@@ -17,72 +17,6 @@ Craft.CropElementAction = Garnish.Base.extend({
 
 });
 
-
-Craft.Test = Garnish.Base.extend({
-    
-    init: function() {
-        // Prevent firing multiple times
-        if (typeof globalCropFunction == "undefined") {
-
-            setTimeout(function() {
-
-                
-                //currentUploader.events.on('fileuploadadd', function() {
-                //    console.log('elementindex')
-                //});
-/*
-    $includeSubfoldersContainer: null,
-    $includeSubfoldersCheckbox: null,
-    showingIncludeSubfoldersCheckbox: false,
-
-    $uploadButton: null,
-    $uploadInput: null,
-    $progressBar: null,
-    $folders: null,
-
-    uploader: null,
-    promptHandler: null,
-    progressBar: null,
-
-    _uploadTotalFiles: 0,
-    _uploadFileProgress: {},
-    _uploadedFileIds: [],
-    _currentUploaderSettings: {},
-
-    _fileDrag: null,
-    _folderDrag: null,
-    _expandDropTargetFolderTimeout: null,
-    _tempExpandedFolders: [],
-*/
-
-                
-
-                Craft.elementIndex.$uploadButton.bind('fileuploaddone', function(e, data) {
-                    console.log(e)
-                    console.log(data)
-                });
-
-
-
-            }, 1);
-
-
-/*
-
-    $win: $(window),
-    $doc: $(document),
-    $bod: $(document.body)
-
-*/
-
-
-
-            
-        }
-    },
-
-});
-
 Craft.CropImageModal = Garnish.Modal.extend(
 {
     $element: null,
@@ -162,17 +96,15 @@ Craft.CropImageModal = Garnish.Modal.extend(
 
         this.$aspectRatioSelect.find('.select-option').html($option.text());
 
-        var $imgAreaSelect = $img.imgAreaSelect({ instance: true });
         var x = 0;
         var y = 0;
         var width = $img.width();
         var height = $img.height();
 
         if ($option.data('action') == 'free') {
-            $imgAreaSelect.setOptions({ aspectRatio: 'auto' });
+            this.areaSelect.setOptions({ aspectRatio: null });
         } else if ($option.data('action') == 'square') {
-
-            $imgAreaSelect.setOptions({ aspectRatio: '1:1' });
+            this.areaSelect.setOptions({ aspectRatio: 1 / 1 });
 
             if (width > height) {
                 width = height;
@@ -181,10 +113,10 @@ Craft.CropImageModal = Garnish.Modal.extend(
             }
 
         } else if ($option.data('action') == 'constrain') {
-            $imgAreaSelect.setOptions({ aspectRatio: width + ':' + height });
+            this.areaSelect.setOptions({ aspectRatio: width / height });
         } else if ($option.data('action') == '4_3') {
 
-            $imgAreaSelect.setOptions({ aspectRatio: '4:3' });
+            this.areaSelect.setOptions({ aspectRatio: 4 / 3 });
 
             if (width > height) {
                 width = Math.round((height / 3) * 4);
@@ -192,9 +124,6 @@ Craft.CropImageModal = Garnish.Modal.extend(
                 height = Math.round((width / 4) * 3);
             }
         }
-
-        // Nice animation!
-        $imgAreaSelect.animateSelection(x, y, width, height, 'slow');
     },
 
     onFadeOut: function() {
@@ -217,54 +146,22 @@ Craft.CropImageModal = Garnish.Modal.extend(
                         initialRectangle: {
                             mode: "auto"
                         }
-                    });
+                    }, this);
 
-                    this.areaSelect.showArea(this);
-
-                    this.resize();
+                    this.areaSelect.showArea();
                 }, this));
             }
             
         }, this));
     },
 
-    resize: function () {
-        var $img = this.$container.find('img'),
-            leftDistance = parseInt(this.$container.css('left'), 10),
-            topDistance = parseInt(this.$container.css('top'), 10);
-
-        var quotient = this.originalWidth / this.originalHeight,
-            leftAvailable = leftDistance - 10,
-            topAvailable = topDistance - 10;
-
-        if (leftAvailable / quotient > topAvailable) {
-            newWidth = this.$container.width() + (topAvailable * quotient);
-        } else {
-            newWidth = this.$container.width() + leftAvailable;
-        }
-
-        // Set the size so that the image always fits into a constraint x constraint box
-        newWidth = Math.min(newWidth, this.constraint, this.constraint * quotient, this.originalWidth);
-        this.$container.width(newWidth);
-
-        var factor = newWidth / this.originalWidth,
-            newHeight = this.originalHeight * factor;
-
-        $img.height(newHeight).width(newWidth);
-        this.factor = factor;
-
-        if (typeof $img.imgAreaSelect({instance: true}) != "undefined") {
-            $img.imgAreaSelect({instance: true}).update();
-        }
-    },
-
     saveImage: function() {
-        var selection = this.areaSelect.getSelection();
+        var selection = this.areaSelect.tellSelect();
 
         var params = {
-            x1: Math.round(selection.x1 / this.factor),
+            x1: Math.round(selection.x / this.factor),
             x2: Math.round(selection.x2 / this.factor),
-            y1: Math.round(selection.y1 / this.factor),
+            y1: Math.round(selection.y / this.factor),
             y2: Math.round(selection.y2 / this.factor),
             source: this.source,
         };
@@ -295,97 +192,74 @@ Craft.CropImageModal = Garnish.Modal.extend(
 });
 
 Craft.CropImageAreaTool = Garnish.Base.extend({
+    api: null,
     $container: null,
+    containingModal: null,
 
-    init: function($container, settings) {
+    init: function($container, settings, containingModal) {
         this.$container = $container;
         this.setSettings(settings);
+        this.containingModal = containingModal;
     },
 
     showArea: function(referenceObject) {
         var $target = this.$container.find('img');
 
-        var areaOptions = {
+        var cropperOptions = {
             aspectRatio: this.settings.aspectRatio,
-            maxWidth: $target.width(),
-            maxHeight: $target.height(),
-            instance: true,
-            resizable: true,
-            show: true,
-            persistent: true,
-            handles: true,
-            parent: $target.parent(),
-            classPrefix: 'imgareaselect'
+            maxSize: [$target.width(), $target.height()],
+            bgColor: 'black'
         };
 
-        var areaSelect = $target.imgAreaSelect(areaOptions);
+        var initCropper = $.proxy(function(api) {
+            this.api = api;
 
-        var x1 = this.settings.initialRectangle.x1;
-        var x2 = this.settings.initialRectangle.x2;
-        var y1 = this.settings.initialRectangle.y1;
-        var y2 = this.settings.initialRectangle.y2;
+            var x1 = this.settings.initialRectangle.x1;
+            var x2 = this.settings.initialRectangle.x2;
+            var y1 = this.settings.initialRectangle.y1;
+            var y2 = this.settings.initialRectangle.y2;
 
-        if (this.settings.initialRectangle.mode == "auto") {
-            var proportions = this.settings.aspectRatio.split(":");
-            var rectangleWidth = 0;
-            var rectangleHeight = 0;
+            if (this.settings.initialRectangle.mode == "auto") {
+                var rectangleWidth = 0;
+                var rectangleHeight = 0;
 
-            // [0] - width proportion, [1] - height proportion
-            if (proportions[0] > proportions[1]) {
-                rectangleWidth = $target.width();
-                rectangleHeight = rectangleWidth * proportions[1] / proportions[0];
-            } else if (proportions[0] > proportions[1]) {
-                rectangleHeight = $target.height();
-                rectangleWidth = rectangleHeight * proportions[0] / proportions[1];
-            } else {
-                rectangleHeight = rectangleWidth = Math.min($target.width(), $target.height());
+                if (this.settings.aspectRatio == "") {
+                    rectangleWidth = $target.width();
+                    rectangleHeight = $target.height();
+                } else if (this.settings.aspectRatio > 1) {
+                    rectangleWidth = $target.width();
+                    rectangleHeight = rectangleWidth / this.settings.aspectRatio;
+                } else if (this.settings.aspectRatio < 1) {
+                    rectangleHeight = $target.height();
+                    rectangleWidth = rectangleHeight * this.settings.aspectRatio;
+                } else {
+                    rectangleHeight = rectangleWidth = Math.min($target.width(), $target.height());
+                }
+
+                x1 = Math.round(($target.width() - rectangleWidth) / 2);
+                y1 = Math.round(($target.height() - rectangleHeight) / 2);
+                x2 = x1 + rectangleWidth;
+                y2 = y1 + rectangleHeight;
             }
 
-            x1 = 0;
-            y1 = 0;
-            x2 = $target.width();
-            y2 = $target.height();
-        }
+            this.api.setSelect([x1, y1, x2, y2]);
 
-        areaSelect.setSelection(x1, y1, x2, y2);
-        areaSelect.update();
+            // Make sure we never go below 400px wide
+            this.containingModal.desiredWidth = ($target.attr('width') <= 400) ? 400 : false;
+            this.containingModal.desiredHeight = false;
 
-        // Make sure we never go below 400px wide
-        referenceObject.desiredWidth = ($target.attr('width') <= 400) ? 400 : false;
-        referenceObject.desiredHeight = false;
+            this.containingModal.areaSelect = this.api;
+            this.containingModal.factor = $target.data('factor');
+            this.containingModal.originalHeight = $target.attr('height') / this.containingModal.factor;
+            this.containingModal.originalWidth = $target.attr('width') / this.containingModal.factor;
+            this.containingModal.constraint = $target.data('constraint');
+            this.containingModal.source = $target.attr('src').split('/').pop();
+            this.containingModal.updateSizeAndPosition();
 
-        referenceObject.areaSelect = areaSelect;
-        referenceObject.factor = $target.data('factor');
-        referenceObject.originalHeight = $target.attr('height') / referenceObject.factor;
-        referenceObject.originalWidth = $target.attr('width') / referenceObject.factor;
-        referenceObject.constraint = $target.data('constraint');
-        referenceObject.source = $target.attr('src').split('/').pop();
-        referenceObject.updateSizeAndPosition();
-    }
-});
+        }, this);
 
-$.extend($.imgAreaSelect.prototype, {
-    animateSelection: function (x1, y1, x2, y2, duration) {
-        var fx = $.extend($('<div/>')[0], {
-            ias: this,
-            start: this.getSelection(),
-            end: { x1: x1, y1: y1, x2: x2, y2: y2 }
-        });
-
-        $(fx).animate({
-            cur: 1
-        },
-        {
-            duration: duration,
-            step: function (now, fx) {
-                var start = fx.elem.start, end = fx.elem.end,
-                    curX1 = Math.round(start.x1 + (end.x1 - start.x1) * now),
-                    curY1 = Math.round(start.y1 + (end.y1 - start.y1) * now),
-                    curX2 = Math.round(start.x2 + (end.x2 - start.x2) * now),
-                    curY2 = Math.round(start.y2 + (end.y2 - start.y2) * now);
-                fx.elem.ias.setSelection(curX1, curY1, curX2, curY2);
-                fx.elem.ias.update();
-            }
+        $target.Jcrop(cropperOptions, function() {
+            initCropper(this);
         });
     }
 });

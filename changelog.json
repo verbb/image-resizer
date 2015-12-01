@@ -1,0 +1,70 @@
+[
+    {
+        "version": "0.1.0",
+        "downloadUrl": "https://github.com/engram-design/ImageResizer/archive/0.1.0.zip",
+        "date": "2015-12-02 08:30:00",
+        "notes": [
+            "[Added] Craft 2.5 support, including release feed and icons."
+        ]
+    },
+    {
+        "version": "0.0.7",
+        "downloadUrl": "https://github.com/engram-design/ImageResizer/archive/0.0.7.zip",
+        "date": "2015-10-03 00:00:00",
+        "notes": [
+            "[Improved] Better error-catching for resizing.",
+            "[Fixed] Fix to ensure images uploaded are both an image, and manipulatable."
+        ]
+    },
+    {
+        "version": "0.0.6",
+        "downloadUrl": "https://github.com/engram-design/ImageResizer/archive/0.0.6.zip",
+        "date": "2015-09-25 00:00:00",
+        "notes": [
+            "[Added] Added cropping option to Element Actions."
+        ]
+    },
+    {
+        "version": "0.0.5",
+        "downloadUrl": "https://github.com/engram-design/ImageResizer/archive/0.0.5.zip",
+        "date": "2015-09-24 00:00:00",
+        "notes": [
+            "[Improved] Performance improvements - now uses Tasks to handle batch resizing."
+        ]
+    },
+    {
+        "version": "0.0.4",
+        "downloadUrl": "https://github.com/engram-design/ImageResizer/archive/0.0.4.zip",
+        "date": "2015-09-22 00:00:00",
+        "notes": [
+            "[Fixed] Fix to make sure environment variables are parsed for asset sources."
+        ]
+    },
+    {
+        "version": "0.0.3",
+        "downloadUrl": "https://github.com/engram-design/ImageResizer/archive/0.0.3.zip",
+        "date": "2015-09-21 00:00:00",
+        "notes": [
+            "[Added] Added batch processing for existing assets.",
+            "[Added] Added image quality option."
+        ]
+    },
+    {
+        "version": "0.0.2",
+        "downloadUrl": "https://github.com/engram-design/ImageResizer/archive/0.0.2.zip",
+        "date": "2015-09-20 00:00:00",
+        "notes": [
+            "[Added] Added option to restrict resizing to specific Asset sources.",
+            "[Improved] Moved hook from `onBeforeSaveAsset` to `onSaveAsset`.",
+            "[Improved] Asset record is updated after resize, reflecting new image width/height/size."
+        ]
+    },
+    {
+        "version": "0.0.1",
+        "downloadUrl": "https://github.com/engram-design/ImageResizer/archive/0.0.1.zip",
+        "date": "2015-09-19 00:00:00",
+        "notes": [
+            "Initial release"
+        ]
+    }
+]

@@ -58,36 +58,11 @@ Aspect ratio options are:
 - Provide hook for third-party Aspect Ratio options.
 
 
+## Compatibility
+
+Requires Craft 2.5+ to run.
+
+
 ## Changelog
 
-#### 0.0.7
-
-- Fix to ensure images uploaded are both an image, and manipulatable.
-- Better error-catching for resizing.
-
-#### 0.0.6
-
-- Added cropping option to Element Actions.
-
-#### 0.0.5
-
-- Performance improvements - now uses Tasks to handle batch resizing.
-
-#### 0.0.4
-
-- Fix to make sure environment variables are parsed for asset sources.
-
-#### 0.0.3
-
-- Added batch processing for existing assets.
-- Added image quality option.
-
-#### 0.0.2
-
-- Moved hook from `onBeforeSaveAsset` to `onSaveAsset`.
-- Asset record is updated after resize, reflecting new image width/height/size.
-- Added option to restrict resizing to specific Asset sources.
-
-#### 0.0.1
-
-- Initial release.
+[View JSON Changelog](https://github.com/engram-design/ImageResizer/blob/master/changelog.json)

@@ -30,3 +30,7 @@
 body.ltr .buttons.leftalign {
     float: left;
 }
+
+body.ltr .buttons.rightalign {
+    float: right;
+}
