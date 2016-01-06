@@ -53,6 +53,7 @@ Aspect ratio options are:
 
 ## Roadmap
 
+- Support non-local Asset sources.
 - Provide cropping options on-upload.
 - Allow Asset folder selection in addition to source.
 - Provide hook for third-party Aspect Ratio options.
@@ -61,6 +62,8 @@ Aspect ratio options are:
 ## Compatibility
 
 Requires Craft 2.5+ to run.
+
+Asset sources must be local, and not on Rackspace Cloud Files, Amazon S3, or Google Cloud Storage.
 
 
 ## Changelog
