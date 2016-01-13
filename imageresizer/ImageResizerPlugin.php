@@ -14,7 +14,7 @@ class ImageResizerPlugin extends BasePlugin
 
     public function getVersion()
     {
-        return '0.1.0';
+        return '0.1.1';
     }
 
     public function getSchemaVersion()
@@ -44,7 +44,7 @@ class ImageResizerPlugin extends BasePlugin
 
     public function getReleaseFeedUrl()
     {
-        return $this->getPluginUrl() . '/blob/master/changelog.json';
+        return 'https://raw.githubusercontent.com/engram-design/ImageResizer/blob/master/changelog.json';
     }
 
     public function getSettingsHtml()
