@@ -44,7 +44,7 @@ class ImageResizerPlugin extends BasePlugin
 
     public function getReleaseFeedUrl()
     {
-        return 'https://raw.githubusercontent.com/engram-design/ImageResizer/blob/master/changelog.json';
+        return 'https://raw.githubusercontent.com/engram-design/ImageResizer/master/changelog.json';
     }
 
     public function getSettingsHtml()
