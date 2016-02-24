@@ -2,6 +2,8 @@
 
 Image Resizer is a Craft plugin that resizes your assets when they are uploaded. This allows huge images to be resized so as not to use up unnecessary disk space, but still kept at a reasonable resolution. This plugin is not a replacement for using image transforms throughout your site.
 
+Image Resizer works for all Asset Sources: Local, Rackspace Cloud Files, Amazon S3, and Google Cloud Storage.
+
 ## Install
 
 - Add the `imageresize` directory into your `craft/plugins` directory.
@@ -53,17 +55,15 @@ Aspect ratio options are:
 
 ## Roadmap
 
-- Support non-local Asset sources.
 - Provide cropping options on-upload.
 - Allow Asset folder selection in addition to source.
 - Provide hook for third-party Aspect Ratio options.
+- Add more features for full-featured image editor.
 
 
 ## Compatibility
 
 Requires Craft 2.5+ to run.
-
-Asset sources must be local, and not on Rackspace Cloud Files, Amazon S3, or Google Cloud Storage.
 
 
 ## Changelog
