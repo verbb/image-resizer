@@ -28,8 +28,17 @@ class ImageResizerTask extends BaseTask
     {
         $asset = craft()->assets->getFileById($this->_assets[$step]);
 
-        // Do the resizing
-        craft()->imageResizer->resize($asset);
+        $sourceType = craft()->assetSources->getSourceTypeById($asset->sourceId);
+        
+        $path = $sourceType->getImageSourcePath($asset);
+        $folder = $asset->folder;
+        $fileName = $asset->filename;
+
+        // Gives us a way to determine that this is different from an on-upload function
+        craft()->httpSession->add('ImageResizer_ResizeElementAction', true);
+
+        // This will trigger our `assets.onBeforeUploadAsset` hook
+        craft()->assets->insertFileByLocalPath($path, $fileName, $folder->id, AssetConflictResolution::Replace);
 
         return true;
     }

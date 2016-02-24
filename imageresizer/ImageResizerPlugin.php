@@ -14,7 +14,7 @@ class ImageResizerPlugin extends BasePlugin
 
     public function getVersion()
     {
-        return '0.1.1';
+        return '0.1.2';
     }
 
     public function getSchemaVersion()
@@ -87,19 +87,39 @@ class ImageResizerPlugin extends BasePlugin
 
     public function init()
     {
-        craft()->on('assets.onSaveAsset', function(Event $event) {
-            $asset = $event->params['asset'];
+        craft()->on('assets.onBeforeUploadAsset', function(Event $event) {
+            $path = $event->params['path'];
+            $folder = $event->params['folder'];
+            $filename = $event->params['filename'];
 
-            if (craft()->imageResizer->getSettings()->enabled) {
+            // If we've triggered this from our cropping action, don't resize too
+            if (craft()->httpSession->get('ImageResizer_CropElementAction')) {
+                craft()->httpSession->remove('ImageResizer_CropElementAction');
+                return true;
+            }
 
-                // Only process if it's a new asset being saved.
-                if ($event->params['isNewAsset']) {
+            // If this has been trigged from the element actions, bypass everything below
+            if (!craft()->httpSession->get('ImageResizer_ResizeElementAction')) {
+                // Make sure we check out config setting
+                if (craft()->imageResizer->getSettings()->enabled) {
 
-                    // Is this a manipulatable image?
-                    if (ImageHelper::isImageManipulatable(IOHelper::getExtension($asset->filename))) {
-                        craft()->imageResizer->resize($asset);
+                    // Should we be modifying images in this source?
+                    $assetSources = craft()->imageResizer->getSettings()->assetSources;
+
+                    if ($assetSources != '*') {
+                        if (!in_array($folder->source->id, $assetSources)) {
+                            return true;
+                        }
                     }
                 }
+            } else {
+                // If we are from a element action - delete this so it doesn't persist
+                craft()->httpSession->remove('ImageResizer_ResizeElementAction');
+            }
+
+            // Is this a manipulatable image?
+            if (ImageHelper::isImageManipulatable(IOHelper::getExtension($filename))) {
+                craft()->imageResizer_resize->resize($path);
             }
         });
     }

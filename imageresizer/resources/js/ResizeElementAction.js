@@ -85,25 +85,25 @@ Craft.ResizeModal = Garnish.Modal.extend({
 
         this.$footerSpinner.removeClass('hidden');
 
-        Craft.postActionRequest('imageResizer/resizeElementAction', { assetIds: dataIds }, $.proxy(function(response, textStatus) {
+        Craft.postActionRequest('imageResizer/resizeElementAction', { assetIds: dataIds }, $.proxy(function(response, textStatus) {}, this));
             
-            new Craft.ResizeTaskProgress(this, function() {
-                modal.$footerSpinner.addClass('hidden');
+        new Craft.ResizeTaskProgress(this, function() {
+            modal.$footerSpinner.addClass('hidden');
 
-                // In this case, no images were resized at all!
-                if (modal.$body.find('.task').length == 0) {
-                    var $container = $('<div class="task"/>').appendTo(modal.$body.find('.main'));
-                    var $statusContainer = $('<div class="task-status"/>').appendTo($container);
-                    $('<div><div data-icon="check"> ' + Craft.t('No images to resize!') + '</div>').appendTo($statusContainer);
-                }
+            // In this case, no images were resized at all!
+            if (modal.$body.find('.task').length == 0) {
+                var $container = $('<div class="task"/>').appendTo(modal.$body.find('.main'));
+                var $statusContainer = $('<div class="task-status"/>').appendTo($container);
+                $('<div><div data-icon="check"> ' + Craft.t('No images to resize!') + '</div>').appendTo($statusContainer);
+            }
 
-                setTimeout($.proxy(function() {
-                    modal.onFadeOut();
-                }), 1000);
-                   
-            });
+            setTimeout($.proxy(function() {
+                modal.onFadeOut();
 
-        }, this));
+                Craft.elementIndex.updateElements();
+            }), 1000);
+               
+        });
     }
 });
 
@@ -124,7 +124,12 @@ Craft.ResizeTaskProgress = Garnish.Base.extend({
         this.tasksById = {};
         this.completedTasks = [];
 
-        this.updateTasks();
+        // Force the tasks icon to run
+        setTimeout($.proxy(function() {
+            this.updateTasks();
+        }, this), 1000);
+
+        Craft.cp.stopTrackingTaskProgress();
     },
 
     updateTasks: function() {
@@ -132,7 +137,7 @@ Craft.ResizeTaskProgress = Garnish.Base.extend({
 
         Craft.postActionRequest('tasks/getTaskInfo', $.proxy(function(taskInfo, textStatus) {
             if (textStatus == 'success') {
-                this.showTaskInfo(taskInfo);
+                this.showTaskInfo(taskInfo[0]);
             }
         }, this))
     },
@@ -142,9 +147,7 @@ Craft.ResizeTaskProgress = Garnish.Base.extend({
         var newTaskIds = [];
 
         if (taskInfo) {
-            for (var i = 0; i < taskInfo.length; i++) {
-                newTaskIds.push(taskInfo[i].id);
-            }
+            newTaskIds.push(taskInfo.id);
         }
 
         for (var id in this.tasksById) {
@@ -156,32 +159,20 @@ Craft.ResizeTaskProgress = Garnish.Base.extend({
         }
 
         // Now display the tasks that are still around
-        if (taskInfo && taskInfo.length) {
+        if (taskInfo) {
             var anyTasksRunning = false,
                 anyTasksFailed = false;
 
-            for (var i = 0; i < taskInfo.length; i++) {
-                var info = taskInfo[i];
+            if (!anyTasksRunning && taskInfo.status == 'running') {
+                anyTasksRunning = true;
+            } else if (!anyTasksFailed && taskInfo.status == 'error') {
+                anyTasksFailed = true;
+            }
 
-                if (!anyTasksRunning && info.status == 'running') {
-                    anyTasksRunning = true;
-                } else if (!anyTasksFailed && info.status == 'error') {
-                    anyTasksFailed = true;
-                }
-
-                if (this.tasksById[info.id]) {
-                    this.tasksById[info.id].updateStatus(info);
-                } else {
-                    this.tasksById[info.id] = new Craft.ResizeTaskProgress.Task(this.modal, info);
-
-                    // Place it before the next already known task
-                    for (var j = i + 1; j < taskInfo.length; j++) {
-                        if (this.tasksById[taskInfo[j].id]) {
-                            this.tasksById[info.id].$container.insertBefore(this.tasksById[taskInfo[j].id].$container);
-                            break;
-                        }
-                    }
-                }
+            if (this.tasksById[taskInfo.id]) {
+                this.tasksById[taskInfo.id].updateStatus(taskInfo);
+            } else {
+                this.tasksById[taskInfo.id] = new Craft.ResizeTaskProgress.Task(this.modal, taskInfo);
             }
 
             if (anyTasksRunning) {

@@ -1,5 +1,16 @@
 [
     {
+        "version": "0.1.2",
+        "downloadUrl": "https://github.com/engram-design/ImageResizer/archive/0.1.2.zip",
+        "date": "2016-02-24 23:15:00",
+        "notes": [
+            "[Added] Added support for Amazon S3, Rackspace Cloud Files, and Google Cloud Storage asset sources.",
+            "[Improved] Using `assets.onBeforeUploadAsset` instead of `assets.onSaveAsset`.",
+            "[Improved] Elements now auto-refresh after crop or resize.",
+            "[Improved] Refactoring for better performance."
+        ]
+    },
+    {
         "version": "0.1.1",
         "downloadUrl": "https://github.com/engram-design/ImageResizer/archive/0.1.1.zip",
         "date": "2016-01-13 18:15:00",

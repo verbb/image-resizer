@@ -60,7 +60,7 @@ class ImageResizerController extends BaseController
             if ($assetId) {
                 $asset = craft()->assets->getFileById($assetId);
 
-                $result = craft()->imageResizer->crop($asset, $x1, $x2, $y1, $y2);
+                $result = craft()->imageResizer_crop->crop($asset, $x1, $x2, $y1, $y2);
 
                 if ($result) {
                     $this->returnJson(array('success' => true));

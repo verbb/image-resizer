@@ -170,12 +170,16 @@ Craft.CropImageModal = Garnish.Modal.extend(
             params['assetId'] = $(this.$selectedItems).data('id');
         }
 
+        this.$body.find('.spinner').removeClass('hidden');
+
         Craft.postActionRequest('imageResizer/cropSaveAction', params, $.proxy(function(response, textStatus) {
             if (textStatus == 'success') {
                 if (response.error) {
                     Craft.cp.displayError(response.error);
                 } else {
                     Craft.cp.displayNotice(Craft.t('Image cropped successfully.'));
+
+                    Craft.elementIndex.updateElements();
                 }
             }
 

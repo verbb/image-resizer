@@ -12,6 +12,7 @@
     position: absolute;
     top: 50%;
     margin: -24px;
+    z-index: 1000;
 }
 
 .image-resizer-crop-modal .footer {
