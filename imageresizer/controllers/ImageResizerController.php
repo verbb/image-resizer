@@ -9,10 +9,23 @@ class ImageResizerController extends BaseController
         $this->requireAjaxRequest();
         $this->requireAdmin();
 
-        $assetIds = craft()->request->getRequiredPost('assetIds');
+        $assetIds = craft()->request->getPost('assetIds');
+        $imageWidth = craft()->request->getPost('imageWidth');
+        $imageHeight = craft()->request->getPost('imageHeight');
+        $bulkResize = craft()->request->getPost('bulkResize');
+        $assetFolderId = craft()->request->getPost('assetFolderId');
+
+        if ($bulkResize) {
+            $criteria = craft()->elements->getCriteria(ElementType::Asset);
+            $criteria->limit = null;
+            $criteria->folderId = $assetFolderId;
+            $assetIds = $criteria->ids();
+        }
 
         craft()->tasks->createTask('ImageResizer', 'Resizing images', array(
             'assets' => $assetIds,
+            'imageWidth' => $imageWidth,
+            'imageHeight' => $imageHeight,
         ));
 
         craft()->end();

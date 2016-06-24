@@ -16,6 +16,20 @@ class ImageResizerService extends BaseApplicationComponent
         return $this->getPlugin()->getSettings();
     }
 
+    public function getSettingForAssetSource($sourceId, $setting)
+    {
+        $settings = $this->getPlugin()->getSettings();
+        $globalSetting = $settings->$setting;
+
+        if (isset($settings->assetSourceSettings[$sourceId])) {
+            if ($settings->assetSourceSettings[$sourceId][$setting]) {
+                return $settings->assetSourceSettings[$sourceId][$setting];
+            }
+        }
+
+        return $globalSetting;
+    }
+
     public function getImageQuality($filename, $quality = null)
     {
         $desiredQuality = (!$quality) ? craft()->imageResizer->getSettings()->imageQuality : $quality;
@@ -38,5 +52,18 @@ class ImageResizerService extends BaseApplicationComponent
         }
 
         return $quality;
+    }
+
+    public function getAssetFolders($tree, &$folderOptions)
+    {
+        foreach ($tree as $folder) {
+            $folderOptions[] = array('label' => $folder->name, 'value' => $folder->id);
+
+            $children = $folder->getChildren();
+
+            if ($children) {
+                $this->getAssetFolders($children, $folderOptions);
+            }
+        }
     }
 }

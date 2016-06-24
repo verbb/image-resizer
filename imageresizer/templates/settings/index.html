@@ -2,60 +2,173 @@
 
 {% includeCssResource 'imageresizer/css/Settings.css' %}
 
+{% includeCssResource 'imageresizer/css/ResizeElementAction.css' %}
+{% includeJsResource 'imageresizer/js/ResizeElementAction.js' %}
+
 <div class="pane first tableview settings-tabs">
     <nav id="settings-tabs" class="tabs">
         <ul>
             <li class="label">Settings</li>
             <li><a id="settings-tab-general" class="tab sel" href="#settings-resize" tabindex="0">Resize</a></li>
+            <li><a id="settings-tab-general" class="tab" href="#settings-bulk" tabindex="1">Bulk Resize</a></li>
+            <li><a id="settings-tab-general" class="tab" href="#settings-crop" tabindex="2">Crop</a></li>
         </ul>
     </nav>
 </div>
 
+{% set additionalSettings = {
+    sourceOptions: sourceOptions,
+} %}
+
 <div id="resize">
+    <h2>All Asset Source Settings</h2>
+
+    {{ _self.resizeSetting(settings, additionalSettings) }}
+
+    {{ forms.lightswitchField({
+        label: 'Skip larger resulting images' | t,
+        instructions: 'If the resizing process results in a larger image that the previous, do not replace with larger file.' | t,
+        id: 'skipLarger',
+        name: 'skipLarger',
+        on: settings.skipLarger,
+    }) }}
+
+    {% for item in sourceOptions %}
+        <hr>
+
+        <h2>{{ item.label }} Asset Source Settings</h2>
+
+        {{ _self.resizeSetting(settings, additionalSettings, item) }}
+    {% endfor %}
+</div>
+
+<div id="bulk" class="hidden">
+    <div class="field">
+        <div class="heading">
+            <label for="settings-assetFolders">Bulk Resize</label>
+
+            <div class="instructions">
+                <p>For any Asset folder below, click on Bulk Resize to automatically resize all assets within.</p>
+            </div>
+        </div>
+
+        <div class="input ltr">
+            <table class="bulk-resize-table">
+                {% for item in folderOptions %}
+                    <tr>
+                        <td>{{ item.label }}</td>
+                        <td><div class="btn small bulk-resize-btn" data-id="{{ item.value }}" data-name="{{ item.label }}">Bulk Resize</div></td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+</div>
+
+<div id="crop" class="hidden">
+    <div class="field">
+        <div class="heading">
+            <label for="settings-assetFolders">Cropping Aspect Ratios</label>
+
+            <div class="instructions">
+                {{ "Manage the aspect ratios available to the cropping interface for images. Width and Height contraints should be provided as numbers relative to each other, or use special `none` or `relative`." | md }}
+            </div>
+        </div>
+
+        <div class="input ltr">
+            {% set cols = {
+                name: { heading: 'Method Name' | t, type: 'singleline' },
+                width: { heading: 'Width Constraint' | t, type: 'singleline' },
+                height: { heading: 'Height Constraint' | t, type: 'singleline' },
+            } %}
+
+            {% set rows = settings.croppingRatios %}
+
+            {{ forms.editableTable({
+                id: 'croppingRatios',
+                name: 'croppingRatios',
+                cols: cols,
+                rows: rows,
+                addRowLabel: 'Add an aspect ratio',
+            }) }}
+        </div>
+    </div>
+</div>
+
+<hr>
+
+{% macro resizeSetting(settings, additionalSettings, assetSource) %}
+    {% import "_includes/forms" as forms %}
+
+    {% if assetSource %}
+        {% set enabledName = 'assetSourceSettings[' ~ assetSource.value ~ '][enabled]' %}
+        {% set enabledValue = settings.assetSourceSettings[assetSource.value].enabled | default(settings.enabled) %}
+
+        {% set imageWidthName = 'assetSourceSettings[' ~ assetSource.value ~ '][imageWidth]' %}
+        {% set imageWidthValue = settings.assetSourceSettings[assetSource.value].imageWidth | default('') %}
+
+        {% set imageHeightName = 'assetSourceSettings[' ~ assetSource.value ~ '][imageHeight]' %}
+        {% set imageHeightValue = settings.assetSourceSettings[assetSource.value].imageHeight | default('') %}
+
+        {% set imageQualityName = 'assetSourceSettings[' ~ assetSource.value ~ '][imageQuality]' %}
+        {% set imageQualityValue = settings.assetSourceSettings[assetSource.value].imageQuality | default('') %}
+    {% else %}
+        {% set enabledName = 'enabled' %}
+        {% set enabledValue = settings.enabled %}
+
+        {% set imageWidthName = 'imageWidth' %}
+        {% set imageWidthValue = settings.imageWidth %}
+
+        {% set imageHeightName = 'imageHeight' %}
+        {% set imageHeightValue = settings.imageHeight %}
+
+        {% set imageQualityName = 'imageQuality' %}
+        {% set imageQualityValue = settings.imageQuality %}
+    {% endif %}
+
     {{ forms.lightswitchField({
         label: 'Resize on upload' | t,
         instructions: 'Whether uploaded images should be automatically resized. This does not effect batch processing.' | t,
-        id: 'enabled',
-        name: 'enabled',
-        on: settings.enabled,
+        id: enabledName,
+        name: enabledName,
+        on: enabledValue,
         first: true,
     }) }}
 
     {{ forms.textField({
         label: 'Image Width' | t,
         instructions: 'The maximum width in pixels allowed for uploaded images.' | t,
-        id: 'imageWidth',
-        name: 'imageWidth',
-        value: settings.imageWidth,
+        id: imageWidthName,
+        name: imageWidthName,
+        value: imageWidthValue,
+        placeholder: settings.imageWidth,
         size: 10,
     }) }}
 
     {{ forms.textField({
         label: 'Image Height' | t,
         instructions: 'The maximum height in pixels allowed for uploaded images.' | t,
-        id: 'imageHeight',
-        name: 'imageHeight',
-        value: settings.imageHeight,
+        id: imageHeightName,
+        name: imageHeightName,
+        value: imageHeightValue,
+        placeholder: settings.imageHeight,
         size: 10,
     }) }}
 
     {{ forms.textField({
         label: 'Quality' | t,
         instructions: 'Enter a value from 0-100 for resized image quality.' | t,
-        id: 'imageQuality',
-        name: 'imageQuality',
+        id: imageQualityName,
+        name: imageQualityName,
+        value: imageQualityValue,
+        placeholder: settings.imageQuality,
         size: 10,
-        value: settings.imageQuality,
     }) }}
+{% endmacro %}
 
-    {{ forms.checkboxSelectField({
-        label: 'Asset Sources' | t,
-        instructions: 'Select which asset sources you want to allow Image Resizer work with.' | t,
-        id: 'assetSources',
-        name: 'assetSources',
-        values: settings.assetSources,
-        options: sourceOptions,
-    }) }}
-</div>
 
-<hr>
+{% set myJs %}
+    new Craft.BulkResizeAssetFolder('{{ settings.imageWidth }}', '{{ settings.imageHeight }}');
+{% endset %}
+
+{% includeJs myJs %}

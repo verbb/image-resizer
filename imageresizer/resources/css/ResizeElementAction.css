@@ -37,6 +37,10 @@
     position: absolute;
 }
 
+.image-resizer-modal .footer .buttons.rightalign {
+    float: right;
+}
+
 
 
 .image-resizer-modal .task {

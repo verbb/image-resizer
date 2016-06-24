@@ -1,5 +1,17 @@
 [
     {
+        "version": "0.1.3",
+        "downloadUrl": "https://github.com/engram-design/ImageResizer/archive/0.1.3.zip",
+        "date": "2016-06-24T14:15:00+10:00",
+        "notes": [
+            "[Added] You can now specify width and height sizes on-demand in the Resizing modal window.",
+            "[Added] Resizing can be done on an entire folder through Image Resizer settings (Bulk Resize tab).",
+            "[Added] Allow custom aspect ratios to be defined for cropping.",
+            "[Improved] Resizing now checks if the resulting file size is larger than the original. If larger, no action is taken.",
+            "[Improved] You can now specify per-asset source settings, with fallbacks to your global settings."
+        ]
+    },
+    {
         "version": "0.1.2",
         "downloadUrl": "https://github.com/engram-design/ImageResizer/archive/0.1.2.zip",
         "date": "2016-02-24T23:15:00+10:00",

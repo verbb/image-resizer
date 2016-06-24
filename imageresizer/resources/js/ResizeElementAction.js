@@ -22,6 +22,25 @@ Craft.ResizeElementAction = Garnish.Base.extend({
 
 });
 
+Craft.BulkResizeAssetFolder = Garnish.Base.extend({
+    
+    init: function(imageWidth, imageHeight) {
+        var settings = {
+            width: imageWidth,
+            height: imageHeight,
+        };
+
+        $('.bulk-resize-btn').on('click', function() {
+            settings.assetFolderId = $(this).data('id');
+            settings.assetFolderName = $(this).data('name');
+            settings.bulkResize = true;
+
+            new Craft.ResizeModal('', '', settings);
+        });
+    },
+
+});
+
 Craft.ResizeModal = Garnish.Modal.extend({
     $element: null,
     $selectedItems: null,
@@ -36,9 +55,10 @@ Craft.ResizeModal = Garnish.Modal.extend({
     init: function($element, $selectedItems, settings) {
         this.$element = $element;
         this.$selectedItems = $selectedItems;
+        this.settings = settings;
 
         this.desiredWidth = '450';
-        this.desiredHeight = '280';
+        this.desiredHeight = '340';
 
         var plural = ($selectedItems.length == 1) ? '' : 's';
 
@@ -46,12 +66,23 @@ Craft.ResizeModal = Garnish.Modal.extend({
         var $container = $('<div class="modal fitted image-resizer-modal"></div>').appendTo(Garnish.$bod),
             $footer = $('<div class="footer"/>').appendTo($container);
 
+        // Handle case for bulk-resize
+        if (settings.bulkResize) {
+            var actionDescription = '<strong>all images in ' + settings.assetFolderName + '</strong>';
+        } else {
+            var actionDescription = '<strong>' + $selectedItems.length + '</strong> image' + plural;
+        }
+
         $body = $('<div class="body">' +
             '<div class="content">' +
                 '<div class="main">' +
                     '<div class="elements">' +
                         '<h1>Resize Images</h1>' +
-                        '<p>You are about to resize <strong>' + $selectedItems.length + '</strong> image' + plural + ' to be a maximum of ' + settings.width + 'px wide and ' + settings.height + 'px high.</p>' +
+                        '<p>You are about to resize ' + actionDescription + ' to be a maximum of ' + settings.width + 'px wide and ' + settings.height + 'px high. Alternatively, set the width and height limits below for on-demand resizing.</p>' +
+
+                        '<input class="text" type="text" id="settings-imageWidth" size="10" name="settings[imageWidth]" value="' + settings.width + '" autocomplete="off"> width &nbsp;&nbsp;' +
+                        '<input class="text" type="text" id="settings-imageHeight" size="10" name="settings[imageHeight]" value="' + settings.height + '" autocomplete="off"> height' +
+
                         '<p><strong>Caution:</strong> This operation permanently alters your images.</p>' +
                     '</div>' +
                 '</div>' +
@@ -79,13 +110,34 @@ Craft.ResizeModal = Garnish.Modal.extend({
         var dataIds = [];
         var modal = this;
 
-        this.$selectedItems.each(function(index, element) {
-            dataIds[index] = $(element).data('id');
-        });
+        if (this.$selectedItems.length) {
+            this.$selectedItems.each(function(index, element) {
+                dataIds[index] = $(element).data('id');
+            });
+        }
 
         this.$footerSpinner.removeClass('hidden');
 
-        Craft.postActionRequest('imageResizer/resizeElementAction', { assetIds: dataIds }, $.proxy(function(response, textStatus) {}, this));
+        // Allow override
+        var imageWidth = this.$body.find('#settings-imageWidth').val();
+        var imageHeight = this.$body.find('#settings-imageHeight').val();
+
+        if (this.settings.bulkResize) {
+            var data = { 
+                bulkResize: this.settings.bulkResize, 
+                assetFolderId: this.settings.assetFolderId, 
+                imageWidth: imageWidth, 
+                imageHeight: imageHeight, 
+            }
+        } else {
+            var data = { 
+                assetIds: dataIds, 
+                imageWidth: imageWidth, 
+                imageHeight: imageHeight, 
+            }
+        }
+
+        Craft.postActionRequest('imageResizer/resizeElementAction', data, $.proxy(function(response, textStatus) {}, this));
             
         new Craft.ResizeTaskProgress(this, function() {
             modal.$footerSpinner.addClass('hidden');
@@ -100,7 +152,9 @@ Craft.ResizeModal = Garnish.Modal.extend({
             setTimeout($.proxy(function() {
                 modal.onFadeOut();
 
-                Craft.elementIndex.updateElements();
+                if (Craft.elementIndex) {
+                    Craft.elementIndex.updateElements();
+                }
             }), 1000);
                
         });

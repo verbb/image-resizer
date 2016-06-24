@@ -14,7 +14,12 @@ Image Resizer works for all Asset Sources: Local, Rackspace Cloud Files, Amazon 
 - Enable/Disable resizing images on upload. Enabled by default.
 - Set the maximum width/height (in pixels) for uploaded images. Set to 2048px by default.
 - Set the quality for resized images between 0-100. Set to 100 by default.
-- Select which Asset sources you want resizing to be performed on.
+- If resizing results in a larger image, choose to ship. Enabled by default.
+
+All the above options can be modified per-asset source.
+
+- Bulk resizing for asset folders.
+- Cropping aspect ratios.
 
 
 ## Resizing
@@ -36,6 +41,8 @@ You'll be presented with a warning screen advising that the selected images will
 
 Under the hood, the batch processing is run through Craft's Tasks service, which will allow you to process plenty of images at once, without timing out or running into memory issues.
 
+Additionally, using the plugin settings page (Bulk Resize tab), you can bulk-resize all assets in a single folder. 
+
 
 ## Cropping
 
@@ -43,9 +50,11 @@ You can crop any image through the Assets Index screen, by clicking on the Actio
 
 Activating the cropping interface upon upload of new images is on the Roadmap, and will be released soon.
 
+You can manage these aspect ratios through the plugin settings page, including removing/renaming existing options, or adding your own.
+
 <img src="https://raw.githubusercontent.com/engram-design/ImageResizer/master/screenshots/cropping.png" width="400" />
 
-Aspect ratio options are:
+Default aspect ratio options are:
 
 - **Free:** No restrictions 
 - **Square:** Restricted to square crop
@@ -56,8 +65,6 @@ Aspect ratio options are:
 ## Roadmap
 
 - Provide cropping options on-upload.
-- Allow Asset folder selection in addition to source.
-- Provide hook for third-party Aspect Ratio options.
 - Add more features for full-featured image editor.
 
 

@@ -14,7 +14,7 @@ class ImageResizerPlugin extends BasePlugin
 
     public function getVersion()
     {
-        return '0.1.2';
+        return '0.1.3';
     }
 
     public function getSchemaVersion()
@@ -50,13 +50,17 @@ class ImageResizerPlugin extends BasePlugin
     public function getSettingsHtml()
     {
         $sourceOptions = array();
-
+        $folderOptions = array();
         foreach (craft()->assetSources->getAllSources() as $source) {
             $sourceOptions[] = array('label' => $source->name, 'value' => $source->id);
         }
 
+        $assetTree = craft()->assets->getFolderTreeBySourceIds(craft()->assetSources->getAllSourceIds());
+        craft()->imageResizer->getAssetFolders($assetTree, $folderOptions);
+
         return craft()->templates->render('imageresizer/settings', array(
             'settings' => $this->getSettings(),
+            'folderOptions' => $folderOptions,
             'sourceOptions' => $sourceOptions,
         ));
     }
@@ -68,7 +72,33 @@ class ImageResizerPlugin extends BasePlugin
             'imageWidth' => array( AttributeType::Number, 'default' => '2048' ),
             'imageHeight' => array( AttributeType::Number, 'default' => '2048' ),
             'imageQuality' => array( AttributeType::Number, 'default' => '100' ),
-            'assetSources' => array( AttributeType::Mixed, 'default' => '*' ),
+            'assetSources' => array( AttributeType::Mixed, 'default' => '*' ), // Deprecated
+            'assetSourceSettings' => array( AttributeType::Mixed ),
+            'skipLarger' => array( AttributeType::Bool, 'default' => true ),
+
+            // Cropping
+            'croppingRatios' => array( AttributeType::Mixed, 'default' => array(
+                array(
+                    'name' => 'Free',
+                    'width' => 'none',
+                    'height' => 'none',
+                ),
+                array(
+                    'name' => 'Square',
+                    'width' => 1,
+                    'height' => 1,
+                ),
+                array(
+                    'name' => 'Constrain',
+                    'width' => 'relative',
+                    'height' => 'relative',
+                ),
+                array(
+                    'name' => '4:3',
+                    'width' => 4,
+                    'height' => 3,
+                ),
+            ) ),
         );
     }
 
@@ -92,6 +122,10 @@ class ImageResizerPlugin extends BasePlugin
             $folder = $event->params['folder'];
             $filename = $event->params['filename'];
 
+            // User for overrides on element action
+            $width = null;
+            $height = null;
+
             // If we've triggered this from our cropping action, don't resize too
             if (craft()->httpSession->get('ImageResizer_CropElementAction')) {
                 craft()->httpSession->remove('ImageResizer_CropElementAction');
@@ -100,26 +134,28 @@ class ImageResizerPlugin extends BasePlugin
 
             // If this has been trigged from the element actions, bypass everything below
             if (!craft()->httpSession->get('ImageResizer_ResizeElementAction')) {
-                // Make sure we check out config setting
-                if (craft()->imageResizer->getSettings()->enabled) {
+                // We can have settings globally, or per asset source. Check!
+                $sourceEnabled = craft()->imageResizer->getSettingForAssetSource($folder->source->id, 'enabled');
 
-                    // Should we be modifying images in this source?
-                    $assetSources = craft()->imageResizer->getSettings()->assetSources;
-
-                    if ($assetSources != '*') {
-                        if (!in_array($folder->source->id, $assetSources)) {
-                            return true;
-                        }
-                    }
+                // Should we be modifying images in this source?
+                if (!$sourceEnabled) {
+                    return true;
                 }
             } else {
                 // If we are from a element action - delete this so it doesn't persist
                 craft()->httpSession->remove('ImageResizer_ResizeElementAction');
+
+                // We also might ne overriding width/height
+                $width = craft()->httpSession->get('ImageResizer_ResizeElementActionWidth');
+                $height = craft()->httpSession->get('ImageResizer_ResizeElementActionHeight');
+
+                craft()->httpSession->remove('ImageResizer_ResizeElementActionWidth');
+                craft()->httpSession->remove('ImageResizer_ResizeElementActionHeight');
             }
 
             // Is this a manipulatable image?
             if (ImageHelper::isImageManipulatable(IOHelper::getExtension($filename))) {
-                craft()->imageResizer_resize->resize($path);
+                craft()->imageResizer_resize->resize($folder->source->id, $path, $width, $height);
             }
         });
     }

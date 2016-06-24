@@ -1,7 +1,7 @@
 (function() {
 Craft.CropElementAction = Garnish.Base.extend({
     
-    init: function() {
+    init: function(croppingRatios) {
         var cropTrigger = new Craft.ElementActionTrigger({
             handle: 'ImageResizer_CropImage',
             batch: false,
@@ -10,7 +10,7 @@ Craft.CropElementAction = Garnish.Base.extend({
                 return (documents > 0) ? false : true;
             },
             activate: function($selectedItems) {
-                new Craft.CropImageModal($selectedItems.find('.element'), $selectedItems, {});
+                new Craft.CropImageModal($selectedItems.find('.element'), $selectedItems, { croppingRatios: croppingRatios });
             }
         });
     },
@@ -37,6 +37,7 @@ Craft.CropImageModal = Garnish.Modal.extend(
     init: function($element, $selectedItems, settings) {
         this.$element = $element;
         this.$selectedItems = $selectedItems;
+        this.settings = settings;
 
         this.desiredWidth = 400;
         this.desiredHeight = 280;
@@ -74,13 +75,13 @@ Craft.CropImageModal = Garnish.Modal.extend(
     },
 
     setupAspectRatio: function() {
+        var menuOptions = '';
+        $.each(this.settings.croppingRatios, function(index, item) {
+            menuOptions += '<li><a data-action="' + index + '" data-width="' + item.width + '" data-height="' + item.height + '">' + Craft.t(item.name) + '</a></li>';
+        });
+
         var $menu = $('<div class="menu">' +
-            '<ul>' +
-                '<li><a data-action="free">'+Craft.t('Free')+'</a></li>' +
-                '<li><a data-action="square">'+Craft.t('Square')+'</a></li>' +
-                '<li><a data-action="constrain">'+Craft.t('Constrain')+'</a></li>' +
-                '<li><a data-action="4_3">'+Craft.t('4:3')+'</a></li>' +
-            '</ul>' +
+            '<ul>' + menuOptions + '</ul>' +
         '</div>').insertAfter(this.$aspectRatioSelect);
 
         var MenuButton = new Garnish.MenuBtn(this.$aspectRatioSelect, {
@@ -101,29 +102,17 @@ Craft.CropImageModal = Garnish.Modal.extend(
         var width = $img.width();
         var height = $img.height();
 
-        if ($option.data('action') == 'free') {
-            this.areaSelect.setOptions({ aspectRatio: null });
-        } else if ($option.data('action') == 'square') {
-            this.areaSelect.setOptions({ aspectRatio: 1 / 1 });
+        var action = $option.data('action');
+        var widthConstraint = $option.data('width');
+        var heightConstraint = $option.data('height');
 
-            if (width > height) {
-                width = height;
-            } else {
-                height = width;
-            }
+        // Cater for special aspect ratio cases
+        if (widthConstraint == 'none') { widthConstraint = null; }
+        if (heightConstraint == 'none') { heightConstraint = null; }
+        if (widthConstraint == 'relative') { widthConstraint = width; }
+        if (heightConstraint == 'relative') { heightConstraint = height; }
 
-        } else if ($option.data('action') == 'constrain') {
-            this.areaSelect.setOptions({ aspectRatio: width / height });
-        } else if ($option.data('action') == '4_3') {
-
-            this.areaSelect.setOptions({ aspectRatio: 4 / 3 });
-
-            if (width > height) {
-                width = Math.round((height / 3) * 4);
-            } else {
-                height = Math.round((width / 4) * 3);
-            }
-        }
+        this.areaSelect.setOptions({ aspectRatio: widthConstraint / heightConstraint });
     },
 
     onFadeOut: function() {
