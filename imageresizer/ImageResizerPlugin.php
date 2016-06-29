@@ -14,7 +14,7 @@ class ImageResizerPlugin extends BasePlugin
 
     public function getVersion()
     {
-        return '0.1.3';
+        return '0.1.4';
     }
 
     public function getSchemaVersion()
@@ -162,6 +162,24 @@ class ImageResizerPlugin extends BasePlugin
 
     public function addAssetActions()
     {
-        return array('ImageResizer_ResizeImage', 'ImageResizer_CropImage');
+        $actions = array();
+
+        if (craft()->userSession->checkPermission('imageResizer-cropImage')) {
+            $actions[] = 'ImageResizer_CropImage';
+        }
+
+        if (craft()->userSession->checkPermission('imageResizer-resizeImage')) {
+            $actions[] = 'ImageResizer_ResizeImage';
+        }
+
+        return $actions;
+    }
+
+    public function registerUserPermissions()
+    {
+        return array(
+            'imageResizer-cropImage' => array('label' => Craft::t('Crop images')),
+            'imageResizer-resizeImage' => array('label' => Craft::t('Resize images')),
+        );
     }
 }

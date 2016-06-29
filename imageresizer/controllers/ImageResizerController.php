@@ -7,7 +7,6 @@ class ImageResizerController extends BaseController
     {
         $this->requirePostRequest();
         $this->requireAjaxRequest();
-        $this->requireAdmin();
 
         $assetIds = craft()->request->getPost('assetIds');
         $imageWidth = craft()->request->getPost('imageWidth');
@@ -34,7 +33,6 @@ class ImageResizerController extends BaseController
     public function actionCropElementAction()
     {
         $this->requireAjaxRequest();
-        $this->requireAdmin();
 
         $assetId = craft()->request->getRequiredPost('assetId');
 
@@ -59,7 +57,6 @@ class ImageResizerController extends BaseController
     public function actionCropSaveAction()
     {
         $this->requireAjaxRequest();
-        $this->requireAdmin();
 
         try {
             $x1 = craft()->request->getRequiredPost('x1');
