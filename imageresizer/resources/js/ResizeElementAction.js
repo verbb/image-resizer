@@ -1,6 +1,7 @@
 (function() {
+
 Craft.ResizeElementAction = Garnish.Base.extend({
-    
+
     init: function(imageWidth, imageHeight) {
         var settings = {
             width: imageWidth,
@@ -23,7 +24,7 @@ Craft.ResizeElementAction = Garnish.Base.extend({
 });
 
 Craft.BulkResizeAssetFolder = Garnish.Base.extend({
-    
+
     init: function(imageWidth, imageHeight) {
         var settings = {
             width: imageWidth,
@@ -123,22 +124,22 @@ Craft.ResizeModal = Garnish.Modal.extend({
         var imageHeight = this.$body.find('#settings-imageHeight').val();
 
         if (this.settings.bulkResize) {
-            var data = { 
-                bulkResize: this.settings.bulkResize, 
-                assetFolderId: this.settings.assetFolderId, 
-                imageWidth: imageWidth, 
-                imageHeight: imageHeight, 
+            var data = {
+                bulkResize: this.settings.bulkResize,
+                assetFolderId: this.settings.assetFolderId,
+                imageWidth: imageWidth,
+                imageHeight: imageHeight,
             }
         } else {
-            var data = { 
-                assetIds: dataIds, 
-                imageWidth: imageWidth, 
-                imageHeight: imageHeight, 
+            var data = {
+                assetIds: dataIds,
+                imageWidth: imageWidth,
+                imageHeight: imageHeight,
             }
         }
 
         Craft.postActionRequest('imageResizer/resizeElementAction', data, $.proxy(function(response, textStatus) {}, this));
-            
+
         new Craft.ResizeTaskProgress(this, function() {
             modal.$footerSpinner.addClass('hidden');
 
@@ -156,7 +157,7 @@ Craft.ResizeModal = Garnish.Modal.extend({
                     Craft.elementIndex.updateElements();
                 }
             }), 1000);
-               
+
         });
     }
 });
@@ -183,8 +184,11 @@ Craft.ResizeTaskProgress = Garnish.Base.extend({
             this.updateTasks();
         }, this), 1000);
 
-        Craft.cp.stopTrackingTaskProgress();
-    },
+		if (this.updateTasksTimeout) {
+			clearTimeout(this.updateTasksTimeout);
+			this.updateTasksTimeout = null;
+		}
+	},
 
     updateTasks: function() {
         this.completed = false;
@@ -235,14 +239,14 @@ Craft.ResizeTaskProgress = Garnish.Base.extend({
                 this.completed = true;
 
                 if (anyTasksFailed) {
-                    Craft.cp.setRunningTaskInfo({ status: 'error' });
+                    Craft.cp.setTaskInfo({ status: 'error' });
                 }
 
                 this.callback();
             }
         } else {
             this.completed = true;
-            Craft.cp.setRunningTaskInfo(null);
+            //Craft.cp.setTaskInfo(null);
 
             this.callback();
         }
@@ -293,7 +297,7 @@ Craft.ResizeTaskProgress.Task = Garnish.Base.extend({
 
             if (this.level == 0) {
                 // Update the task icon
-                Craft.cp.setRunningTaskInfo(info, true);
+                Craft.cp.setTaskInfo(info, true);
             }
         }
     },
