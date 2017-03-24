@@ -12,6 +12,7 @@
             <li><a id="settings-tab-general" class="tab sel" href="#settings-resize" tabindex="0">Resize</a></li>
             <li><a id="settings-tab-general" class="tab" href="#settings-bulk" tabindex="1">Bulk Resize</a></li>
             <li><a id="settings-tab-general" class="tab" href="#settings-crop" tabindex="2">Crop</a></li>
+            <li><a id="settings-tab-general" class="tab" href="#settings-other" tabindex="3">Other</a></li>
         </ul>
     </nav>
 </div>
@@ -93,6 +94,12 @@
             }) }}
         </div>
     </div>
+</div>
+
+<div id="other" class="hidden">
+
+    <a class="btn" href="{{ actionUrl('imageResizer/clearTasks') }}">{{ "Clear pending tasks" | t }}</a>
+
 </div>
 
 <hr>
