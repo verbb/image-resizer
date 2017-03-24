@@ -238,15 +238,10 @@ Craft.ResizeTaskProgress = Garnish.Base.extend({
             } else {
                 this.completed = true;
 
-                if (anyTasksFailed) {
-                    Craft.cp.setTaskInfo({ status: 'error' });
-                }
-
                 this.callback();
             }
         } else {
             this.completed = true;
-            //Craft.cp.setTaskInfo(null);
 
             this.callback();
         }
@@ -294,11 +289,6 @@ Craft.ResizeTaskProgress.Task = Garnish.Base.extend({
 
         if (this.status == 'running') {
             this._progressBar.setProgressPercentage(info.progress*100);
-
-            if (this.level == 0) {
-                // Update the task icon
-                Craft.cp.setTaskInfo(info, true);
-            }
         }
     },
 
