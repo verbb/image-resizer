@@ -8,11 +8,11 @@
 <div class="pane first tableview settings-tabs">
     <nav id="settings-tabs" class="tabs">
         <ul>
-            <li class="label">Settings</li>
-            <li><a id="settings-tab-general" class="tab sel" href="#settings-resize" tabindex="0">Resize</a></li>
-            <li><a id="settings-tab-general" class="tab" href="#settings-bulk" tabindex="1">Bulk Resize</a></li>
-            <li><a id="settings-tab-general" class="tab" href="#settings-crop" tabindex="2">Crop</a></li>
-            <li><a id="settings-tab-general" class="tab" href="#settings-other" tabindex="3">Other</a></li>
+            <li class="label">{{ "Settings" | t }}</li>
+            <li><a id="settings-tab-general" class="tab sel" href="#settings-resize" tabindex="0">{{ "Resize" | t }}</a></li>
+            <li><a id="settings-tab-general" class="tab" href="#settings-bulk" tabindex="1">{{ "Bulk Resize" | t }}</a></li>
+            <li><a id="settings-tab-general" class="tab" href="#settings-crop" tabindex="2">{{ "Crop" | t }}</a></li>
+            <li><a id="settings-tab-general" class="tab" href="#settings-other" tabindex="3">{{ "Other" | t }}</a></li>
         </ul>
     </nav>
 </div>
@@ -22,7 +22,7 @@
 } %}
 
 <div id="resize">
-    <h2>All Asset Source Settings</h2>
+    <h2>{{ "All Asset Source Settings" | t }}</h2>
 
     {{ _self.resizeSetting(settings, additionalSettings) }}
 
@@ -37,7 +37,7 @@
     {% for item in sourceOptions %}
         <hr>
 
-        <h2>{{ item.label }} Asset Source Settings</h2>
+        <h2>{{ "{label} Asset Source Settings" | t({ label: item.label }) }}</h2>
 
         {{ _self.resizeSetting(settings, additionalSettings, item) }}
     {% endfor %}
@@ -46,10 +46,10 @@
 <div id="bulk" class="hidden">
     <div class="field">
         <div class="heading">
-            <label for="settings-assetFolders">Bulk Resize</label>
+            <label for="settings-assetFolders">{{ "Bulk Resize" | t }}</label>
 
             <div class="instructions">
-                <p>For any Asset folder below, click on Bulk Resize to automatically resize all assets within.</p>
+                <p>{{ "For any Asset folder below, click on Bulk Resize to automatically resize all assets within." | t }}</p>
             </div>
         </div>
 
@@ -58,7 +58,12 @@
                 {% for item in folderOptions %}
                     <tr>
                         <td>{{ item.label }}</td>
-                        <td><div class="btn small bulk-resize-btn" data-id="{{ item.value }}" data-name="{{ item.label }}">Bulk Resize</div></td>
+
+                        <td>
+                            <div class="btn small bulk-resize-btn" data-id="{{ item.value }}" data-name="{{ item.label | t }}">
+                                {{ "Bulk Resize" | t }}
+                            </div>
+                        </td>
                     </tr>
                 {% endfor %}
             </table>
@@ -69,10 +74,10 @@
 <div id="crop" class="hidden">
     <div class="field">
         <div class="heading">
-            <label for="settings-assetFolders">Cropping Aspect Ratios</label>
+            <label for="settings-assetFolders">{{ "Cropping Aspect Ratios" | t }}</label>
 
             <div class="instructions">
-                {{ "Manage the aspect ratios available to the cropping interface for images. Width and Height contraints should be provided as numbers relative to each other, or use special `none` or `relative`." | md }}
+                {{ "Manage the aspect ratios available to the cropping interface for images. Width and Height contraints should be provided as numbers relative to each other, or use special `none` or `relative`." | md | t }}
             </div>
         </div>
 
@@ -90,7 +95,7 @@
                 name: 'croppingRatios',
                 cols: cols,
                 rows: rows,
-                addRowLabel: 'Add an aspect ratio',
+                addRowLabel: 'Add an aspect ratio' | t,
             }) }}
         </div>
     </div>

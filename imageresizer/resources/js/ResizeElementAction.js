@@ -74,21 +74,23 @@ Craft.ResizeModal = Garnish.Modal.extend({
             var actionDescription = '<strong>' + $selectedItems.length + '</strong> image' + plural;
         }
 
-        $body = $('<div class="body">' +
+        var bodyHtml = '<div class="body">' +
             '<div class="content">' +
                 '<div class="main">' +
                     '<div class="elements">' +
-                        '<h1>Resize Images</h1>' +
-                        '<p>You are about to resize ' + actionDescription + ' to be a maximum of ' + settings.width + 'px wide and ' + settings.height + 'px high. Alternatively, set the width and height limits below for on-demand resizing.</p>' +
+                        '<h1>' + Craft.t('Resize Images') + '</h1>' +
+                        '<p>' + Craft.t('You are about to resize {desc} to be a maximum of {width}px wide and {height}px high. Alternatively, set the width and height limits below for on-demand resizing.', { desc: actionDescription, width: settings.width, height: settings.height }) + '</p>' +
 
-                        '<input class="text" type="text" id="settings-imageWidth" size="10" name="settings[imageWidth]" value="' + settings.width + '" autocomplete="off"> width &nbsp;&nbsp;' +
-                        '<input class="text" type="text" id="settings-imageHeight" size="10" name="settings[imageHeight]" value="' + settings.height + '" autocomplete="off"> height' +
+                        '<input class="text" type="text" id="settings-imageWidth" size="10" name="settings[imageWidth]" value="' + settings.width + '" autocomplete="off"> ' + Craft.t('width') + ' &nbsp;&nbsp;' +
+                        '<input class="text" type="text" id="settings-imageHeight" size="10" name="settings[imageHeight]" value="' + settings.height + '" autocomplete="off"> ' + Craft.t('height') + 
 
-                        '<p><strong>Caution:</strong> This operation permanently alters your images.</p>' +
+                        '<p><strong>' + Craft.t('Caution') + ':</strong> ' + Craft.t('This operation permanently alters your images.') + '</p>' +
                     '</div>' +
                 '</div>' +
             '</div>' +
-        '</div>').appendTo($container);
+        '</div>';
+
+        $body = $(bodyHtml).appendTo($container);
 
         this.base($container, this.settings);
 

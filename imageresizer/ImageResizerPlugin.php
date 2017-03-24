@@ -124,6 +124,29 @@ class ImageResizerPlugin extends BasePlugin
 
     public function init()
     {
+        if (craft()->request->isCpRequest()) {
+            craft()->templates->includeTranslations(
+                // Resizing Modal
+                'all images in',
+                'image',
+                'Resize Images',
+                'You are about to resize {desc} to be a maximum of {width}px wide and {height}px high. Alternatively, set the width and height limits below for on-demand resizing.',
+                'width',
+                'height',
+                'Caution',
+                'This operation permanently alters your images.',
+                'No images to resize!',
+                'Resizing complete!',
+
+                // Cropping Modal
+                'Aspect Ratio',
+                'Free',
+                'Cancel',
+                'Save',
+                'Image cropped successfully.'
+            );
+        }
+
         craft()->on('assets.onBeforeUploadAsset', function(Event $event) {
             $path = $event->params['path'];
             $folder = $event->params['folder'];
