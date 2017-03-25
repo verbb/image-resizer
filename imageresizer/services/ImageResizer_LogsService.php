@@ -74,10 +74,14 @@ class ImageResizer_LogsService extends BaseApplicationComponent
                         $message = $logChunks[$i+3];
                         $message = explode("\n", $message);
                         $message = str_replace('[Forced]', '', $message[0]);
+                        
+                        $logEntryModel->message = $message;
 
                         $content = json_decode($message, true);
 
-                        $logEntryModel->setAttributes($content);
+                        if ($content) {
+                            $logEntryModel->setAttributes($content);
+                        }
 
                         // And save the log entry.
                         $logEntries[] = $logEntryModel;

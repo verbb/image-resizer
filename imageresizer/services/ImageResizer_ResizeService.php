@@ -56,18 +56,20 @@ class ImageResizer_ResizeService extends BaseApplicationComponent
                 if ($settings->skipLarger) {
                     // Save this resized image in a temporary location - we need to test filesize difference
                     $tempPath = AssetsHelper::getTempFilePath($filename);
-                    $image->saveAs($tempPath);
+                    craft()->imageResizer->saveAs($image, $tempPath);
 
                     clearstatcache();
 
                     // Lets check to see if this resize resulted in a larger file - revert if so.
                     if (filesize($tempPath) < filesize($path)) {
-                        $image->saveAs($path); // Its a smaller file - properly save
+                        craft()->imageResizer->saveAs($image, $path); // Its a smaller file - properly save
+
+                        clearstatcache();
 
                         $newProperties = array(
                             'width' => $image->getWidth(),
                             'height' => $image->getHeight(),
-                            'size' => filesize($tempPath),
+                            'size' => filesize($path),
                         );
 
                         craft()->imageResizer_logs->resizeLog($taskId, 'success', $filename, array('prev' => $originalProperties, 'curr' => $newProperties));
@@ -78,7 +80,9 @@ class ImageResizer_ResizeService extends BaseApplicationComponent
                     // Delete our temp file we test filesize with
                     IOHelper::deleteFile($tempPath, true);
                 } else {
-                    $image->saveAs($path);
+                    craft()->imageResizer->saveAs($image, $path);
+
+                    clearstatcache();
 
                     $newProperties = array(
                         'width' => $image->getWidth(),

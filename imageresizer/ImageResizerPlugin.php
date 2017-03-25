@@ -142,7 +142,7 @@ class ImageResizerPlugin extends BasePlugin
                 'Image cropped successfully.'
             );
         }
-
+        
         craft()->on('assets.onBeforeUploadAsset', function(Event $event) {
             $path = $event->params['path'];
             $folder = $event->params['folder'];

@@ -48,6 +48,8 @@ class ImageResizerTask extends BaseTask
 
         craft()->imageResizer_resize->resize($folder->source->id, $filename, $path, $width, $height, $this->_taskId);
 
+        clearstatcache();
+
         // Update Craft's data
         $asset->size = filesize($path);
         $asset->dateModified = IOHelper::getLastTimeModified($path);

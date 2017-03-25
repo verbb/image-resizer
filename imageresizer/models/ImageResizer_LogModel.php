@@ -10,7 +10,11 @@ class ImageResizer_LogModel extends BaseModel
     {
         $parts = explode('-', $this->handle);
 
-        return $parts[0];
+        if (isset($parts[0])) {
+            return $parts[0];
+        } else {
+            return 'error';
+        }
     }
 
     public function getDescription()
@@ -24,10 +28,12 @@ class ImageResizer_LogModel extends BaseModel
                 return Craft::t('Image cannot be resized (not manipulatable).');
             case 'skipped-under-limits':
                 return Craft::t('Image already under maximum width/height.');
+            case 'skipped-source-disabled':
+                return Craft::t('Source not enabled to auto-resize on upload.');
             case 'error':
                 return Craft::t('Error.');
             default:
-                return Craft::t('Unknown error');
+                return $this->message;
         }
    }
 
@@ -43,6 +49,7 @@ class ImageResizer_LogModel extends BaseModel
             'handle' => AttributeType::String,
             'filename' => AttributeType::String,
             'data' => AttributeType::Mixed,
+            'message' => AttributeType::String,
         );
     }
 }

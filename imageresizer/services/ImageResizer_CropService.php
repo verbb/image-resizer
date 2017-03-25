@@ -41,7 +41,8 @@ class ImageResizer_CropService extends BaseApplicationComponent
 
             // Do the cropping
             $image->crop($x1, $x2, $y1, $y2);
-            $image->saveAs($path);
+            
+            craft()->imageResizer->saveAs($image, $path);
 
             return true;
         } catch (\Exception $e) {
