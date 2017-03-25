@@ -20,15 +20,13 @@
     </thead>
 
     <tbody>
-        {% for logEntry in logEntries %}
+        {% for entry in logEntries %}
             <tr>
                 <td>
                     <div style="width: 150px">
-                        {{ logEntry.dateTime.localeDate() ~ ' ' ~ logEntry.dateTime.localeTime() }}
+                        {{ entry.dateTime.localeDate() ~ ' ' ~ entry.dateTime.localeTime() }}
                     </div>
                 </td>
-
-                <td>{{ logEntry.message }}</td>
             </tr>
         {% endfor %}
     </tbody>

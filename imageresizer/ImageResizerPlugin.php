@@ -120,6 +120,9 @@ class ImageResizerPlugin extends BasePlugin
 
     public function init()
     {
+
+        craft()->imageResizer_logs->getLogsForTaskId('mAUWM');
+
         if (craft()->request->isCpRequest()) {
             craft()->templates->includeTranslations(
                 // Resizing Modal
@@ -146,11 +149,6 @@ class ImageResizerPlugin extends BasePlugin
         craft()->on('assets.onBeforeUploadAsset', function(Event $event) {
             $path = $event->params['path'];
             $folder = $event->params['folder'];
-            $filename = $event->params['filename'];
-
-            // User for overrides on element action
-            $width = null;
-            $height = null;
 
             // If we've triggered this from our cropping action, don't resize too
             if (craft()->httpSession->get('ImageResizer_CropElementAction')) {
@@ -158,31 +156,14 @@ class ImageResizerPlugin extends BasePlugin
                 return true;
             }
 
-            // If this has been trigged from the element actions, bypass everything below
-            if (!craft()->httpSession->get('ImageResizer_ResizeElementAction')) {
-                // We can have settings globally, or per asset source. Check!
-                $sourceEnabled = craft()->imageResizer->getSettingForAssetSource($folder->source->id, 'enabled');
-
-                // Should we be modifying images in this source?
-                if (!$sourceEnabled) {
-                    return true;
-                }
-            } else {
-                // If we are from a element action - delete this so it doesn't persist
-                craft()->httpSession->remove('ImageResizer_ResizeElementAction');
-
-                // We also might ne overriding width/height
-                $width = craft()->httpSession->get('ImageResizer_ResizeElementActionWidth');
-                $height = craft()->httpSession->get('ImageResizer_ResizeElementActionHeight');
-
-                craft()->httpSession->remove('ImageResizer_ResizeElementActionWidth');
-                craft()->httpSession->remove('ImageResizer_ResizeElementActionHeight');
+            // Should we be modifying images in this source?
+            if (!craft()->imageResizer->getSettingForAssetSource($folder->source->id, 'enabled')) {
+                craft()->imageResizer_logs->log('skipped-source-disabled', $filename);
+                return true;
             }
 
-            // Is this a manipulatable image?
-            if (ImageHelper::isImageManipulatable(IOHelper::getExtension($filename))) {
-                craft()->imageResizer_resize->resize($folder->source->id, $path, $width, $height);
-            }
+            // Resize the image
+            craft()->imageResizer_resize->resize($folder->source->id, $path, null, null);
         });
     }
 

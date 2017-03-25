@@ -32,14 +32,6 @@ class ImageResizerController extends BaseController
         ));
     }
 
-    public function actionClearTasks()
-    {
-        // Function to clear (delete) all stuck tasks.
-        craft()->db->createCommand()->delete('tasks');
-
-        $this->redirect(craft()->request->getUrlReferrer());
-    }
-
     public function actionResizeElementAction()
     {
         $this->requirePostRequest();
@@ -50,6 +42,7 @@ class ImageResizerController extends BaseController
         $imageHeight = craft()->request->getPost('imageHeight');
         $bulkResize = craft()->request->getPost('bulkResize');
         $assetFolderId = craft()->request->getPost('assetFolderId');
+        $taskId = craft()->request->getPost('taskId');
 
         if ($bulkResize) {
             $criteria = craft()->elements->getCriteria(ElementType::Asset);
@@ -59,12 +52,13 @@ class ImageResizerController extends BaseController
         }
 
         craft()->tasks->createTask('ImageResizer', 'Resizing images', array(
+            'taskId' => $taskId,
             'assets' => $assetIds,
             'imageWidth' => $imageWidth,
             'imageHeight' => $imageHeight,
         ));
 
-        craft()->end();
+        $this->returnJson(array('success' => true));
     }
 
     public function actionCropElementAction()
@@ -122,4 +116,25 @@ class ImageResizerController extends BaseController
 
         $this->returnErrorJson(Craft::t('Something went wrong when processing the image.'));
     }
+
+    public function actionClearTasks()
+    {
+        // Function to clear (delete) all stuck tasks.
+        craft()->db->createCommand()->delete('tasks');
+
+        $this->redirect(craft()->request->getUrlReferrer());
+    }
+
+    public function actionGetTaskSummary()
+    {
+        $this->requirePostRequest();
+        $this->requireAjaxRequest();
+        
+        $taskId = craft()->request->getPost('taskId');
+
+        
+
+        $this->returnJson(array('success' => true));
+    }
+
 }

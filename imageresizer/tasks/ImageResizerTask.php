@@ -3,6 +3,7 @@ namespace Craft;
 
 class ImageResizerTask extends BaseTask
 {
+    private $_taskId;
     private $_assets;
     private $_imageWidth;
     private $_imageHeight;
@@ -10,6 +11,7 @@ class ImageResizerTask extends BaseTask
     protected function defineSettings()
     {
         return array(
+            'taskId' => AttributeType::String,
             'assets' => AttributeType::Mixed,
             'imageWidth' => AttributeType::Number,
             'imageHeight' => AttributeType::Number,
@@ -23,6 +25,7 @@ class ImageResizerTask extends BaseTask
 
     public function getTotalSteps()
     {
+        $this->_taskId = $this->getSettings()->taskId;
         $this->_assets = $this->getSettings()->assets;
         $this->_imageWidth = $this->getSettings()->imageWidth;
         $this->_imageHeight = $this->getSettings()->imageHeight;
@@ -38,17 +41,12 @@ class ImageResizerTask extends BaseTask
         
         $path = $sourceType->getImageSourcePath($asset);
         $folder = $asset->folder;
-        $fileName = $asset->filename;
+        $filename = $asset->filename;
 
-        // Gives us a way to determine that this is different from an on-upload function
-        craft()->httpSession->add('ImageResizer_ResizeElementAction', true);
+        $width = $this->_imageWidth;
+        $height = $this->_imageHeight;
 
-        // Store width/height overrides
-        craft()->httpSession->add('ImageResizer_ResizeElementActionWidth', $this->_imageWidth);
-        craft()->httpSession->add('ImageResizer_ResizeElementActionHeight', $this->_imageHeight);
-
-        // This will trigger our `assets.onBeforeUploadAsset` hook
-        craft()->assets->insertFileByLocalPath($path, $fileName, $folder->id, AssetConflictResolution::Replace);
+        craft()->imageResizer_resize->resize($folder->source->id, $path, $width, $height, $this->_taskId);
 
         return true;
     }

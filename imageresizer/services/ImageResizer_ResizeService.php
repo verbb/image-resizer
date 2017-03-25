@@ -6,12 +6,25 @@ class ImageResizer_ResizeService extends BaseApplicationComponent
     // Public Methods
     // =========================================================================
 
-    public function resize($sourceId, $path, $width, $height)
+    public function resize($sourceId, $path, $width, $height, $taskId = null)
     {
         try {
             $settings = craft()->imageResizer->getSettings();
             $image = craft()->images->loadImage($path);
             $filename = basename($path);
+
+            // Is this a manipulatable image?
+            if (!ImageHelper::isImageManipulatable(IOHelper::getExtension($filename))) {
+                craft()->imageResizer_logs->log($taskId, 'skipped-non-image', $filename);
+                return true;
+            }
+
+            // Save some existing properties for logging (see savings)
+            $currentProperties = array(
+                'width' => $image->getWidth(),
+                'height' => $image->getHeight(),
+                'size' => filesize($path),
+            );
 
             // We can have settings globally, or per asset source. Check!
             // Our maximum width/height for assets from plugin settings
@@ -51,20 +64,26 @@ class ImageResizer_ResizeService extends BaseApplicationComponent
                     // Lets check to see if this resize resulted in a larger file - revert if so.
                     if (filesize($tempPath) < filesize($path)) {
                         $image->saveAs($path); // Its a smaller file - properly save
+
+                        craft()->imageResizer_logs->log($taskId, 'success', $filename, array('prev' => $currentProperties));
                     } else {
-                        ImageResizerPlugin::log('Did not resize ' . $filename . ' as it would result in a larger file.', LogLevel::Info, true);
+                        craft()->imageResizer_logs->log($taskId, 'skipped-larger-result', $filename);
                     }
 
                     // Delete our temp file we test filesize with
                     IOHelper::deleteFile($tempPath, true);
                 } else {
                     $image->saveAs($path);
+
+                    craft()->imageResizer_logs->log($taskId, 'success', $filename, array('prev' => $currentProperties));
                 }
+            } else {
+                craft()->imageResizer_logs->log($taskId, 'skipped-under-limits', $filename);
             }
 
             return true;
         } catch (\Exception $e) {
-            ImageResizerPlugin::log($e->getMessage(), LogLevel::Error, true);
+            craft()->imageResizer_logs->log($taskId, 'error', $filename, array('message' => $e->getMessage()));
 
             return false;
         }
