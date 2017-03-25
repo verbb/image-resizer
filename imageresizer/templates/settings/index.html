@@ -49,6 +49,14 @@
         on: settings.skipLarger,
     }) }}
 
+    {{ forms.lightswitchField({
+        label: 'Non-destructive' | t,
+        instructions: 'Image Resizer will save a copy of your original image, untouched. This will be in a folder called `originals`, relative to the source image.' | t,
+        id: 'nonDestructiveResize',
+        name: 'nonDestructiveResize',
+        on: settings.nonDestructiveResize,
+    }) }}
+
     {% for item in sourceOptions %}
         <hr>
 
@@ -88,11 +96,19 @@
 
 <div id="crop" class="hidden">
     <div class="field">
+        {{ forms.lightswitchField({
+            label: 'Non-destructive' | t,
+            instructions: 'Image Resizer will save a copy of your original image, untouched. This will be in a folder called `originals`, relative to the source image.' | t,
+            id: 'nonDestructiveCrop',
+            name: 'nonDestructiveCrop',
+            on: settings.nonDestructiveCrop,
+        }) }}
+
         <div class="heading">
             <label for="settings-assetFolders">{{ "Cropping Aspect Ratios" | t }}</label>
 
             <div class="instructions">
-                {{ "Manage the aspect ratios available to the cropping interface for images. Width and Height contraints should be provided as numbers relative to each other, or use special `none` or `relative`." | md | t }}
+                {{ "Manage the aspect ratios available to the cropping interface for images. Width and Height contraints should be provided as numbers relative to each other, or use special `none` or `relative`." | t | md }}
             </div>
         </div>
 

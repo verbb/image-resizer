@@ -71,6 +71,8 @@ class ImageResizerPlugin extends BasePlugin
             'assetSources' => array( AttributeType::Mixed, 'default' => '*' ), // Deprecated
             'assetSourceSettings' => array( AttributeType::Mixed ),
             'skipLarger' => array( AttributeType::Bool, 'default' => true ),
+            'nonDestructiveResize' => array( AttributeType::Bool, 'default' => false ),
+            'nonDestructiveCrop' => array( AttributeType::Bool, 'default' => false ),
 
             // Cropping
             'croppingRatios' => array( AttributeType::Mixed, 'default' => array(

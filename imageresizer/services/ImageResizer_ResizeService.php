@@ -34,6 +34,19 @@ class ImageResizer_ResizeService extends BaseApplicationComponent
             $imageWidth = ($width) ? $width : $imageWidth;
             $imageHeight = ($height) ? $height : $imageHeight;
 
+            // Check to see if we should make a copy of our original image first?
+            if ($settings->nonDestructiveResize) {
+                $folderPath = str_replace($filename, '', $path) . 'originals/';
+                IOHelper::ensureFolderExists($folderPath);
+
+                $filePath = $folderPath . $filename;
+
+                // Only copy the original if there's not already one created
+                if (!IOHelper::fileExists($filePath)) {
+                    IOHelper::copyFile($path, $filePath);
+                }
+            }
+
             // Lets check to see if this image needs resizing. Split into two steps to ensure
             // proper aspect ratio is preserved and no upscaling occurs.
             $hasResized = false;
