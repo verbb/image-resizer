@@ -47,22 +47,18 @@ class ImageResizerPlugin extends BasePlugin
         return 'https://raw.githubusercontent.com/engram-design/ImageResizer/master/changelog.json';
     }
 
-    public function getSettingsHtml()
+    public function getSettingsUrl()
     {
-        $sourceOptions = array();
-        $folderOptions = array();
-        foreach (craft()->assetSources->getAllSources() as $source) {
-            $sourceOptions[] = array('label' => $source->name, 'value' => $source->id);
-        }
+        return 'imageresizer/settings';
+    }
 
-        $assetTree = craft()->assets->getFolderTreeBySourceIds(craft()->assetSources->getAllSourceIds());
-        craft()->imageResizer->getAssetFolders($assetTree, $folderOptions);
-
-        return craft()->templates->render('imageresizer/settings', array(
-            'settings' => $this->getSettings(),
-            'folderOptions' => $folderOptions,
-            'sourceOptions' => $sourceOptions,
-        ));
+    public function registerCpRoutes()
+    {
+        return array(
+            'imageresizer' => array('action' => 'imageResizer/logs/logs'),
+            'imageresizer/logs' => array('action' => 'imageResizer/logs/logs'),
+            'imageresizer/settings' => array('action' => 'imageResizer/settings'),
+        );
     }
 
     protected function defineSettings()
@@ -79,17 +75,17 @@ class ImageResizerPlugin extends BasePlugin
             // Cropping
             'croppingRatios' => array( AttributeType::Mixed, 'default' => array(
                 array(
-                    'name' => 'Free',
+                    'name' => Craft::t('Free'),
                     'width' => 'none',
                     'height' => 'none',
                 ),
                 array(
-                    'name' => 'Square',
+                    'name' => Craft::t('Square'),
                     'width' => 1,
                     'height' => 1,
                 ),
                 array(
-                    'name' => 'Constrain',
+                    'name' => Craft::t('Constrain'),
                     'width' => 'relative',
                     'height' => 'relative',
                 ),

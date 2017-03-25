@@ -1,0 +1,37 @@
+{% extends 'imageresizer/_layouts' %}
+
+{% set crumbs = [
+    { label: craft.imageResizer.getPluginName | t, url: url('imageresizer') },
+    { label: "Logs" | t, url: url('imageresizer/logs') }
+] %}
+
+{% set selectedTab = 'logs' %}
+
+{% block blockContent %}
+
+<a class="btn right" href="{{ actionUrl('imageResizer/logs/clear') }}">{{ "Clear logs" | t }}</a>
+
+<table id="logs" class="data fullwidth collapsible">
+    <thead>
+        <tr>
+            <th scope="col">{{ "Date" | t }}</th>
+            <th scope="col">{{ "Message" | t }}</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for logEntry in logEntries %}
+            <tr>
+                <td>
+                    <div style="width: 150px">
+                        {{ logEntry.dateTime.localeDate() ~ ' ' ~ logEntry.dateTime.localeTime() }}
+                    </div>
+                </td>
+
+                <td>{{ logEntry.message }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

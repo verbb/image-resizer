@@ -1,0 +1,35 @@
+{% extends parentLayout | default("_layouts/cp") %}
+
+{% import "_includes/forms" as forms %}
+{% import "imageresizer/_macros" as imageResizerMacro %}
+
+{% set tabs = {
+    logs: { label: "Logs" | t, url: url('imageresizer/logs') },
+    settings: { label: "Settings" | t, url: url('imageresizer/settings') },
+} %}
+
+{% if title is not defined %}
+    {% set title = craft.imageresizer.getPluginName ~ ' ' ~ tabs[selectedTab].label %}
+{% endif %}
+
+{% set content %}
+    {% block blockContent %}
+
+    {% endblock %}
+
+    <hr>
+    
+    <div id="plugin-footer">
+        <div class="footer-left">
+            {% block footerButton %}
+
+            {% endblock %}
+        </div>
+
+        <div class="footer-right">
+            <div class="plugin-credit">
+                <p>{{ craft.imageResizer.getPluginName }} {{ craft.imageResizer.getPluginVersion }} &bull; <a href="{{ craft.imageResizer.getPluginUrl }}" target="_blank">GitHub</a></p>
+            </div>
+        </div>
+    </div>
+{% endset %}

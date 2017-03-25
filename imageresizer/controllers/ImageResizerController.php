@@ -12,6 +12,26 @@ class ImageResizerController extends BaseController
     // Public Methods
     // =========================================================================
 
+    public function actionSettings()
+    {
+        $settings = craft()->imageResizer->getSettings();
+
+        $sourceOptions = array();
+        $folderOptions = array();
+        foreach (craft()->assetSources->getAllSources() as $source) {
+            $sourceOptions[] = array('label' => $source->name, 'value' => $source->id);
+        }
+
+        $assetTree = craft()->assets->getFolderTreeBySourceIds(craft()->assetSources->getAllSourceIds());
+        craft()->imageResizer->getAssetFolders($assetTree, $folderOptions);
+
+        $this->renderTemplate('imageresizer/settings', array(
+            'settings' => $settings,
+            'folderOptions' => $folderOptions,
+            'sourceOptions' => $sourceOptions,
+        ));
+    }
+
     public function actionClearTasks()
     {
         // Function to clear (delete) all stuck tasks.
