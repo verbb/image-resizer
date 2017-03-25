@@ -132,9 +132,20 @@ class ImageResizerController extends BaseController
         
         $taskId = craft()->request->getPost('taskId');
 
-        
+        $result = craft()->imageResizer_logs->getLogsForTaskId($taskId);
 
-        $this->returnJson(array('success' => true));
+        $summary = array(
+            'success' => 0,
+            'skipped' => 0,
+            'error' => 0,
+        );
+
+        // Split the logs for this task into success/skipped/error
+        foreach ($result as $entry) {
+            $summary[$entry->result] = $summary[$entry->result] + 1;
+        }
+
+        $this->returnJson(array('summary' => $summary));
     }
 
 }

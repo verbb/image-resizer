@@ -47,8 +47,11 @@ Craft.ResizeModal = Garnish.Modal.extend({
     $selectedItems: null,
     settings: null,
 
+    $container: null,
+    $footer: null,
     $body: null,
     $buttons: null,
+    $closeBtn: null,
     $cancelBtn: null,
     $saveBtn: null,
     $footerSpinner: null,
@@ -64,8 +67,8 @@ Craft.ResizeModal = Garnish.Modal.extend({
         var plural = ($selectedItems.length == 1) ? '' : 's';
 
         // Build the modal
-        var $container = $('<div class="modal fitted image-resizer-modal"></div>').appendTo(Garnish.$bod),
-            $footer = $('<div class="footer"/>').appendTo($container);
+        this.$container = $('<div class="modal fitted image-resizer-modal"></div>').appendTo(Garnish.$bod);
+        this.$footer = $('<div class="footer"/>').appendTo(this.$container);
 
         // Handle case for bulk-resize
         if (settings.bulkResize) {
@@ -90,17 +93,19 @@ Craft.ResizeModal = Garnish.Modal.extend({
             '</div>' +
         '</div>';
 
-        $body = $(bodyHtml).appendTo($container);
+        $body = $(bodyHtml).appendTo(this.$container);
 
-        this.base($container, this.settings);
+        this.base(this.$container, this.settings);
 
-        this.$footerSpinner = $('<div class="spinner hidden"/>').appendTo($footer);
-        this.$buttons = $('<div class="buttons rightalign first"/>').appendTo($footer);
-        this.$cancelBtn = $('<div class="btn">'+Craft.t('Cancel')+'</div>').appendTo(this.$buttons);
+        this.$footerSpinner = $('<div class="spinner hidden"/>').appendTo(this.$footer);
+        this.$buttons = $('<div class="buttons rightalign first"/>').appendTo(this.$footer);
+        this.$closeBtn = $('<div class="btn close hidden">'+Craft.t('Close')+'</div>').appendTo(this.$buttons);
+        this.$cancelBtn = $('<div class="btn cancel">'+Craft.t('Cancel')+'</div>').appendTo(this.$buttons);
         this.$saveBtn = $('<div class="btn submit">'+Craft.t('Resize')+'</div>').appendTo(this.$buttons);
 
         this.$body = $body;
 
+        this.addListener(this.$closeBtn, 'activate', 'onFadeOut');
         this.addListener(this.$cancelBtn, 'activate', 'onFadeOut');
         this.addListener(this.$saveBtn, 'activate', 'saveSettings');
     },
@@ -148,9 +153,6 @@ Craft.ResizeModal = Garnish.Modal.extend({
         // Trigger the task creation
         Craft.postActionRequest('imageResizer/resizeElementAction', data, $.proxy(function(response, textStatus) {}, this));
 
-        // Trigger running the task - from JS so as not to lock the browser session
-        Craft.postActionRequest('tasks/runPendingTasks', $.proxy(function(taskInfo, textStatus) {}, this));
-
         new Craft.ResizeTaskProgress(this, taskId, function() {
             modal.$footerSpinner.addClass('hidden');
 
@@ -161,15 +163,15 @@ Craft.ResizeModal = Garnish.Modal.extend({
                 $('<div><div data-icon="check"> ' + Craft.t('No images to resize!') + '</div>').appendTo($statusContainer);
             }
 
-            console.log()
+            modal.$closeBtn.removeClass('hidden');
+            modal.$cancelBtn.addClass('hidden');
+            modal.$saveBtn.addClass('hidden');
 
-            //setTimeout($.proxy(function() {
-                //modal.onFadeOut();
-
+            setTimeout($.proxy(function() {
                 if (Craft.elementIndex) {
                     Craft.elementIndex.updateElements();
                 }
-            //}), 1000);
+            }), 1000);
 
         });
     },
@@ -208,8 +210,14 @@ Craft.ResizeTaskProgress = Garnish.Base.extend({
 
         // Force the tasks icon to run
         setTimeout($.proxy(function() {
+            // Trigger running the task - from JS so as not to lock the browser session
+            Craft.postActionRequest('tasks/runPendingTasks', $.proxy(function(taskInfo, textStatus) {}, this));    
+        }, this), 500);
+
+        // Force the tasks icon to run
+        setTimeout($.proxy(function() {
             this.updateTasks();
-        }, this), 1000);
+        }, this), 1500);
 
 		if (this.updateTasksTimeout) {
 			clearTimeout(this.updateTasksTimeout);
@@ -326,19 +334,14 @@ Craft.ResizeTaskProgress.Task = Garnish.Base.extend({
         // Get the summary of our processing
         Craft.postActionRequest('imageResizer/getTaskSummary', { taskId: this.taskId }, $.proxy(function(taskInfo, textStatus) {
             if (textStatus == 'success') {
-                console.log(taskInfo)
+                var html = '<span class="success">' + Craft.t('Success') + ': ' + taskInfo.summary.success + ', </span>' + 
+                    '<span class="skipped">' + Craft.t('Skipped') + ': ' + taskInfo.summary.skipped + ', </span>' + 
+                    '<span class="error">' + Craft.t('Error') + ': ' + taskInfo.summary.error + ' </span>';
+
+                this.$statusContainer.empty();
+                $('<div>' + html + '</div>').appendTo(this.$statusContainer);
             }
         }, this));
-
-        //this.$statusContainer.empty();
-
-        /*Craft.postActionRequest('tasks/getTaskInfo', $.proxy(function(taskInfo, textStatus) {
-            if (textStatus == 'success') {
-                this.showTaskInfo(taskInfo[0]);
-            }
-        }, this));*/
-
-        //$('<div><div data-icon="check"> ' + Craft.t('Resizing complete!') + '</div>').appendTo(this.$statusContainer);
     },
 
     destroy: function() {

@@ -46,7 +46,17 @@ class ImageResizerTask extends BaseTask
         $width = $this->_imageWidth;
         $height = $this->_imageHeight;
 
-        craft()->imageResizer_resize->resize($folder->source->id, $path, $width, $height, $this->_taskId);
+        craft()->imageResizer_resize->resize($folder->source->id, $filename, $path, $width, $height, $this->_taskId);
+
+        // Update Craft's data
+        $asset->size = filesize($path);
+        $asset->dateModified = IOHelper::getLastTimeModified($path);
+
+        list ($assetWidth, $assetHeight) = ImageHelper::getImageSize($path);
+        $asset->width = $assetWidth;
+        $asset->height = $assetHeight;
+
+        craft()->assets->storeFile($asset);
 
         return true;
     }

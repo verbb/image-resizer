@@ -6,21 +6,20 @@ class ImageResizer_ResizeService extends BaseApplicationComponent
     // Public Methods
     // =========================================================================
 
-    public function resize($sourceId, $path, $width, $height, $taskId = null)
+    public function resize($sourceId, $filename, $path, $width, $height, $taskId = null)
     {
+        // Is this a manipulatable image?
+        if (!ImageHelper::isImageManipulatable(IOHelper::getExtension($filename))) {
+            craft()->imageResizer_logs->resizeLog($taskId, 'skipped-non-image', $filename);
+            return true;
+        }
+
         try {
             $settings = craft()->imageResizer->getSettings();
             $image = craft()->images->loadImage($path);
-            $filename = basename($path);
-
-            // Is this a manipulatable image?
-            if (!ImageHelper::isImageManipulatable(IOHelper::getExtension($filename))) {
-                craft()->imageResizer_logs->log($taskId, 'skipped-non-image', $filename);
-                return true;
-            }
 
             // Save some existing properties for logging (see savings)
-            $currentProperties = array(
+            $originalProperties = array(
                 'width' => $image->getWidth(),
                 'height' => $image->getHeight(),
                 'size' => filesize($path),
@@ -65,9 +64,15 @@ class ImageResizer_ResizeService extends BaseApplicationComponent
                     if (filesize($tempPath) < filesize($path)) {
                         $image->saveAs($path); // Its a smaller file - properly save
 
-                        craft()->imageResizer_logs->log($taskId, 'success', $filename, array('prev' => $currentProperties));
+                        $newProperties = array(
+                            'width' => $image->getWidth(),
+                            'height' => $image->getHeight(),
+                            'size' => filesize($tempPath),
+                        );
+
+                        craft()->imageResizer_logs->resizeLog($taskId, 'success', $filename, array('prev' => $originalProperties, 'curr' => $newProperties));
                     } else {
-                        craft()->imageResizer_logs->log($taskId, 'skipped-larger-result', $filename);
+                        craft()->imageResizer_logs->resizeLog($taskId, 'skipped-larger-result', $filename);
                     }
 
                     // Delete our temp file we test filesize with
@@ -75,15 +80,21 @@ class ImageResizer_ResizeService extends BaseApplicationComponent
                 } else {
                     $image->saveAs($path);
 
-                    craft()->imageResizer_logs->log($taskId, 'success', $filename, array('prev' => $currentProperties));
+                    $newProperties = array(
+                        'width' => $image->getWidth(),
+                        'height' => $image->getHeight(),
+                        'size' => filesize($path),
+                    );
+
+                    craft()->imageResizer_logs->resizeLog($taskId, 'success', $filename, array('prev' => $originalProperties, 'curr' => $newProperties));
                 }
             } else {
-                craft()->imageResizer_logs->log($taskId, 'skipped-under-limits', $filename);
+                craft()->imageResizer_logs->resizeLog($taskId, 'skipped-under-limits', $filename);
             }
 
             return true;
         } catch (\Exception $e) {
-            craft()->imageResizer_logs->log($taskId, 'error', $filename, array('message' => $e->getMessage()));
+            craft()->imageResizer_logs->resizeLog($taskId, 'error', $filename, array('message' => $e->getMessage()));
 
             return false;
         }
@@ -100,4 +111,5 @@ class ImageResizer_ResizeService extends BaseApplicationComponent
 
         $image->resize($dimensions[0], $dimensions[1]);
     }
+
 }

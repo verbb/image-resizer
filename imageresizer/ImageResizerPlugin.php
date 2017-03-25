@@ -120,9 +120,6 @@ class ImageResizerPlugin extends BasePlugin
 
     public function init()
     {
-
-        craft()->imageResizer_logs->getLogsForTaskId('mAUWM');
-
         if (craft()->request->isCpRequest()) {
             craft()->templates->includeTranslations(
                 // Resizing Modal
@@ -149,6 +146,7 @@ class ImageResizerPlugin extends BasePlugin
         craft()->on('assets.onBeforeUploadAsset', function(Event $event) {
             $path = $event->params['path'];
             $folder = $event->params['folder'];
+            $filename = $event->params['filename'];
 
             // If we've triggered this from our cropping action, don't resize too
             if (craft()->httpSession->get('ImageResizer_CropElementAction')) {
@@ -158,12 +156,12 @@ class ImageResizerPlugin extends BasePlugin
 
             // Should we be modifying images in this source?
             if (!craft()->imageResizer->getSettingForAssetSource($folder->source->id, 'enabled')) {
-                craft()->imageResizer_logs->log('skipped-source-disabled', $filename);
+                craft()->imageResizer_logs->resizeLog(null, 'skipped-source-disabled', $filename);
                 return true;
             }
 
             // Resize the image
-            craft()->imageResizer_resize->resize($folder->source->id, $path, null, null);
+            craft()->imageResizer_resize->resize($folder->source->id, $filename, $path, null, null);
         });
     }
 

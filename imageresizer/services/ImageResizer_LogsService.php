@@ -12,7 +12,7 @@ class ImageResizer_LogsService extends BaseApplicationComponent
     // Public Methods
     // =========================================================================
 
-    public function log($taskId, $handle, $filename, $data = array())
+    public function resizeLog($taskId, $handle, $filename, $data = array())
     {
         $options = array(
             'taskId' => $taskId,

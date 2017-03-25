@@ -1,5 +1,7 @@
 {% extends 'imageresizer/_layouts' %}
 
+{% includeCssResource 'imageresizer/css/Logs.css' %}
+
 {% set crumbs = [
     { label: craft.imageResizer.getPluginName | t, url: url('imageresizer') },
     { label: "Logs" | t, url: url('imageresizer/logs') }
@@ -14,18 +16,42 @@
 <table id="logs" class="data fullwidth collapsible">
     <thead>
         <tr>
-            <th scope="col">{{ "Date" | t }}</th>
-            <th scope="col">{{ "Message" | t }}</th>
+            <th scope="col" class="thin">{{ "Filename" | t }}</th>
+            <th scope="col">{{ "Result" | t }}</th>
+            <th scope="col">{{ "Timestamp" | t }}</th>
         </tr>
     </thead>
 
     <tbody>
         {% for entry in logEntries %}
             <tr>
-                <td>
-                    <div style="width: 150px">
+                <td class="col-label" data-title="{{ 'Filename' | t }}">
+                    <span class="">{{ entry.filename }}</span>
+                </td>
+
+                <td class="col-label" data-title="{{ 'Result' | t }}">
+                    <span class="log-result {{ entry.result }}">{{ entry.result }}</span>
+
+                    <span class="log-label {{ entry.result }}">
+                        {{ entry.description }}
+
+                        {% if entry.handle == 'success' %}
+                            {% set prevSize = entry.data.prev.size %}
+                            {% set currSize = entry.data.curr.size %}
+                            {% set saved = prevSize - currSize %}
+                            
+                            {% set filesize = imageResizerMacro.filesize(saved) %}
+                            {% set percentage = ((saved / prevSize) * 100) | number_format %}
+
+                            {{ "Saved {perc}% ({num})." | t({ num: filesize, perc: percentage }) }}
+                        {% endif %}
+                    </span>
+                </td>
+
+                <td data-title="{{ 'Timestamp' | t }}">
+                    <code>
                         {{ entry.dateTime.localeDate() ~ ' ' ~ entry.dateTime.localeTime() }}
-                    </div>
+                    </code>
                 </td>
             </tr>
         {% endfor %}

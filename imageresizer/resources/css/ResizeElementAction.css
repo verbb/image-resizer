@@ -44,10 +44,22 @@
 
 
 .image-resizer-modal .task {
-    margin: 2.5em 0;
+    margin: 2.5em 0 0;
 }
 
 .image-resizer-modal .task .task-status {
     text-align: center;
-    font-weight: bold;
 }
+
+.image-resizer-modal .task .task-status .success {
+    color: #27AE60;
+}
+
+.image-resizer-modal .task .task-status .error {
+    color: #D0021B;
+}
+
+.image-resizer-modal .task .task-status .skipped {
+    color: #F2842D;
+}
+

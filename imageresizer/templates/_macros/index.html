@@ -67,3 +67,8 @@
     }) }}
 {% endmacro %}
 
+{% macro filesize(size) %}{% spaceless %}
+    {% set kiloBytes = (size / 1024) | round(2) %}
+    {% set filesize = (kiloBytes > 1000) ? (kiloBytes / 1024) | round(2) ~ 'mb' : kiloBytes ~ 'kb' %}
+    {{ filesize }}
+{% endspaceless %}{% endmacro %}
