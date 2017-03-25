@@ -62,6 +62,16 @@ Default aspect ratio options are:
 - **4:3:** Restricted to a 4:3 aspect ratio crop
 
 
+## Logs
+
+Each time an image is processed (resized or cropped), a log item will be created to provide feedback on the task that has occured. Particularly useful for resizing images. When using the Element Action, or bulk resizing, you'll be shown a summary of files resized and their state (as below).
+
+<img src="https://raw.githubusercontent.com/engram-design/ImageResizer/master/screenshots/resizeelementaction-logs.png" width="400" />
+
+A detailed Log screen shows further detail on each image that's been processed.
+
+<img src="https://raw.githubusercontent.com/engram-design/ImageResizer/master/screenshots/logs.png" />
+
 ## Roadmap
 
 - Provide cropping options on-upload.
