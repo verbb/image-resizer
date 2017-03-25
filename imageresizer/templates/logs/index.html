@@ -45,6 +45,10 @@
 
                             {{ "Saved {perc}% ({num})." | t({ num: filesize, perc: percentage }) }}
                         {% endif %}
+
+                        {% if entry.handle == 'error' %}
+                            {{ entry.data.message }}
+                        {% endif %}
                     </span>
                 </td>
 
