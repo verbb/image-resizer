@@ -14,7 +14,7 @@ class ImageResizerPlugin extends BasePlugin
 
     public function getVersion()
     {
-        return '0.1.4';
+        return '1.0.0';
     }
 
     public function getSchemaVersion()

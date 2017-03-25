@@ -1,5 +1,20 @@
 [
     {
+        "version": "1.0.0",
+        "downloadUrl": "https://github.com/engram-design/ImageResizer/archive/1.0.0.zip",
+        "date": "2017-03-26T09:30:00+10:00",
+        "notes": [
+            "[Added] Added brand new logging system showing success/skips/error. Also shows summary after bulk-resizing images (in the modal window).",
+            "[Added] Added non-destructive options for resizing and cropping. Originals will be saved in an `originals` folder relative to your asset.",
+            "[Added] Added a `Clear pending tasks` button to Settings > Other.",
+            "[Improved] Cropping and resizing now preserves EXIF and other metadata for images.",
+            "[Improved] Resizing tasks refactored, which makes better sense rather than re-using the `assets.onBeforeUploadAsset` event.",
+            "[Improved] Refactor plugin templates for common layout.",
+            "[Fixed] Properly implement translations throughout the plugin.",
+            "[Fixed] Fixes for Craft 2.6.2962 and Craft 2.6.2951."
+        ]
+    },
+    {
         "version": "0.1.4",
         "downloadUrl": "https://github.com/engram-design/ImageResizer/archive/0.1.4.zip",
         "date": "2016-06-29T14:22:00+10:00",
