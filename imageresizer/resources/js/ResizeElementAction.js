@@ -336,7 +336,8 @@ Craft.ResizeTaskProgress.Task = Garnish.Base.extend({
             if (textStatus == 'success') {
                 var html = '<span class="success">' + Craft.t('Success') + ': ' + taskInfo.summary.success + ', </span>' + 
                     '<span class="skipped">' + Craft.t('Skipped') + ': ' + taskInfo.summary.skipped + ', </span>' + 
-                    '<span class="error">' + Craft.t('Error') + ': ' + taskInfo.summary.error + ' </span>';
+                    '<span class="error">' + Craft.t('Error') + ': ' + taskInfo.summary.error + ' </span>' + 
+                    '<a class="go" href="' + Craft.getUrl('imageresizer/logs') + '">' + Craft.t('View logs') + '</a>';
 
                 this.$statusContainer.empty();
                 $('<div>' + html + '</div>').appendTo(this.$statusContainer);

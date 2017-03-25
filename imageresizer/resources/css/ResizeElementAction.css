@@ -51,6 +51,10 @@
     text-align: center;
 }
 
+.image-resizer-modal .task .task-status a {
+    margin-left: 10px;
+}
+
 .image-resizer-modal .task .task-status .success {
     color: #27AE60;
 }
