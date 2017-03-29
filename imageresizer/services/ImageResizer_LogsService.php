@@ -24,6 +24,12 @@ class ImageResizer_LogsService extends BaseApplicationComponent
         ImageResizerPlugin::log(json_encode($options), LogLevel::Info, true);
     }
 
+    public function clear()
+    {
+        $currentFullPath = craft()->path->getLogPath() . $this->_currentLogFileName;
+        IOHelper::deleteFile($currentFullPath, true);
+    }
+
     public function getLogsForTaskId($taskId)
     {
         $logEntries = array();

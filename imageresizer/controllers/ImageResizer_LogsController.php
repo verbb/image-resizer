@@ -17,8 +17,7 @@ class ImageResizer_LogsController extends BaseController
 
     public function actionClear()
     {
-        $currentFullPath = craft()->path->getLogPath() . $this->_currentLogFileName;
-        IOHelper::deleteFile($currentFullPath, true);
+        craft()->imageResizer_logs->clear();
 
         craft()->request->redirect(craft()->request->urlReferrer);
     }
