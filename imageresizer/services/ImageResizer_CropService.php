@@ -9,8 +9,13 @@ class ImageResizer_CropService extends BaseApplicationComponent
     public function crop($asset, $x1, $x2, $y1, $y2)
     {
         $sourceType = craft()->assetSources->getSourceTypeById($asset->sourceId);
+
+        if ($sourceType->isRemote()) {
+            $path = $sourceType->getLocalCopy($asset);
+        } else {
+            $path = $sourceType->getImageSourcePath($asset);
+        }
         
-        $path = $sourceType->getImageSourcePath($asset);
         $folder = $asset->folder;
         $fileName = $asset->filename;
 
