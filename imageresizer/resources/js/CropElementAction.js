@@ -123,13 +123,15 @@ Craft.CropImageModal = Garnish.Modal.extend(
         var dataId = $(this.$selectedItems).data('id');
         
         Craft.postActionRequest('imageResizer/cropElementAction', { assetId: dataId }, $.proxy(function(response, textStatus) {
-            this.$body.find('.spinner').addClass('hidden');
 
             if (textStatus == 'success') {
-                var $imgContainer = $(response.html).appendTo(this.$container.find('.image-chooser'));
+                $(response.html).appendTo(this.$container.find('.image-chooser'));
 
-                // Setup cropping
-                this.$container.find('img').load($.proxy(function() {
+                this.$container.imagesLoaded($.proxy(function() {
+                    this.$container.find('img').css('opacity', 1);
+                    this.$body.find('.spinner').addClass('hidden');
+
+                    // Setup cropping
                     this.areaSelect = new Craft.CropImageAreaTool(this.$body, {
                         aspectRatio: "",
                         initialRectangle: {
@@ -138,6 +140,7 @@ Craft.CropImageModal = Garnish.Modal.extend(
                     }, this);
 
                     this.areaSelect.showArea();
+
                 }, this));
             }
             

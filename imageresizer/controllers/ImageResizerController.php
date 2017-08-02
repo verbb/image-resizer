@@ -79,7 +79,7 @@ class ImageResizerController extends BaseController
             $height = round($asset->height * $factor);
             $fileName = $asset->title;
 
-            $html = '<img src="'.$imageUrl.'" width="'.$width.'" height="'.$height.'" data-factor="'.$factor.'" data-constraint="'.$constraint.'"/>';
+            $html = '<img src="'.$imageUrl.'" width="'.$width.'" height="'.$height.'" data-factor="'.$factor.'" data-constraint="'.$constraint.'" style="opacity: 0;"/>';
 
             $this->returnJson(array('html' => $html));
         }
