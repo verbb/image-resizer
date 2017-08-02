@@ -13,6 +13,8 @@ class ImageResizer_CropImageElementAction extends BaseElementAction
         craft()->templates->includeJsResource('lib/jcrop/jquery.Jcrop.min.js');
         craft()->templates->includeCssResource('lib/jcrop/jquery.Jcrop.min.css');
 
+        craft()->templates->includeJsResource('imageresizer/lib/imagesloaded.pkgd.min.js');
+
         $croppingRatios = craft()->imageResizer->getSettings()->croppingRatios;
 
         craft()->templates->includeCssResource('imageresizer/css/CropElementAction.css');
