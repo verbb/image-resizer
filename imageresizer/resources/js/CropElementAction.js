@@ -41,6 +41,7 @@ Craft.CropImageModal = Garnish.Modal.extend(
 
         this.desiredWidth = 400;
         this.desiredHeight = 280;
+        this.initialAspectRatio = settings.croppingRatios[0];
 
         // Build the modal
         var $container = $('<div class="modal fitted logo-modal last image-resizer-crop-modal"></div>').appendTo(Garnish.$bod),
@@ -58,7 +59,7 @@ Craft.CropImageModal = Garnish.Modal.extend(
 
         this.$footerSpinner = $('<div class="spinner hidden"/>').appendTo($footer);
         this.$buttonsLeft = $('<div class="buttons leftalign first"/>').appendTo($footer);
-        this.$aspectRatioSelect = $('<div class="btn menubtn">'+Craft.t('Aspect Ratio')+': <span class="select-option">'+Craft.t('Free')+'</span></div>').appendTo(this.$buttonsLeft);
+        this.$aspectRatioSelect = $('<div class="btn menubtn">'+Craft.t('Aspect Ratio')+': <span class="select-option">'+Craft.t(this.initialAspectRatio.name)+'</span></div>').appendTo(this.$buttonsLeft);
 
         this.$buttonsRight = $('<div class="buttons rightalign first"/>').appendTo($footer);
         this.$cancelBtn = $('<div class="btn">'+Craft.t('Cancel')+'</div>').appendTo(this.$buttonsRight);
@@ -76,6 +77,7 @@ Craft.CropImageModal = Garnish.Modal.extend(
 
     setupAspectRatio: function() {
         var menuOptions = '';
+
         $.each(this.settings.croppingRatios, function(index, item) {
             menuOptions += '<li><a data-action="' + index + '" data-width="' + item.width + '" data-height="' + item.height + '">' + Craft.t(item.name) + '</a></li>';
         });
@@ -140,6 +142,10 @@ Craft.CropImageModal = Garnish.Modal.extend(
                     }, this);
 
                     this.areaSelect.showArea();
+
+                    // Set the inital aspect ratio
+                    var $firstOption = $(this.$aspectRatioSelect.data('menuButton').menu.$options[0]);
+                    $firstOption.trigger('click');
 
                 }, this));
             }

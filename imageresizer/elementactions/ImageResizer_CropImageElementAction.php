@@ -17,6 +17,9 @@ class ImageResizer_CropImageElementAction extends BaseElementAction
 
         $croppingRatios = craft()->imageResizer->getSettings()->croppingRatios;
 
+        // Convert to reguar array for JS - otherwise keeps original ordering
+        $croppingRatios = array_values($croppingRatios);
+
         craft()->templates->includeCssResource('imageresizer/css/CropElementAction.css');
         craft()->templates->includeJsResource('imageresizer/js/CropElementAction.js');
 
