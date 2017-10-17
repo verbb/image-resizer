@@ -1,5 +1,13 @@
 [
     {
+        "version": "1.0.1",
+        "downloadUrl": "https://github.com/engram-design/ImageResizer/archive/1.0.1.zip",
+        "date": "2017-10-18T00:00:00+10:00",
+        "notes": [
+            "[Added] Verbb marketing (new plugin icon, readme, etc)."
+        ]
+    },
+    {
         "version": "1.0.0",
         "downloadUrl": "https://github.com/engram-design/ImageResizer/archive/1.0.0.zip",
         "date": "2017-03-26T09:30:00+10:00",

@@ -14,7 +14,7 @@ class ImageResizerPlugin extends BasePlugin
 
     public function getVersion()
     {
-        return '1.0.0';
+        return '1.0.1';
     }
 
     public function getSchemaVersion()
@@ -24,17 +24,17 @@ class ImageResizerPlugin extends BasePlugin
 
     public function getDeveloper()
     {
-        return 'S. Group';
+        return 'Verbb';
     }
 
     public function getDeveloperUrl()
     {
-        return 'http://sgroup.com.au';
+        return 'https://verbb.io';
     }
 
     public function getPluginUrl()
     {
-        return 'https://github.com/engram-design/ImageResizer';
+        return 'https://github.com/verbb/image-resizer';
     }
 
     public function getDocumentationUrl()
@@ -44,7 +44,7 @@ class ImageResizerPlugin extends BasePlugin
 
     public function getReleaseFeedUrl()
     {
-        return 'https://raw.githubusercontent.com/engram-design/ImageResizer/master/changelog.json';
+        return 'https://raw.githubusercontent.com/verbb/image-resizer/master/changelog.json';
     }
 
     public function getSettingsUrl()
