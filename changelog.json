@@ -4,7 +4,11 @@
         "downloadUrl": "https://github.com/engram-design/ImageResizer/archive/1.0.1.zip",
         "date": "2017-10-18T00:00:00+10:00",
         "notes": [
-            "[Added] Verbb marketing (new plugin icon, readme, etc)."
+            "[Added] Verbb marketing (new plugin icon, readme, etc).",
+            "[Fixed] Ensure custom order for crop options is respected (and automatically selected).",
+            "[Fixed] Fix issue for remote images not correctly reading image dimensions (causing incorrect cropping).",
+            "[Fixed] Use ImagesLoaded.js for better UI feedback when dealing with large or remote images.",
+            "[Fixed] Fix issue when clearing logs."
         ]
     },
     {
