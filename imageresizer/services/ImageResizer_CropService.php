@@ -15,9 +15,31 @@ class ImageResizer_CropService extends BaseApplicationComponent
         } else {
             $path = $sourceType->getImageSourcePath($asset);
         }
-        
-        $folder = $asset->folder;
+
+        $folder   = $asset->folder;
         $fileName = $asset->filename;
+
+        // Check to see if we shouldn't overwrite the original image
+        $settings = craft()->imageResizer->getSettings();
+        if ($settings->nonDestructiveCrop) {
+
+          // Determine cropped name
+          $cropFilename = basename($path);
+          $cropFilename = explode('.', $cropFilename);
+          $cropFilename[ count($cropFilename) - 2 ] .= '_cropped';
+          $cropFilename = implode('.', $cropFilename);
+
+          // To make sure we don't trigger resizing in the below `assets.onBeforeUploadAsset` hook
+          craft()->httpSession->add('ImageResizer_CropElementAction', true);
+
+          // Copy original to cropped version
+          craft()->assets->insertFileByLocalPath($path, $cropFilename, $folder->id, AssetConflictResolution::Replace);
+
+          // Change path / filename for cropped version to be cropped
+          $sourceFilename = basename($path);
+          $path     = str_replace($sourceFilename, $cropFilename, $path);
+          $fileName = $cropFilename;
+        }
 
         // Perform the actual cropping
         $this->_cropWithPath($path, $x1, $x2, $y1, $y2);
@@ -43,25 +65,12 @@ class ImageResizer_CropService extends BaseApplicationComponent
             $image = craft()->images->loadImage($path);
             $filename = basename($path);
 
-            // Check to see if we should make a copy of our original image first?
-            if ($settings->nonDestructiveCrop) {
-                $folderPath = str_replace($filename, '', $path) . 'originals/';
-                IOHelper::ensureFolderExists($folderPath);
-
-                $filePath = $folderPath . $filename;
-
-                // Only copy the original if there's not already one created
-                if (!IOHelper::fileExists($filePath)) {
-                    IOHelper::copyFile($path, $filePath);
-                }
-            }
-
             // Make sure that image quality isn't messed with for cropping
             $image->setQuality(craft()->imageResizer->getImageQuality($filename, 100));
 
             // Do the cropping
             $image->crop($x1, $x2, $y1, $y2);
-            
+
             craft()->imageResizer->saveAs($image, $path);
 
             return true;
