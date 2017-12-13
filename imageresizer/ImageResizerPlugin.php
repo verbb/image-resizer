@@ -39,12 +39,12 @@ class ImageResizerPlugin extends BasePlugin
 
     public function getDocumentationUrl()
     {
-        return $this->getPluginUrl() . '/blob/master/README.md';
+        return 'https://verbb.io/craft-plugins/image-resizer/docs';
     }
 
     public function getReleaseFeedUrl()
     {
-        return 'https://raw.githubusercontent.com/verbb/image-resizer/master/changelog.json';
+        return 'https://raw.githubusercontent.com/verbb/image-resizer/craft-2/changelog.json';
     }
 
     public function getSettingsUrl()
