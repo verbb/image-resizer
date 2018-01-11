@@ -2,7 +2,7 @@
     {
         "version": "1.0.2",
         "downloadUrl": "https://github.com/engram-design/ImageResizer/archive/1.0.2.zip",
-        "date": "2017-11-24T00:00:00+10:00",
+        "date": "2018-01-11T00:00:00+10:00",
         "notes": [
             "[Improved] Non-destructive on Cropping now copies the original asset, instead of just the file.",
             "[Fixed] Bulk Resize stops if a non-image exists in the directory."
