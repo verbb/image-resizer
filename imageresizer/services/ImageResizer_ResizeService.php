@@ -63,8 +63,10 @@ class ImageResizer_ResizeService extends BaseApplicationComponent
             }
 
             if ($hasResized) {
-                // Set image quality - but normalise (for PNG)!
-                $image->setQuality(craft()->imageResizer->getImageQuality($filename));
+                // Set image quality - but normalise (for PNG)! Ignore for SVG
+                if (method_exists($image, 'setQuality')) {
+                    $image->setQuality(craft()->imageResizer->getImageQuality($filename));
+                }
 
                 // If we're checking for larger images
                 if ($settings->skipLarger) {
