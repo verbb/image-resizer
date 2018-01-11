@@ -98,7 +98,7 @@
     <div class="field">
         {{ forms.lightswitchField({
             label: 'Non-destructive' | t,
-            instructions: 'Image Resizer will save a copy of your original image, untouched. This will be in a folder called `originals`, relative to the source image.' | t,
+            instructions: 'Image Resizer will make a copy of your original image and save it with _cropped after the filename. The asset will also be copied with Cropped after the name and will be available in the folder relative to the source image.' | t,
             id: 'nonDestructiveCrop',
             name: 'nonDestructiveCrop',
             on: settings.nonDestructiveCrop,
