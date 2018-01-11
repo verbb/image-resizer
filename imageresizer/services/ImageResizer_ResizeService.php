@@ -6,7 +6,7 @@ class ImageResizer_ResizeService extends BaseApplicationComponent
     // Public Methods
     // =========================================================================
 
-    public function resize($sourceId, $filename, $path, $width, $height, $taskId = null)
+    public function resize(AssetFolderModel $folder, $filename, $path, $width, $height, $taskId = null)
     {
         // Is this a manipulatable image?
         if (!ImageHelper::isImageManipulatable(IOHelper::getExtension($filename))) {
@@ -28,6 +28,7 @@ class ImageResizer_ResizeService extends BaseApplicationComponent
 
             // We can have settings globally, or per asset source. Check!
             // Our maximum width/height for assets from plugin settings
+            $sourceId = $folder->getSource()->id;
             $imageWidth = craft()->imageResizer->getSettingForAssetSource($sourceId, 'imageWidth');
             $imageHeight = craft()->imageResizer->getSettingForAssetSource($sourceId, 'imageHeight');
 
@@ -37,7 +38,9 @@ class ImageResizer_ResizeService extends BaseApplicationComponent
 
             // Check to see if we should make a copy of our original image first?
             if ($settings->nonDestructiveResize) {
-                $folderPath = str_replace($filename, '', $path) . 'originals/';
+                // Get source folder path and create the new folder 'originals' in it
+                $sourcePath = $folder->getSource()->settings['path'];
+                $folderPath = craft()->config->parseEnvironmentString($sourcePath) . 'originals/';
                 IOHelper::ensureFolderExists($folderPath);
 
                 $filePath = $folderPath . $filename;

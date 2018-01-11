@@ -163,7 +163,7 @@ class ImageResizerPlugin extends BasePlugin
             }
 
             // Resize the image
-            craft()->imageResizer_resize->resize($folder->source->id, $filename, $path, null, null);
+            craft()->imageResizer_resize->resize($folder, $filename, $path, null, null);
         });
     }
 

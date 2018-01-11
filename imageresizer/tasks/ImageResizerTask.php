@@ -46,7 +46,7 @@ class ImageResizerTask extends BaseTask
         $width = $this->_imageWidth;
         $height = $this->_imageHeight;
 
-        $result = craft()->imageResizer_resize->resize($folder->source->id, $filename, $path, $width, $height, $this->_taskId);
+        $result = craft()->imageResizer_resize->resize($folder, $filename, $path, $width, $height, $this->_taskId);
         
         // If the image resize failed or was skipped we need to stop now
         if (false === $result) {
