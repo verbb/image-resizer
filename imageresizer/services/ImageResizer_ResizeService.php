@@ -11,7 +11,8 @@ class ImageResizer_ResizeService extends BaseApplicationComponent
         // Is this a manipulatable image?
         if (!ImageHelper::isImageManipulatable(IOHelper::getExtension($filename))) {
             craft()->imageResizer_logs->resizeLog($taskId, 'skipped-non-image', $filename);
-            return true;
+            
+            return false;
         }
 
         try {
