@@ -30,7 +30,7 @@
     {{ forms.lightswitchField({
         label: 'Resize on upload' | t,
         instructions: 'Whether uploaded images should be automatically resized. This does not effect batch processing.' | t,
-        id: enabledName,
+        id: (not assetSource) ? 'allAssets' : enabledName,
         name: enabledName,
         on: enabledValue,
         first: true,

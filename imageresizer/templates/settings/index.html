@@ -4,6 +4,7 @@
 
 {% includeCssResource 'imageresizer/css/ResizeElementAction.css' %}
 {% includeJsResource 'imageresizer/js/ResizeElementAction.js' %}
+{% includeJsResource 'imageresizer/js/settings.js' %}
 
 {% set crumbs = [
     { label: craft.imageResizer.getPluginName | t, url: url('imageresizer') },
@@ -57,13 +58,15 @@
         on: settings.nonDestructiveResize,
     }) }}
 
-    {% for item in sourceOptions %}
-        <hr>
+    <div id="assetSources">
+        {% for item in sourceOptions %}
+            <hr>
 
-        <h2>{{ "{label} Asset Source Settings" | t({ label: item.label }) }}</h2>
+            <h2>{{ "{label} Asset Source Settings" | t({ label: item.label }) }}</h2>
 
-        {{ imageResizerMacro.resizeSetting(settings, additionalSettings, item) }}
-    {% endfor %}
+            {{ imageResizerMacro.resizeSetting(settings, additionalSettings, item) }}
+        {% endfor %}
+    </div>
 </div>
 
 <div id="bulk" class="hidden">
