@@ -1,4 +1,5 @@
 <?php
+
 namespace Craft;
 
 class ImageResizer_CropService extends BaseApplicationComponent
@@ -16,29 +17,35 @@ class ImageResizer_CropService extends BaseApplicationComponent
             $path = $sourceType->getImageSourcePath($asset);
         }
 
-        $folder   = $asset->folder;
+        $folder = $asset->folder;
         $fileName = $asset->filename;
+        $settings = craft()->imageResizer->getSettings();
 
         // Check to see if we shouldn't overwrite the original image
-        $settings = craft()->imageResizer->getSettings();
         if ($settings->nonDestructiveCrop) {
 
-          // Determine cropped name
-          $cropFilename = basename($path);
-          $cropFilename = explode('.', $cropFilename);
-          $cropFilename[ count($cropFilename) - 2 ] .= '_cropped';
-          $cropFilename = implode('.', $cropFilename);
+            // Determine cropped name
+            $cropFilename = AssetsHelper::cleanAssetName($asset->filename);
+            $cropFilename = explode('.', $cropFilename);
+            $cropFilename[\count($cropFilename) - 2] .= '_cropped';
+            $cropFilename = implode('.', $cropFilename);
 
-          // To make sure we don't trigger resizing in the below `assets.onBeforeUploadAsset` hook
-          craft()->httpSession->add('ImageResizer_CropElementAction', true);
+            // To make sure we don't trigger resizing in the below `assets.onBeforeUploadAsset` hook
+            craft()->httpSession->add('ImageResizer_CropElementAction', true);
 
-          // Copy original to cropped version
-          craft()->assets->insertFileByLocalPath($path, $cropFilename, $folder->id, AssetConflictResolution::Replace);
+            $sourceFilename = basename($path);
+            $destination = str_replace($sourceFilename, $cropFilename, $path);
 
-          // Change path / filename for cropped version to be cropped
-          $sourceFilename = basename($path);
-          $path     = str_replace($sourceFilename, $cropFilename, $path);
-          $fileName = $cropFilename;
+            // Copy original to cropped version
+            if ($sourceType->isRemote()) {
+                IOHelper::copyFile($path, $destination);
+            } else {
+                craft()->assets->insertFileByLocalPath($path, $cropFilename, $folder->id, AssetConflictResolution::Replace);
+            }
+
+            // Change path / filename for cropped version to be cropped
+            $path = $destination;
+            $fileName = $cropFilename;
         }
 
         // Perform the actual cropping
@@ -60,13 +67,13 @@ class ImageResizer_CropService extends BaseApplicationComponent
     private function _cropWithPath($path, $x1, $x2, $y1, $y2)
     {
         try {
-            $settings = craft()->imageResizer->getSettings();
-
             $image = craft()->images->loadImage($path);
             $filename = basename($path);
 
             // Make sure that image quality isn't messed with for cropping
-            $image->setQuality(craft()->imageResizer->getImageQuality($filename, 100));
+            if (method_exists($image, 'setQuality')) {
+                $image->setQuality(craft()->imageResizer->getImageQuality($filename, 100));
+            }
 
             // Do the cropping
             $image->crop($x1, $x2, $y1, $y2);

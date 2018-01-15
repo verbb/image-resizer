@@ -1,4 +1,5 @@
 <?php
+
 namespace Craft;
 
 class ImageResizer_ResizeService extends BaseApplicationComponent
@@ -20,7 +21,7 @@ class ImageResizer_ResizeService extends BaseApplicationComponent
         // Is this a manipulatable image?
         if (!ImageHelper::isImageManipulatable(IOHelper::getExtension($filename))) {
             craft()->imageResizer_logs->resizeLog($taskId, 'skipped-non-image', $filename);
-            
+
             return false;
         }
 
@@ -29,11 +30,11 @@ class ImageResizer_ResizeService extends BaseApplicationComponent
             $image = craft()->images->loadImage($path);
 
             // Save some existing properties for logging (see savings)
-            $originalProperties = array(
-                'width' => $image->getWidth(),
+            $originalProperties = [
+                'width'  => $image->getWidth(),
                 'height' => $image->getHeight(),
-                'size' => filesize($path),
-            );
+                'size'   => filesize($path),
+            ];
 
             // We can have settings globally, or per asset source. Check!
             // Our maximum width/height for assets from plugin settings
@@ -50,7 +51,7 @@ class ImageResizer_ResizeService extends BaseApplicationComponent
 
                 if ($sourceType) {
                     // Get source path for local assets and skip remote assets
-                    if ($sourceType instanceof LocalAssetSourceType || $sourceType instanceof TempAssetSourceType) {
+                    if ($sourceType->isSourceLocal()) {
                         // Get source folder path and create the new folder 'originals' in it
                         $sourcePath = $sourceType->getSettings()->path;
                         $folderPath = craft()->config->parseEnvironmentString($sourcePath) . 'originals/';
@@ -64,7 +65,6 @@ class ImageResizer_ResizeService extends BaseApplicationComponent
                     } else {
                         craft()->imageResizer_logs->resizeLog($taskId, 'skipped-remote-source', $filename);
                     }
-
                 } else {
                     craft()->imageResizer_logs->resizeLog($taskId, 'skipped-no-source-type', $filename);
                 }
@@ -104,13 +104,13 @@ class ImageResizer_ResizeService extends BaseApplicationComponent
 
                         clearstatcache();
 
-                        $newProperties = array(
-                            'width' => $image->getWidth(),
+                        $newProperties = [
+                            'width'  => $image->getWidth(),
                             'height' => $image->getHeight(),
-                            'size' => filesize($path),
-                        );
+                            'size'   => filesize($path),
+                        ];
 
-                        craft()->imageResizer_logs->resizeLog($taskId, 'success', $filename, array('prev' => $originalProperties, 'curr' => $newProperties));
+                        craft()->imageResizer_logs->resizeLog($taskId, 'success', $filename, ['prev' => $originalProperties, 'curr' => $newProperties]);
                     } else {
                         craft()->imageResizer_logs->resizeLog($taskId, 'skipped-larger-result', $filename);
                     }
@@ -122,13 +122,13 @@ class ImageResizer_ResizeService extends BaseApplicationComponent
 
                     clearstatcache();
 
-                    $newProperties = array(
-                        'width' => $image->getWidth(),
+                    $newProperties = [
+                        'width'  => $image->getWidth(),
                         'height' => $image->getHeight(),
-                        'size' => filesize($path),
-                    );
+                        'size'   => filesize($path),
+                    ];
 
-                    craft()->imageResizer_logs->resizeLog($taskId, 'success', $filename, array('prev' => $originalProperties, 'curr' => $newProperties));
+                    craft()->imageResizer_logs->resizeLog($taskId, 'success', $filename, ['prev' => $originalProperties, 'curr' => $newProperties]);
                 }
             } else {
                 craft()->imageResizer_logs->resizeLog($taskId, 'skipped-under-limits', $filename);
@@ -136,7 +136,7 @@ class ImageResizer_ResizeService extends BaseApplicationComponent
 
             return true;
         } catch (\Exception $e) {
-            craft()->imageResizer_logs->resizeLog($taskId, 'error', $filename, array('message' => $e->getMessage()));
+            craft()->imageResizer_logs->resizeLog($taskId, 'error', $filename, ['message' => $e->getMessage()]);
 
             return false;
         }
