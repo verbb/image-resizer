@@ -52,9 +52,11 @@ class ImageResizer_ResizeService extends BaseApplicationComponent
                     // Get source path for local assets and skip remote assets
                     if ($sourceType instanceof LocalAssetSourceType || $sourceType instanceof TempAssetSourceType) {
                         // Get source folder path and create the new folder 'originals' in it
-                        $sourcePath = craft()->config->parseEnvironmentString($sourceType->getSettings()->path);
+                        $sourcePath = $sourceType->getSettings()->path;
+                        $folderPath = craft()->config->parseEnvironmentString($sourcePath) . 'originals/';
+                        IOHelper::ensureFolderExists($folderPath);
 
-                        $filePath = $sourcePath . $filename;
+                        $filePath = $folderPath . $filename;
 
                         if (!IOHelper::fileExists($filePath)) {
                             IOHelper::copyFile($path, $filePath);
