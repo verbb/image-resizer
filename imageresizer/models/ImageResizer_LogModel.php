@@ -28,8 +28,14 @@ class ImageResizer_LogModel extends BaseModel
                 return Craft::t('Image cannot be resized (not manipulatable).');
             case 'skipped-under-limits':
                 return Craft::t('Image already under maximum width/height.');
+            case 'skipped-no-source':
+                return Craft::t('Source not found.');
+            case 'skipped-no-source-type':
+                return Craft::t('Source type not found.');
             case 'skipped-source-disabled':
                 return Craft::t('Source not enabled to auto-resize on upload.');
+            case 'skipped-remote-source':
+                return Craft::t('Source not able to create original file.');
             case 'error':
                 return Craft::t('Error.');
             default:

@@ -8,6 +8,15 @@ class ImageResizer_ResizeService extends BaseApplicationComponent
 
     public function resize(AssetFolderModel $folder, $filename, $path, $width, $height, $taskId = null)
     {
+        $source = $folder->getSource();
+
+        // Does the source exist?
+        if (!$source) {
+            craft()->imageResizer_logs->resizeLog($taskId, 'skipped-no-source', $filename);
+
+            return false;
+        }
+
         // Is this a manipulatable image?
         if (!ImageHelper::isImageManipulatable(IOHelper::getExtension($filename))) {
             craft()->imageResizer_logs->resizeLog($taskId, 'skipped-non-image', $filename);
@@ -28,9 +37,8 @@ class ImageResizer_ResizeService extends BaseApplicationComponent
 
             // We can have settings globally, or per asset source. Check!
             // Our maximum width/height for assets from plugin settings
-            $sourceId = $folder->getSource()->id;
-            $imageWidth = craft()->imageResizer->getSettingForAssetSource($sourceId, 'imageWidth');
-            $imageHeight = craft()->imageResizer->getSettingForAssetSource($sourceId, 'imageHeight');
+            $imageWidth = craft()->imageResizer->getSettingForAssetSource($source->id, 'imageWidth');
+            $imageHeight = craft()->imageResizer->getSettingForAssetSource($source->id, 'imageHeight');
 
             // Allow for overrides passed on-demand
             $imageWidth = ($width) ? $width : $imageWidth;
@@ -38,16 +46,25 @@ class ImageResizer_ResizeService extends BaseApplicationComponent
 
             // Check to see if we should make a copy of our original image first?
             if ($settings->nonDestructiveResize) {
-                // Get source folder path and create the new folder 'originals' in it
-                $sourcePath = $folder->getSource()->settings['path'];
-                $folderPath = craft()->config->parseEnvironmentString($sourcePath) . 'originals/';
-                IOHelper::ensureFolderExists($folderPath);
+                $sourceType = $source->getSourceType();
 
-                $filePath = $folderPath . $filename;
+                if ($sourceType) {
+                    // Get source path for local assets and skip remote assets
+                    if ($sourceType instanceof LocalAssetSourceType || $sourceType instanceof TempAssetSourceType) {
+                        // Get source folder path and create the new folder 'originals' in it
+                        $sourcePath = craft()->config->parseEnvironmentString($sourceType->getSettings()->path);
 
-                // Only copy the original if there's not already one created
-                if (!IOHelper::fileExists($filePath)) {
-                    IOHelper::copyFile($path, $filePath);
+                        $filePath = $sourcePath . $filename;
+
+                        if (!IOHelper::fileExists($filePath)) {
+                            IOHelper::copyFile($path, $filePath);
+                        }
+                    } else {
+                        craft()->imageResizer_logs->resizeLog($taskId, 'skipped-remote-source', $filename);
+                    }
+
+                } else {
+                    craft()->imageResizer_logs->resizeLog($taskId, 'skipped-no-source-type', $filename);
                 }
             }
 
