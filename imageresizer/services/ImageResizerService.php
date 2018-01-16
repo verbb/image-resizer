@@ -38,6 +38,7 @@ class ImageResizerService extends BaseApplicationComponent
     public function getImageQuality($filename, $quality = null)
     {
         $desiredQuality = (!$quality) ? craft()->imageResizer->getSettings()->imageQuality : $quality;
+        $desiredQuality = (!$desiredQuality) ? craft()->config->get('defaultImageQuality') : $desiredQuality;
 
         if (IOHelper::getExtension($filename) == 'png') {
             // Valid PNG quality settings are 0-9, so normalize and flip, because we're talking about compression

@@ -62,7 +62,7 @@
         id: imageQualityName,
         name: imageQualityName,
         value: imageQualityValue,
-        placeholder: settings.imageQuality,
+        placeholder: (settings.imageQuality) ? settings.imageQuality : craft.config.defaultImageQuality,
         size: 10,
     }) }}
 {% endmacro %}

@@ -18,6 +18,15 @@ class ImageResizer_ResizeService extends BaseApplicationComponent
             return false;
         }
 
+        $sourceType = $source->getSourceType();
+
+        // Does the source type exist?
+        if (!$sourceType) {
+            craft()->imageResizer_logs->resizeLog($taskId, 'skipped-no-source-type', $filename);
+
+            return false;
+        }
+
         // Is this a manipulatable image?
         if (!ImageHelper::isImageManipulatable(IOHelper::getExtension($filename))) {
             craft()->imageResizer_logs->resizeLog($taskId, 'skipped-non-image', $filename);
@@ -47,26 +56,20 @@ class ImageResizer_ResizeService extends BaseApplicationComponent
 
             // Check to see if we should make a copy of our original image first?
             if ($settings->nonDestructiveResize) {
-                $sourceType = $source->getSourceType();
 
-                if ($sourceType) {
-                    // Get source path for local assets and skip remote assets
-                    if ($sourceType->isSourceLocal()) {
-                        // Get source folder path and create the new folder 'originals' in it
-                        $sourcePath = $sourceType->getSettings()->path;
-                        $folderPath = craft()->config->parseEnvironmentString($sourcePath) . 'originals/';
-                        IOHelper::ensureFolderExists($folderPath);
+                // Get source path for local assets. Uploads of remote assets are not supported in craft2.
+                // Therefore we are skip remote assets here
+                if ($sourceType->isSourceLocal()) {
+                    // Get source folder path and create the new folder 'originals' in it
+                    $sourcePath = $sourceType->getSettings()->path;
+                    $folderPath = craft()->config->parseEnvironmentString($sourcePath) . 'originals/';
+                    IOHelper::ensureFolderExists($folderPath);
 
-                        $filePath = $folderPath . $filename;
+                    $filePath = $folderPath . $filename;
 
-                        if (!IOHelper::fileExists($filePath)) {
-                            IOHelper::copyFile($path, $filePath);
-                        }
-                    } else {
-                        craft()->imageResizer_logs->resizeLog($taskId, 'skipped-remote-source', $filename);
+                    if (!IOHelper::fileExists($filePath)) {
+                        IOHelper::copyFile($path, $filePath);
                     }
-                } else {
-                    craft()->imageResizer_logs->resizeLog($taskId, 'skipped-no-source-type', $filename);
                 }
             }
 
