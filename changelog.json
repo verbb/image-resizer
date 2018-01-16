@@ -1,7 +1,22 @@
 [
     {
+        "version": "1.1.0",
+        "downloadUrl": "https://github.com/verbb/image-resizer/archive/1.1.0.zip",
+        "date": "2018-01-16T00:00:00+10:00",
+        "notes": [
+            "[Added] Skip resizing of remote assets because their are tricky to handle in craft 2.",
+            "[Fixed] Uploading SVG with resize generates an error.",
+            "[Fixed] 'originals' folders don't get created on upload.",
+            "[Fixed] Cropping errors for svg and remote assets.",
+            "[Fixed] Resizing images from s3 source with 'keepOriginals' flag breaks.",
+            "[Fixed] Resizing existing S3 images errors.",
+            "[Improved] Use default image quality if not set.",
+            "[Improved] Optimized 'Resize on upload' settings handling."
+        ]
+    },
+    {
         "version": "1.0.2",
-        "downloadUrl": "https://github.com/engram-design/ImageResizer/archive/1.0.2.zip",
+        "downloadUrl": "https://github.com/verbb/image-resizer/archive/1.0.2.zip",
         "date": "2018-01-11T00:00:00+10:00",
         "notes": [
             "[Improved] Non-destructive on Cropping now copies the original asset, instead of just the file.",
