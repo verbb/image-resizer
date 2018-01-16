@@ -35,7 +35,7 @@ class ImageResizer_LogModel extends BaseModel
             case 'skipped-source-disabled':
                 return Craft::t('Source not enabled to auto-resize on upload.');
             case 'skipped-remote-source':
-                return Craft::t('Source not able to create original file.');
+                return Craft::t('Resize for remote sources not supported.');
             case 'error':
                 return Craft::t('Error.');
             default:

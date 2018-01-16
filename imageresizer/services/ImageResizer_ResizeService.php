@@ -27,6 +27,13 @@ class ImageResizer_ResizeService extends BaseApplicationComponent
             return false;
         }
 
+        // Remote source are not supported under craft2
+        if ($sourceType->isRemote()) {
+            craft()->imageResizer_logs->resizeLog($taskId, 'skipped-remote-source', $filename);
+
+            return false;
+        }
+
         // Is this a manipulatable image?
         if (!ImageHelper::isImageManipulatable(IOHelper::getExtension($filename))) {
             craft()->imageResizer_logs->resizeLog($taskId, 'skipped-non-image', $filename);
@@ -57,8 +64,8 @@ class ImageResizer_ResizeService extends BaseApplicationComponent
             // Check to see if we should make a copy of our original image first?
             if ($settings->nonDestructiveResize) {
 
-                // Get source path for local assets. Uploads of remote assets are not supported in craft2.
-                // Therefore we are skip remote assets here
+                // Get source path for local assets. Storing a copy of a file for remote assets are a little tricky
+                // in craft 2. Therefore we are skipping remote assets here
                 if ($sourceType->isSourceLocal()) {
                     // Get source folder path and create the new folder 'originals' in it
                     $sourcePath = $sourceType->getSettings()->path;
@@ -70,6 +77,8 @@ class ImageResizer_ResizeService extends BaseApplicationComponent
                     if (!IOHelper::fileExists($filePath)) {
                         IOHelper::copyFile($path, $filePath);
                     }
+                } else {
+                    craft()->imageResizer_logs->resizeLog($taskId, 'skipped-remote-source', $filename);
                 }
             }
 
