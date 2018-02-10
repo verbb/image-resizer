@@ -1,0 +1,42 @@
+{% extends parentLayout | default("_layouts/cp") %}
+
+{% do view.registerAssetBundle("verbb\\imageresizer\\assetbundles\\ImageResizerAsset") %}
+
+{% set tabs = {
+    logs: { label: "Logs" | t('image-resizer'), url: url('image-resizer/logs') },
+    settings: { label: "Settings" | t('image-resizer'), url: url('image-resizer/settings') },
+} %}
+
+{% if title is not defined %}
+    {% set title = 'Image Resizer ' ~ tabs[selectedTab].label %}
+{% endif %}
+
+{% set content %}
+    {% block blockContent %}
+
+    {% endblock %}
+
+    <hr>
+    
+    <div id="plugin-footer">
+        <div class="footer-left">
+            {% block footerButton %}
+
+            {% endblock %}
+        </div>
+
+        <div class="footer-right">
+            <a class="plugin-credit" href="https://verbb.io" target="_blank">
+                <span class="credit-love">Made with <span style="color: #e25555;">&#9829;</span> by</span>
+
+                <div class="credit-pill">
+                    <div class="credit-mask">
+                        <div class="credit-wrap">
+                            {% include 'image-resizer/_svg/verbb-logo.svg' %}
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+{% endset %}

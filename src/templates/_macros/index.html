@@ -1,0 +1,74 @@
+{% macro resizeSetting(settings, additionalSettings, assetSource) %}
+    {% import "_includes/forms" as forms %}
+
+    {% if assetSource %}
+        {% set enabledName = 'assetSourceSettings[' ~ assetSource.value ~ '][enabled]' %}
+        {% set enabledValue = settings.assetSourceSettings[assetSource.value].enabled | default(settings.enabled) %}
+
+        {% set imageWidthName = 'assetSourceSettings[' ~ assetSource.value ~ '][imageWidth]' %}
+        {% set imageWidthValue = settings.assetSourceSettings[assetSource.value].imageWidth | default('') %}
+
+        {% set imageHeightName = 'assetSourceSettings[' ~ assetSource.value ~ '][imageHeight]' %}
+        {% set imageHeightValue = settings.assetSourceSettings[assetSource.value].imageHeight | default('') %}
+
+        {% set imageQualityName = 'assetSourceSettings[' ~ assetSource.value ~ '][imageQuality]' %}
+        {% set imageQualityValue = settings.assetSourceSettings[assetSource.value].imageQuality | default('') %}
+    {% else %}
+        {% set enabledName = 'enabled' %}
+        {% set enabledValue = settings.enabled %}
+
+        {% set imageWidthName = 'imageWidth' %}
+        {% set imageWidthValue = settings.imageWidth %}
+
+        {% set imageHeightName = 'imageHeight' %}
+        {% set imageHeightValue = settings.imageHeight %}
+
+        {% set imageQualityName = 'imageQuality' %}
+        {% set imageQualityValue = settings.imageQuality %}
+    {% endif %}
+
+    {{ forms.lightswitchField({
+        label: 'Resize on upload' | t('image-resizer'),
+        instructions: 'Whether uploaded images should be automatically resized. This does not effect batch processing.' | t('image-resizer'),
+        id: (not assetSource) ? 'allAssets' : enabledName,
+        name: enabledName,
+        on: enabledValue,
+        first: true,
+    }) }}
+
+    {{ forms.textField({
+        label: 'Image Width' | t('image-resizer'),
+        instructions: 'The maximum width in pixels allowed for uploaded images.' | t('image-resizer'),
+        id: imageWidthName,
+        name: imageWidthName,
+        value: imageWidthValue,
+        placeholder: settings.imageWidth,
+        size: 10,
+    }) }}
+
+    {{ forms.textField({
+        label: 'Image Height' | t('image-resizer'),
+        instructions: 'The maximum height in pixels allowed for uploaded images.' | t('image-resizer'),
+        id: imageHeightName,
+        name: imageHeightName,
+        value: imageHeightValue,
+        placeholder: settings.imageHeight,
+        size: 10,
+    }) }}
+
+    {{ forms.textField({
+        label: 'Quality' | t('image-resizer'),
+        instructions: 'Enter a value from 0-100 for resized image quality.' | t('image-resizer'),
+        id: imageQualityName,
+        name: imageQualityName,
+        value: imageQualityValue,
+        placeholder: (settings.imageQuality) ? settings.imageQuality : craft.app.config.general.defaultImageQuality,
+        size: 10,
+    }) }}
+{% endmacro %}
+
+{% macro filesize(size) %}{% spaceless %}
+    {% set kiloBytes = (size / 1024) | round(2) %}
+    {% set filesize = (kiloBytes > 1000) ? (kiloBytes / 1024) | round(2) ~ 'mb' : kiloBytes ~ 'kb' %}
+    {{ filesize }}
+{% endspaceless %}{% endmacro %}

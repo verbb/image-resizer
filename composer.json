@@ -1,0 +1,53 @@
+{
+    "name": "verbb/image-resizer",
+    "description": "Image Resizer is a Craft plugin that resizes your assets when they are uploaded.",
+    "type": "craft-plugin",
+    "version": "2.0.0",
+    "keywords": [
+        "craft",
+        "cms",
+        "craftcms",
+        "craft-plugin",
+        "example"
+    ],
+    "support": {
+        "email": "support@verbb.io",
+        "issues": "https://github.com/verbb/image-resizer/issues?state=open",
+        "source": "https://github.com/verbb/image-resizer",
+        "docs": "https://github.com/verbb/image-resizer",
+        "rss": "https://github.com/verbb/image-resizer/commits/v2.atom"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Verbb",
+            "homepage": "https://verbb.io"
+        }
+    ],
+    "require": {
+        "craftcms/cms": "^3.0.0-RC1",
+        "lsolesen/pel": "^0.9.6"
+    },
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://asset-packagist.org"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+          "verbb\\imageresizer\\": "src/"
+        }
+    },
+    "extra": {
+        "name": "Image Resizer",
+        "handle": "image-resizer",
+        "description": "Image Resizer resizes your assets when they are uploaded.",
+        "schemaVersion": "2.0.0",
+        "hasCpSettings": true,
+        "hasCpSection": false,
+        "documentationUrl": "https://github.com/verbb/image-resizer",
+        "changelogUrl": "https://raw.githubusercontent.com/verbb/image-resizer/craft-3/CHANGELOG.md",
+        "class": "verbb\\imageresizer\\ImageResizer"
+    }
+}

@@ -8,6 +8,20 @@
 
 Image Resizer is a Craft plugin that resizes your assets when they are uploaded. This allows huge images to be resized so as not to use up unnecessary disk space, but still kept at a reasonable resolution. This plugin is not a replacement for using image transforms throughout your site.
 
+## Download
+
+While Craft 3 is still in beta, you'll need to use Composer to download and install the plugin.
+
+1. Open your terminal and go to your Craft project:
+
+        cd /path/to/project
+
+2. Then tell Composer to load the plugin:
+
+        composer require verbb/image-resizer
+
+3. In the Control Panel, go to Settings → Plugins and click the “Install” button for Image Resizer.
+
 ## Documentation
 
 Visit the [Image Resizer Plugin page](https://verbb.io/craft-plugins/image-resizer) for all documentation, guides, pricing and developer resources.

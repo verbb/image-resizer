@@ -1,0 +1,52 @@
+/* ==========================================================================
+// Logs Index
+// ========================================================================== */
+
+.image-resizer-logs-table {
+    font-size: 13px;
+    padding-top: 2rem;
+}
+
+.image-resizer-logs-table thead {
+    font-size: 11px;
+}
+
+.log-result {
+    display: inline-block;
+    border-radius: 3px;
+    padding: 0 4px;
+    background: #fff;
+    color: #fff !important;
+    margin-right: 5px;
+    font-variant: small-caps;
+    font-size: 12px;
+    font-weight: 300;
+}
+
+.log-result.success {
+    background: #27AE60;
+}
+
+.log-result.error {
+    background: #D0021B;
+}
+
+.log-result.skipped {
+    background: #F2842D;
+}
+
+.log-label .small {
+    font-size: 11px;
+}
+
+.log-label.success {
+    color: #27AE60;
+}
+
+.log-label.error {
+    color: #D0021B;
+}
+
+.log-label.skipped {
+    color: #F2842D;
+}
