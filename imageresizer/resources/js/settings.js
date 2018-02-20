@@ -1,31 +1,18 @@
 (function() {
 
-    // ---------------------------------------------------------
-    // Enable all asset source 'Resize on upload' light switches
-    // ---------------------------------------------------------
+    // When toggling an asset source's enabled, we want to turn off the 'all asset source' option
+    $('#settings-resize .lightswitch[id^="settings-assetSourceSettings"]').on('change', function(e) {
+        e.stopPropagation();
 
-    $(document).on('change', '#settings-allAssets', function() {
-        var $lightSwitchFields = $('#settings-assetSources').find('.lightswitch');
+        var $allSwitch = $('#settings-allAssets');
+        var $assetSwitches = $('.lightswitch[id^="settings-assetSourceSettings"]')
+        var $assetSwitchesOn = $('.lightswitch.on[id^="settings-assetSourceSettings"]')
 
-        if ($(this).hasClass('on')) {
-            $lightSwitchFields.addClass('on').attr('aria-checked', true);
-            $lightSwitchFields.find('.lightswitch-container').animate({'margin-left': '0px'}, 100);
-            $lightSwitchFields.find('input').val(1);
+        if ($assetSwitches.length == $assetSwitchesOn.length) {
+            $allSwitch.data('lightswitch').turnOn();
+        } else {
+            $allSwitch.data('lightswitch').turnOff();
         }
     });
 
-
-    // ---------------------------------------------------------------------
-    // Disable 'Resize on upload' light switch for all asset source settings
-    // ---------------------------------------------------------------------
-
-    $(document).on('change', '#settings-assetSources .lightswitch', function() {
-        var $allAssetsSourceLightSwitchField = $('#settings-allAssets.lightswitch');
-
-        if (!$(this).hasClass('on')) {
-            $allAssetsSourceLightSwitchField.removeClass('on').attr('aria-checked', false);
-            $allAssetsSourceLightSwitchField.find('.lightswitch-container').animate({'margin-left': '-11px'}, 100);
-            $allAssetsSourceLightSwitchField.find('input').val('');
-        }
-    });
 })();
