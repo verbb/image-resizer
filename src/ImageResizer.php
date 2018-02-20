@@ -87,6 +87,10 @@ class ImageResizer extends Plugin
         $filename = $asset->filename;
         $path = $asset->tempFilePath;
 
+        if (!$path) {
+            return true;
+        }
+
         // Should we be modifying images in this source?
         if (!self::$plugin->service->getSettingForAssetSource($asset->volumeId, 'enabled')) {
             self::$plugin->logs->resizeLog(null, 'skipped-volume-disabled', $filename);
