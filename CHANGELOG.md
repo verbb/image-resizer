@@ -6,7 +6,7 @@
 - Set minimum requirement to `^3.0.0-RC11`
 
 ### Fixed
-- Fix resize event ocurring on asset-save
+- Fix resize event occurring on asset-save
 
 ## 2.0.1 - 2018-02-12
 
