@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.3 - 2018-05-08
+
+### Fixed
+- Fix PHP 7.2 `count()` issue
+- Fix handling when using dynamic paths in asset field
+
 ## 2.0.2 - 2018-02-25
 
 ### Changed
