@@ -54,7 +54,7 @@ class ImageResize extends BaseJob
      */
     public function execute($queue)
     {
-        $totalSteps = \count($this->assetIds);
+        $totalSteps = count($this->assetIds);
 
         for ($step = 0; $step < $totalSteps; $step++) {
             $asset = Craft::$app->assets->getAssetById($this->assetIds[$step]);

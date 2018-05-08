@@ -94,10 +94,10 @@ class Logs extends Component
 
                 foreach ($requests as $request) {
                     // Put details via json_decode into an array
-                    $logChunks = json_decode($request, true);
+                    $logChunks = json_decode($request, true) ?? [];
 
                     // Loop through them
-                    if (\count($logChunks) > 0) {
+                    if (count($logChunks) > 0) {
 
                         // Create new Log model and set attributes
                         $logEntryModel = new Log();
