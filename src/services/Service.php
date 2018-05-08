@@ -20,7 +20,7 @@ class Service extends Component
     // Public Methods
     // =========================================================================
 
-    public function getSettingForAssetSource(int $sourceId, string $setting)
+    public function getSettingForAssetSource($sourceId, string $setting)
     {
         $settings = ImageResizer::$plugin->getSettings();
         $globalSetting = $settings->$setting;

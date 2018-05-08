@@ -80,7 +80,7 @@ class ImageResizer extends Plugin
      * @return bool
      * @throws \yii\base\InvalidConfigException
      */
-    public function beforeHandleAssetFile(AssetEvent $event): bool
+    public function beforeHandleAssetFile(AssetEvent $event)
     {
         /** @var Asset $asset */
         $asset = $event->sender;
@@ -88,20 +88,18 @@ class ImageResizer extends Plugin
         $path = $asset->tempFilePath;
 
         if (!$path) {
-            return true;
+            return;
         }
 
         // Should we be modifying images in this source?
         if (!self::$plugin->service->getSettingForAssetSource($asset->volumeId, 'enabled')) {
             self::$plugin->logs->resizeLog(null, 'skipped-volume-disabled', $filename);
 
-            return true;
+            return;
         }
 
         // Resize the image
         self::$plugin->resize->resize($asset, $filename, $path);
-
-        return true;
     }
 
     /**
