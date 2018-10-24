@@ -1,6 +1,7 @@
 <?php
-
 namespace verbb\imageresizer\services;
+
+use verbb\imageresizer\ImageResizer;
 
 use Craft;
 use craft\base\Component;
@@ -10,7 +11,6 @@ use craft\base\VolumeInterface;
 use craft\elements\Asset;
 use craft\helpers\Assets as AssetsHelper;
 use craft\helpers\Image as ImageHelper;
-use verbb\imageresizer\ImageResizer;
 
 class Resize extends Component
 {
