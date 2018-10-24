@@ -81,6 +81,9 @@ class Resize extends Component
                 if (!$volume->fileExists($filePath)) {
                     $stream = @fopen($path, 'rb');
                     $volume->createFileByStream($filePath, $stream, []);
+
+                    // Spin up asset indexer
+                    Craft::$app->getAssetIndexer()->indexFile($volume, $filePath);
                 }
             }
 
