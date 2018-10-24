@@ -120,9 +120,9 @@ class Resize extends Component
                         ImageResizer::$plugin->service->saveAs($image, $path); // Its a smaller file - properly save
 
                         // Create remote file
-                        if (!$volume instanceof LocalVolumeInterface) {
-                            $this->_createRemoteFile($volume, $filename, $path);
-                        }
+                        // if (!$volume instanceof LocalVolumeInterface) {
+                        //     $this->_createRemoteFile($volume, $filename, $path);
+                        // }
 
                         clearstatcache();
 
@@ -143,9 +143,9 @@ class Resize extends Component
                     ImageResizer::$plugin->service->saveAs($image, $path);
 
                     // Create remote file
-                    if (!$volume instanceof LocalVolumeInterface) {
-                        $this->_createRemoteFile($volume, $filename, $path);
-                    }
+                    // if (!$volume instanceof LocalVolumeInterface) {
+                    //     $this->_createRemoteFile($volume, $filename, $path);
+                    // }
 
                     clearstatcache();
 
