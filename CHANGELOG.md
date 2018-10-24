@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.4 - 2018-10-24
+
+### Fixed
+- Add asset indexing when creating files in `originals`. This will make the folder actually appear in Assets.
+- Fix processing image multiple times on remote volumes.
+
 ## 2.0.3 - 2018-05-08
 
 ### Fixed
