@@ -1,14 +1,13 @@
 <?php
-
 namespace verbb\imageresizer\services;
+
+use verbb\imageresizer\ImageResizer;
+use verbb\imageresizer\models\Log;
 
 use Craft;
 use craft\base\Component;
 use craft\helpers\App;
 use craft\helpers\FileHelper;
-
-use verbb\imageresizer\ImageResizer;
-use verbb\imageresizer\models\Log;
 
 class Logs extends Component
 {

@@ -1,14 +1,16 @@
 <?php
-
 namespace verbb\imageresizer\services;
+
+use verbb\imageresizer\ImageResizer;
+use verbb\imageresizer\elementactions\ResizeImage;
 
 use Craft;
 use craft\base\Component;
 use craft\base\Image;
 use craft\elements\Asset;
+use craft\events\AssetEvent;
+use craft\events\RegisterElementActionsEvent;
 use craft\helpers\Image as ImageHelper;
-
-use verbb\imageresizer\ImageResizer;
 
 use lsolesen\pel\PelJpeg;
 use lsolesen\pel\PelIfd;
@@ -19,6 +21,34 @@ class Service extends Component
 {
     // Public Methods
     // =========================================================================
+
+    public function beforeHandleAssetFile(AssetEvent $event)
+    {
+        $asset = $event->sender;
+        $filename = $asset->filename;
+        $path = $asset->tempFilePath;
+
+        if (!$path) {
+            return;
+        }
+
+        // Should we be modifying images in this source?
+        if (!ImageResizer::$plugin->service->getSettingForAssetSource($asset->volumeId, 'enabled')) {
+            ImageResizer::$plugin->logs->resizeLog(null, 'skipped-volume-disabled', $filename);
+
+            return;
+        }
+
+        // Resize the image
+        ImageResizer::$plugin->resize->resize($asset, $filename, $path);
+    }
+
+    public function registerAssetActions(RegisterElementActionsEvent $event)
+    {
+        if (Craft::$app->getUser()->checkPermission('imageResizer-resizeImage')) {
+            $event->actions[] = new ResizeImage();
+        }
+    }
 
     public function getSettingForAssetSource($sourceId, string $setting)
     {
