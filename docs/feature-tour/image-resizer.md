@@ -24,24 +24,9 @@ Under the hood, the batch processing is run through Craft's Queue service, which
 
 Additionally, using the plugin settings page (Bulk Resize tab), you can bulk-resize all assets in a single folder.
 
-## Cropping
-
-You can crop any image through the Assets Index screen, by clicking on the Actions button, and selecting Crop image. You can only crop one image at a time. There are several preset options related to the aspect ratio to control how cropping is controlled, and are selected through the Crop modal window.
-
-You can manage these aspect ratios through the plugin settings page, including removing/renaming existing options, or adding your own.
-
-![](/uploads/plugins/image-resizer/cropping.png)
-
-Default aspect ratio options are:
-
-- **Free:** No restrictions
-- **Square:** Restricted to square crop
-- **Constrain:** Restricted to the aspect ratio of the image
-- **4:3:** Restricted to a 4:3 aspect ratio crop
-
 ## Logs
 
-Each time an image is processed (resized or cropped), a log item will be created to provide feedback on the task that has occured. Particularly useful for resizing images. When using the Element Action, or bulk resizing, you'll be shown a summary of files resized and their state (as below).
+Each time an image is processed, a log item will be created to provide feedback on the task that has occured. Particularly useful for resizing images. When using the Element Action, or bulk resizing, you'll be shown a summary of files resized and their state (as below).
 
 ![](/uploads/plugins/image-resizer/resizeelementaction-logs.png)
 
