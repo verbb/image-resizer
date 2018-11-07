@@ -1,17 +1,23 @@
 # Installation & Setup
+You can install Image Resizer via the plugin store, or through Composer.
 
-Installing Image Resizer is as simple as any other Craft plugin - just drop the `imageresizer` folder in your `craft/plugins` directory and install.
+### Craft Plugin Store
+To install **Image Resizer**, navigate to the _Plugin Store_ section of your Craft control panel, search for `Image Resizer`, and click the _Try_ button.
 
-## Installation
+### Composer
+You can also add the package to your project using Composer.
 
-1.  [Download the latest version](/craft-plugins/image-resizer/pricing) of Postie and unzip.
-2.  Copy the `imageresizer/` directory into your `craft/plugins/` directory.
-3.  Inside the Craft control panel, navigate to _Settings → Plugins_.
-4.  Locate the row showing the Image Resizer plugin and click _Install_.
+1. Open your terminal and go to your Craft project:
+```
+cd /path/to/project
+```
+2. Then tell Composer to load the plugin:
+```
+composer require verbb/image-resizer
+```
+3. In the Control Panel, go to Settings → Plugins and click the “Install” button for Image Resizer.
 
-## Settings
+## Licensing
+You can try Image Resizer in a development environment for as long as you like. Once your site goes live, you are required to purchase a license for the plugin.
 
-- Enable/Disable resizing images on upload. Enabled by default.
-- Set the maximum width/height (in pixels) for uploaded images. Set to 2048px by default.
-- Set the quality for resized images between 0-100. Set to 100 by default.
-- If resizing results in a larger image, choose to ship. Enabled by default.
+For more information, see [Craft's Commercial Plugin Licensing](https://docs.craftcms.com/v3/plugins.html#commercial-plugin-licensing).
