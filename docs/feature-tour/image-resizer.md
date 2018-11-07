@@ -14,13 +14,13 @@ Please note that resizing of images will **permanently** alter the original uplo
 
 To batch resize images, use the Assets Index to select which image files you'd like to resize, click on the Actions button and select Resize image.
 
-![](https://raw.githubusercontent.com/engram-design/ImageResizer/master/screenshots/elementactions.png)
+![](/uploads/plugins/image-resizer/elementactions.png)
 
 You'll be presented with a warning screen advising that the selected images will be resized according to your plugin settings.
 
-![](https://raw.githubusercontent.com/engram-design/ImageResizer/master/screenshots/resizeelementaction.png)
+![](/uploads/plugins/image-resizer/resizeelementaction.png)
 
-Under the hood, the batch processing is run through Craft's Tasks service, which will allow you to process plenty of images at once, without timing out or running into memory issues.
+Under the hood, the batch processing is run through Craft's Queue service, which will allow you to process plenty of images at once, without timing out or running into memory issues.
 
 Additionally, using the plugin settings page (Bulk Resize tab), you can bulk-resize all assets in a single folder.
 
@@ -30,7 +30,7 @@ You can crop any image through the Assets Index screen, by clicking on the Actio
 
 You can manage these aspect ratios through the plugin settings page, including removing/renaming existing options, or adding your own.
 
-![](https://raw.githubusercontent.com/engram-design/ImageResizer/master/screenshots/cropping.png)
+![](/uploads/plugins/image-resizer/cropping.png)
 
 Default aspect ratio options are:
 
@@ -43,8 +43,8 @@ Default aspect ratio options are:
 
 Each time an image is processed (resized or cropped), a log item will be created to provide feedback on the task that has occured. Particularly useful for resizing images. When using the Element Action, or bulk resizing, you'll be shown a summary of files resized and their state (as below).
 
-![](https://raw.githubusercontent.com/engram-design/ImageResizer/master/screenshots/resizeelementaction-logs.png)
+![](/uploads/plugins/image-resizer/resizeelementaction-logs.png)
 
 A detailed Log screen shows further detail on each image that's been processed.
 
-![](https://raw.githubusercontent.com/engram-design/ImageResizer/master/screenshots/logs.png)
+![](/uploads/plugins/image-resizer/logs.png)
