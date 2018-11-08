@@ -14,11 +14,11 @@ Please note that resizing of images will **permanently** alter the original uplo
 
 To batch resize images, use the Assets Index to select which image files you'd like to resize, click on the Actions button and select Resize image.
 
-![](/uploads/plugins/image-resizer/elementactions.png)
+![](/docs/screenshots/elementactions.png)
 
 You'll be presented with a warning screen advising that the selected images will be resized according to your plugin settings.
 
-![](/uploads/plugins/image-resizer/resizeelementaction.png)
+![](/docs/screenshots/resizeelementaction.png)
 
 Under the hood, the batch processing is run through Craft's Queue service, which will allow you to process plenty of images at once, without timing out or running into memory issues.
 
@@ -28,8 +28,8 @@ Additionally, using the plugin settings page (Bulk Resize tab), you can bulk-res
 
 Each time an image is processed, a log item will be created to provide feedback on the task that has occured. Particularly useful for resizing images. When using the Element Action, or bulk resizing, you'll be shown a summary of files resized and their state (as below).
 
-![](/uploads/plugins/image-resizer/resizeelementaction-logs.png)
+![](/docs/screenshots/resizeelementaction-logs.png)
 
 A detailed Log screen shows further detail on each image that's been processed.
 
-![](/uploads/plugins/image-resizer/logs.png)
+![](/docs/screenshots/logs.png)
