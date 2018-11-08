@@ -14,37 +14,22 @@ Please note that resizing of images will **permanently** alter the original uplo
 
 To batch resize images, use the Assets Index to select which image files you'd like to resize, click on the Actions button and select Resize image.
 
-![](/docs/screenshots/elementactions.png)
+![](/uploads/plugins/image-resizer/elementactions.png)
 
 You'll be presented with a warning screen advising that the selected images will be resized according to your plugin settings.
 
-![](/docs/screenshots/resizeelementaction.png)
+![](/uploads/plugins/image-resizer/resizeelementaction.png)
 
-Under the hood, the batch processing is run through Craft's Tasks service, which will allow you to process plenty of images at once, without timing out or running into memory issues.
+Under the hood, the batch processing is run through Craft's Queue service, which will allow you to process plenty of images at once, without timing out or running into memory issues.
 
 Additionally, using the plugin settings page (Bulk Resize tab), you can bulk-resize all assets in a single folder.
 
-## Cropping
-
-You can crop any image through the Assets Index screen, by clicking on the Actions button, and selecting Crop image. You can only crop one image at a time. There are several preset options related to the aspect ratio to control how cropping is controlled, and are selected through the Crop modal window.
-
-You can manage these aspect ratios through the plugin settings page, including removing/renaming existing options, or adding your own.
-
-![](/docs/screenshots/cropping.png)
-
-Default aspect ratio options are:
-
-- **Free:** No restrictions
-- **Square:** Restricted to square crop
-- **Constrain:** Restricted to the aspect ratio of the image
-- **4:3:** Restricted to a 4:3 aspect ratio crop
-
 ## Logs
 
-Each time an image is processed (resized or cropped), a log item will be created to provide feedback on the task that has occured. Particularly useful for resizing images. When using the Element Action, or bulk resizing, you'll be shown a summary of files resized and their state (as below).
+Each time an image is processed, a log item will be created to provide feedback on the task that has occured. Particularly useful for resizing images. When using the Element Action, or bulk resizing, you'll be shown a summary of files resized and their state (as below).
 
-![](/docs/screenshots/resizeelementaction-logs.png)
+![](/uploads/plugins/image-resizer/resizeelementaction-logs.png)
 
 A detailed Log screen shows further detail on each image that's been processed.
 
-![](/docs/screenshots/logs.png)
+![](/uploads/plugins/image-resizer/logs.png)
