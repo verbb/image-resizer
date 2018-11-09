@@ -4,8 +4,6 @@
 
 Image Resizer is a Craft plugin that resizes your assets when they are uploaded. This allows huge images to be resized so as not to use up unnecessary disk space, but still kept at a reasonable resolution. This plugin is not a replacement for using image transforms throughout your site.
 
-![](https://raw.githubusercontent.com/verbb/image-resizer/craft-3/docs/screenshots/resizeelementaction.png)
-
 ## Features
 
 - Automatically resize your asset on-upload, or on-demand.
@@ -14,6 +12,8 @@ Image Resizer is a Craft plugin that resizes your assets when they are uploaded.
 - Checks for resulting larger images first.
 - Handy logging - check to see how Image Resizer has helped your assets.
 - Unlimited use, free forever.
+
+<img width="500" src="https://raw.githubusercontent.com/verbb/image-resizer/craft-3/docs/screenshots/resizeelementaction.png" style="box-shadow: 0 4px 16px rgba(0,0,0,0.08); border-radius: 4px; border: 1px solid rgba(0,0,0,0.12);">
 
 ## Documentation
 
