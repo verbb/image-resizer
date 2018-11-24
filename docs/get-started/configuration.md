@@ -38,5 +38,5 @@ return [
 
 ## Control Panel
 
-You can also make change and configuration settings through the Control Panel by visiting Settings → Image Resizer.
+You can also manage configuration settings through the Control Panel by visiting Settings → Image Resizer.
  
