@@ -32,6 +32,12 @@ class Service extends Component
             return;
         }
 
+        // Because this is fired on the before-save event, and validation hasn't kicked in yet
+        // we check it here. Otherwise, we potentially process it twice when there's a conflict.
+        if (!$asset->validate()) {
+            return;
+        }
+
         // Should we be modifying images in this source?
         if (!ImageResizer::$plugin->service->getSettingForAssetSource($asset->volumeId, 'enabled')) {
             ImageResizer::$plugin->logs->resizeLog(null, 'skipped-volume-disabled', $filename);
