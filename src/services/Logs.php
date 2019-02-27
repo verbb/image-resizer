@@ -50,7 +50,7 @@ class Logs extends Component
         $currentFullPath = Craft::$app->path->getLogPath() . DIRECTORY_SEPARATOR . $this->_currentLogFileName;
 
         if (@file_exists($currentFullPath)) {
-            FileHelper::removeFile($currentFullPath);
+            FileHelper::unlink($currentFullPath);
         }
     }
 
