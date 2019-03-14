@@ -1,6 +1,6 @@
 {% extends 'image-resizer/_layouts' %}
-{% import "_includes/forms" as forms %}
-{% import "image-resizer/_macros" as imageResizerMacro %}
+{% import '_includes/forms' as forms %}
+{% import 'image-resizer/_macros' as macros %}
 
 {% set crumbs = [
     { label: "Image Resizer" | t('image-resizer'), url: url('image-resizer') },
@@ -37,7 +37,7 @@
             <div id="resize">
                 <h2>{{ "All Asset Source Settings" | t('image-resizer') }}</h2>
 
-                {{ imageResizerMacro.resizeSetting(settings, additionalSettings) }}
+                {{ macros.resizeSetting(settings, additionalSettings) }}
 
                 {{ forms.lightswitchField({
                     label: 'Skip larger resulting images' | t('image-resizer'),
@@ -45,6 +45,7 @@
                     id: 'skipLarger',
                     name: 'skipLarger',
                     on: settings.skipLarger,
+                    warning: macros.configWarning('skipLarger', 'image-resizer'),
                 }) }}
 
                 {{ forms.lightswitchField({
@@ -53,6 +54,7 @@
                     id: 'nonDestructiveResize',
                     name: 'nonDestructiveResize',
                     on: settings.nonDestructiveResize,
+                    warning: macros.configWarning('nonDestructiveResize', 'image-resizer'),
                 }) }}
 
                 <div id="assetSources">
@@ -61,7 +63,7 @@
 
                         <h2>{{ "{label} Asset Source Settings" | t('image-resizer', { label: item.label }) }}</h2>
 
-                        {{ imageResizerMacro.resizeSetting(settings, additionalSettings, item) }}
+                        {{ macros.resizeSetting(settings, additionalSettings, item) }}
                     {% endfor %}
                 </div>
             </div>
