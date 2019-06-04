@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.0.5 - 2019-06-04
+
+### Added
+- Add override notice for settings fields.
+
+### Fixed
+- Fix deprecation error for `removeFile()`.
+- Prevent images being processed twice on upload when a conflicting asset was found.
+
 ## 2.0.4 - 2018-10-24
 
 ### Fixed
