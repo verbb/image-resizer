@@ -15,7 +15,7 @@ class BaseController extends Controller
     // Properties
     // =========================================================================
 
-    protected $allowAnonymous = array('actionClearTasks');
+    protected $allowAnonymous = ['clear-tasks'];
 
 
     // Public Methods
