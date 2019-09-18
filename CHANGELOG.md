@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.6 - 2019-09-18
+
+### Fixed
+- Fix incorrect action URL for clear-tasks.
+- Remove forced asset validation, which skips image processing.
+
 ## 2.0.5 - 2019-06-04
 
 ### Added
