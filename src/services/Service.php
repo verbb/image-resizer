@@ -29,12 +29,16 @@ class Service extends Component
         $path = $asset->tempFilePath;
 
         if (!$path) {
+            ImageResizer::$plugin->logs->resizeLog(null, 'error', $filename, ['message' => 'Unable to find path: ' . $path]);
+
             return;
         }
 
         // Because this is fired on the before-save event, and validation hasn't kicked in yet
         // we check it here. Otherwise, we potentially process it twice when there's a conflict.
         if (!$asset->validate()) {
+            ImageResizer::$plugin->logs->resizeLog(null, 'error', $filename, ['message' => json_encode($asset->getErrors())]);
+
             return;
         }
 
