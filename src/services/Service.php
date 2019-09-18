@@ -36,11 +36,11 @@ class Service extends Component
 
         // Because this is fired on the before-save event, and validation hasn't kicked in yet
         // we check it here. Otherwise, we potentially process it twice when there's a conflict.
-        if (!$asset->validate()) {
-            ImageResizer::$plugin->logs->resizeLog(null, 'error', $filename, ['message' => json_encode($asset->getErrors())]);
+        // if (!$asset->validate()) {
+        //     ImageResizer::$plugin->logs->resizeLog(null, 'error', $filename, ['message' => json_encode($asset->getErrors())]);
 
-            return;
-        }
+        //     return;
+        // }
 
         // Should we be modifying images in this source?
         if (!ImageResizer::$plugin->service->getSettingForAssetSource($asset->volumeId, 'enabled')) {
