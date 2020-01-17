@@ -3,112 +3,53 @@
 {% import 'image-resizer/_macros' as macros %}
 
 {% set crumbs = [
-    { label: "Image Resizer" | t('image-resizer'), url: url('image-resizer') },
-    { label: "Settings" | t('image-resizer'), url: url('image-resizer/settings') }
+    { label: 'Image Resizer' | t('image-resizer'), url: url('image-resizer') },
+    { label: 'Settings' | t('app'), url: url('image-resizer/settings') },
 ] %}
 
+{% set navItems = {
+    'resize': { title: 'Resize' | t('image-resizer') },
+    'resize-bulk': { title: 'Resize Bulk' | t('image-resizer') },
+    'other': { title: 'Other' | t('image-resizer') },
+} %}
+
 {% set selectedTab = 'settings' %}
+{% set selectedItem = 'resize' %}
 {% set fullPageForm = true %}
+
+{% block sidebar %}
+    <nav class="image-resizer-settings-tabs" data-vui-tabs>
+        <ul>
+            {% for id, item in navItems %}
+                {% if item.heading is defined %}
+                    <li class="heading"><span>{{ item.heading }}</span></li>
+                {% else %}
+                    <li>
+                        <a id="tab-{{ loop.index }}" href="#tab-{{ id }}" class="tab {% if id == selectedItem %}sel{% endif %}">
+                            {{ item.title }}
+                        </a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    </nav>
+{% endblock %}
 
 {% block blockContent %}
 
-    <form method="POST" accept-charset="UTF-8">
-        {{ csrfInput() }}
-        <input type="hidden" name="action" value="plugins/save-plugin-settings">
-        <input type="hidden" name="pluginHandle" value="image-resizer">
+<input type="hidden" name="action" value="plugins/save-plugin-settings">
+<input type="hidden" name="pluginHandle" value="image-resizer">
 
-        <div class="pane first tableview settings-tabs">
-            <nav id="settings-tabs" class="tabs">
-                <ul>
-                    <li class="label">{{ "Settings" | t('image-resizer') }}</li>
-                    <li><a id="settings-tab-resize" class="tab sel" href="#settings-resize" tabindex="0">{{ "Resize" | t('image-resizer') }}</a></li>
-                    <li><a id="settings-tab-bulk" class="tab" href="#settings-bulk" tabindex="1">{{ "Bulk Resize" | t('image-resizer') }}</a></li>
-                    <li><a id="settings-tab-other" class="tab" href="#settings-other" tabindex="3">{{ "Other" | t('image-resizer') }}</a></li>
-                </ul>
-            </nav>
+{% for id, item in navItems %}
+    {% if item.title is defined %}
+        <div id="tab-{{ id }}" {% if not loop.first %}class="hidden"{% endif %}>
+            <h2>{{ item.title }}</h2>
+
+            {% namespace 'settings' %}
+                {% include 'image-resizer/settings/_panes/' ~ id ignore missing %}
+            {% endnamespace %}
         </div>
-
-        {% namespace 'settings' %}
-
-            {% set additionalSettings = {
-                sourceOptions: sourceOptions,
-            } %}
-
-            <div id="resize">
-                <h2>{{ "All Asset Source Settings" | t('image-resizer') }}</h2>
-
-                {{ macros.resizeSetting(settings, additionalSettings) }}
-
-                {{ forms.lightswitchField({
-                    label: 'Skip larger resulting images' | t('image-resizer'),
-                    instructions: 'If the resizing process results in a larger image that the previous, do not replace with larger file.' | t('image-resizer'),
-                    id: 'skipLarger',
-                    name: 'skipLarger',
-                    on: settings.skipLarger,
-                    warning: macros.configWarning('skipLarger', 'image-resizer'),
-                }) }}
-
-                {{ forms.lightswitchField({
-                    label: 'Non-destructive' | t('image-resizer'),
-                    instructions: 'Image Resizer will save a copy of your original image, untouched. This will be in a folder called `originals`, relative to the source image.' | t('image-resizer'),
-                    id: 'nonDestructiveResize',
-                    name: 'nonDestructiveResize',
-                    on: settings.nonDestructiveResize,
-                    warning: macros.configWarning('nonDestructiveResize', 'image-resizer'),
-                }) }}
-
-                <div id="assetSources">
-                    {% for item in sourceOptions %}
-                        <hr>
-
-                        <h2>{{ "{label} Asset Source Settings" | t('image-resizer', { label: item.label }) }}</h2>
-
-                        {{ macros.resizeSetting(settings, additionalSettings, item) }}
-                    {% endfor %}
-                </div>
-            </div>
-
-            <div id="bulk" class="hidden">
-                <div class="field">
-                    <div class="heading">
-                        <label for="settings-assetFolders">{{ "Bulk Resize" | t('image-resizer') }}</label>
-
-                        <div class="instructions">
-                            <p>{{ "For any Asset folder below, click on Bulk Resize to automatically resize all assets within." | t('image-resizer') }}</p>
-                        </div>
-                    </div>
-
-                    <div class="input ltr">
-                        <table class="bulk-resize-table">
-                            {% for item in folderOptions %}
-                                <tr>
-                                    <td>{{ item.label }}</td>
-
-                                    <td>
-                                        <div class="btn small bulk-resize-btn" data-id="{{ item.value }}" data-name="{{ item.label | t('image-resizer') }}">
-                                            {{ "Bulk Resize" | t('image-resizer') }}
-                                        </div>
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <div id="other" class="hidden">
-
-                <a class="btn" href="{{ url('image-resizer/clear-tasks') }}">{{ "Clear pending tasks" | t('image-resizer') }}</a>
-
-            </div>
-
-            {% js %}
-                new Craft.ImageResizer.BulkResizeAssetFolder('{{ settings.imageWidth }}', '{{ settings.imageHeight }}');
-                new Craft.TabsManager();
-            {% endjs %}
-
-        {% endnamespace %}
-
-    </form>
+    {% endif %}
+{% endfor %}
 
 {% endblock %}

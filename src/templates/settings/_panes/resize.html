@@ -1,0 +1,38 @@
+{% import '_includes/forms' as forms %}
+{% import 'image-resizer/_macros' as macros %}
+
+{% set additionalSettings = {
+    sourceOptions: sourceOptions,
+} %}
+
+<h2>{{ "All Asset Source Settings" | t('image-resizer') }}</h2>
+
+{{ macros.resizeSetting(settings, additionalSettings) }}
+
+{{ forms.lightswitchField({
+    label: 'Skip larger resulting images' | t('image-resizer'),
+    instructions: 'If the resizing process results in a larger image that the previous, do not replace with larger file.' | t('image-resizer'),
+    id: 'skipLarger',
+    name: 'skipLarger',
+    on: settings.skipLarger,
+    warning: macros.configWarning('skipLarger', 'image-resizer'),
+}) }}
+
+{{ forms.lightswitchField({
+    label: 'Non-destructive' | t('image-resizer'),
+    instructions: 'Image Resizer will save a copy of your original image, untouched. This will be in a folder called `originals`, relative to the source image.' | t('image-resizer'),
+    id: 'nonDestructiveResize',
+    name: 'nonDestructiveResize',
+    on: settings.nonDestructiveResize,
+    warning: macros.configWarning('nonDestructiveResize', 'image-resizer'),
+}) }}
+
+<div id="assetSources">
+    {% for item in sourceOptions %}
+        <hr>
+
+        <h2>{{ "{label} Asset Source Settings" | t('image-resizer', { label: item.label }) }}</h2>
+
+        {{ macros.resizeSetting(settings, additionalSettings, item) }}
+    {% endfor %}
+</div>

@@ -11,6 +11,8 @@ use craft\log\FileTarget;
 
 use yii\log\Logger;
 
+use verbb\base\BaseHelper;
+
 trait PluginTrait
 {
     // Static Properties
@@ -37,23 +39,6 @@ trait PluginTrait
         return $this->get('resize');
     }
 
-    private function _setPluginComponents()
-    {
-        $this->setComponents([
-            'service' => Service::class,
-            'logs' => Logs::class,
-            'resize' => Resize::class,
-        ]);
-    }
-
-    private function _setLogging()
-    {
-        Craft::getLogger()->dispatcher->targets[] = new FileTarget([
-            'logFile' => Craft::getAlias('@storage/logs/image-resizer.log'),
-            'categories' => ['image-resizer'],
-        ]);
-    }
-
     public static function log($message)
     {
         Craft::getLogger()->log($message, Logger::LEVEL_INFO, 'image-resizer');
@@ -62,5 +47,28 @@ trait PluginTrait
     public static function error($message)
     {
         Craft::getLogger()->log($message, Logger::LEVEL_ERROR, 'image-resizer');
+    }
+
+
+    // Private Methods
+    // =========================================================================
+
+    private function _setPluginComponents()
+    {
+        $this->setComponents([
+            'service' => Service::class,
+            'logs' => Logs::class,
+            'resize' => Resize::class,
+        ]);
+
+        BaseHelper::registerModule();
+    }
+
+    private function _setLogging()
+    {
+        Craft::getLogger()->dispatcher->targets[] = new FileTarget([
+            'logFile' => Craft::getAlias('@storage/logs/image-resizer.log'),
+            'categories' => ['image-resizer'],
+        ]);
     }
 }

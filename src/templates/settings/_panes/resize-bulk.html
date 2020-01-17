@@ -1,0 +1,33 @@
+{% import '_includes/forms' as forms %}
+{% import 'image-resizer/_macros' as macros %}
+
+<div class="field">
+    <div class="heading">
+        <label for="settings-assetFolders">{{ "Bulk Resize" | t('image-resizer') }}</label>
+
+        <div class="instructions">
+            <p>{{ "For any Asset folder below, click on Bulk Resize to automatically resize all assets within." | t('image-resizer') }}</p>
+        </div>
+    </div>
+
+    <div class="input ltr">
+        <table class="bulk-resize-table">
+            {% for item in folderOptions %}
+                <tr>
+                    <td>{{ item.label }}</td>
+
+                    <td>
+                        <div class="btn small bulk-resize-btn" data-id="{{ item.value }}" data-name="{{ item.label | t('image-resizer') }}">
+                            {{ "Bulk Resize" | t('image-resizer') }}
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+
+{% js %}
+    new Craft.ImageResizer.BulkResizeAssetFolder('{{ settings.imageWidth }}', '{{ settings.imageHeight }}');
+    new Craft.TabsManager();
+{% endjs %}
