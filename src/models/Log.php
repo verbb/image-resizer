@@ -72,7 +72,7 @@ class Log extends Model
             case 'success':
                 return Craft::t('image-resizer', 'Resized successfully.');
             case 'skipped-larger-result':
-                return Craft::t('image-resizer', 'Resizing would result in a larger file.');
+                return Craft::t('image-resizer', 'Resizing would result in a larger file size.');
             case 'skipped-non-image':
                 return Craft::t('image-resizer', 'Image cannot be resized (not manipulatable).');
             case 'skipped-under-limits':
