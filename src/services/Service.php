@@ -132,8 +132,6 @@ class Service extends Component
      */
     public function saveAs(&$image, string $filePath): bool
     {
-        file_put_contents('test.txt', 'saveAs' . PHP_EOL, FILE_APPEND);
-
         $image->saveAs($filePath);
 
         try {
