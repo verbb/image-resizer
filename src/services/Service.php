@@ -129,78 +129,25 @@ class Service extends Component
      * @param string $filePath
      *
      * @return true
-     *
-     * @throws \lsolesen\pel\PelException
-     * @throws \lsolesen\pel\PelJpegInvalidMarkerException
      */
-    public function saveAs($image, string $filePath): bool
+    public function saveAs(&$image, string $filePath): bool
     {
-        // @TODO The function breaks on local environments using MAMP.
-        // Therefore we're using the craft's internal 'saveAs' function temporary
+        file_put_contents('test.txt', 'saveAs' . PHP_EOL, FILE_APPEND);
+
         $image->saveAs($filePath);
 
-        return true;
+        try {
+            if (Craft::$app->getConfig()->getGeneral()->rotateImagesOnUploadByExifData) {
+                Craft::$app->images->rotateImageByExifData($filePath);
+            }
 
-        // Get existing EXIF data (if any) before the resizing
-//        $data = new PelDataWindow(@file_get_contents($filePath));
-//
-//        // Fire the standard image-saving = again, this strips EXIF data
-//        $image->saveAs($filePath);
-//
-//        // We can return here if we're not dealing with an EXIF-capable image
-//        if (!ImageHelper::canHaveExifData($filePath)) {
-//            return true;
-//        }
-//
-//        $jpeg = new PelJpeg();
-//        $jpeg->load($data);
-//        $exif = $jpeg->getExif();
-//
-//        // Because we've just resized the image above, but our EXIF data contains the previous
-//        // dimensions, we need to update that in EXIF. Unfortunately, seems like there's lots of cases...
-//        if ($exif) {
-//            $tiff = $exif->getTiff();
-//            $ifd0 = $tiff->getIfd();
-//
-//            $exififd = $ifd0->getSubIfd(PelIfd::EXIF);
-//            $iifd = $ifd0->getSubIfd(PelIfd::INTEROPERABILITY);
-//
-//            if (!empty($ifd0)) {
-//                $width = $ifd0->getEntry(PelTag::IMAGE_WIDTH);
-//                $length = $ifd0->getEntry(PelTag::IMAGE_LENGTH);
-//
-//                if ($width != null && $length != null) {
-//                    $width->setValue($image->getWidth());
-//                    $length->setValue($image->getHeight());
-//                }
-//            }
-//
-//            if (!empty($exififd)) {
-//                $xDimension = $exififd->getEntry(PelTag::PIXEL_X_DIMENSION);
-//                $yDimension = $exififd->getEntry(PelTag::PIXEL_Y_DIMENSION);
-//
-//                if ($xDimension != null && $yDimension != null) {
-//                    $xDimension->setValue($image->getWidth());
-//                    $yDimension->setValue($image->getHeight());
-//                }
-//            }
-//
-//            if (!empty($iifd)) {
-//                $relWidth = $iifd->getEntry(PelTag::RELATED_IMAGE_WIDTH);
-//                $relLength = $iifd->getEntry(PelTag::RELATED_IMAGE_LENGTH);
-//
-//                if ($relWidth != null && $relLength != null) {
-//                    $relWidth->setValue($image->getWidth());
-//                    $relLength->setValue($image->getHeight());
-//                }
-//            }
-//
-//            // Save our EXIF data
-//            $file = new PelJpeg($filePath);
-//            $file->setExif($exif);
-//            $file->saveFile($filePath);
-//        }
-//
-//        return true;
+            Craft::$app->images->stripOrientationFromExifData($filePath);
+        } catch (\Throwable $e) {
+            ImageResizer::$plugin->logs->resizeLog(null, 'error', $filePath, ['message' => 'Tried to rotate or strip EXIF data from image and failed: ' . $e->getMessage()]);
+
+            return false;
+        }
+
+        return true;
     }
 }
