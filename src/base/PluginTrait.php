@@ -66,9 +66,6 @@ trait PluginTrait
 
     private function _setLogging()
     {
-        Craft::getLogger()->dispatcher->targets[] = new FileTarget([
-            'logFile' => Craft::getAlias('@storage/logs/image-resizer.log'),
-            'categories' => ['image-resizer'],
-        ]);
+        BaseHelper::setFileLogging('image-resizer');
     }
 }
