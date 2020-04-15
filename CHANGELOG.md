@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.0.7 - 2020-04-15
+
+### Added
+- Craft 3.4 compatibility.
+
+### Changed
+- File logging now checks if the overall Craft app uses file logging.
+- Log files now only include `GET` and `POST` additional variables.
+- Add back image-cleaning of EXIF data.
+
 ## 2.0.6 - 2019-09-18
 
 ### Fixed
