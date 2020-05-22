@@ -3,8 +3,8 @@
 ## 2.0.9 - 2020-05-22
 
 ### Fixed
-- Fix potential stored XSS in Bulk Resize action. Thanks Paweł Hałdrzyński (Limpid Security).
-- Fix potential CSRF issues with log-clear controller action. Thanks Paweł Hałdrzyński (Limpid Security).
+- Fix stored XSS in Bulk Resize action. Thanks Paweł Hałdrzyński (Limpid Security).
+- Fix CSRF issues with log-clear controller action. Thanks Paweł Hałdrzyński (Limpid Security).
 
 ## 2.0.8 - 2020-04-16
 
