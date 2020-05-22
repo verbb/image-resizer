@@ -20,11 +20,10 @@ class LogsController extends Controller
         ));
     }
 
-    /**
-     * @throws \yii\base\ErrorException
-     */
     public function actionClear()
     {
+        $this->requirePostRequest();
+
         ImageResizer::$plugin->logs->clear();
 
         return $this->redirect('image-resizer/logs');

@@ -10,7 +10,12 @@
 
 {% block blockContent %}
 
-    <a class="btn right" href="{{ url('image-resizer/logs/clear') }}">{{ "Clear logs" | t('image-resizer') }}</a>
+    <form method="post" accept-charset="UTF-8">
+        {{ actionInput('image-resizer/logs/clear') }}
+        {{ csrfInput() }}
+
+        <input class="btn right" type="submit" value="{{ 'Clear logs' | t('image-resizer') }}">
+    </form>
 
     <table id="logs" class="data fullwidth collapsible image-resizer-logs-table">
         <thead>
