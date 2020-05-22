@@ -17,7 +17,9 @@
                     <td>{{ item.label }}</td>
 
                     <td>
-                        <div class="btn small bulk-resize-btn" data-id="{{ item.value }}" data-name="{{ item.label | t('image-resizer') }}">
+                        {{ item.label | t('image-resizer') }}
+
+                        <div class="btn small bulk-resize-btn" data-id="{{ item.value }}" data-name="{{ item.label | e('js') }}">
                             {{ "Bulk Resize" | t('image-resizer') }}
                         </div>
                     </td>
