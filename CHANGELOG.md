@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.10 - 2020-07-14
+
+### Fixed
+- Move plugin settings to class, instead of composer.json. May help with plugin settings not appearing.
+
 ## 2.0.9 - 2020-05-22
 
 ### Fixed
