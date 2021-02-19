@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.1.0 - 2021-02-19
+
+### Changed
+- Now requires Craft 3.6+.
+
+### Fixed
+- Fix `createDir` deprecation message for asset volumes in Craft 3.6+.
+
 ## 2.0.10 - 2020-07-14
 
 ### Fixed
