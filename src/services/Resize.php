@@ -72,7 +72,7 @@ class Resize extends Component
 
                 // Create a new folder 'originals'
                 if (!$volume->folderExists($folderPath)) {
-                    $volume->createDir($folderPath);
+                    $volume->createDirectory($folderPath);
                 }
 
                 $filePath = $folderPath . $filename;
