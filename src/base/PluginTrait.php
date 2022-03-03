@@ -2,12 +2,11 @@
 namespace verbb\imageresizer\base;
 
 use verbb\imageresizer\ImageResizer;
+use verbb\imageresizer\services\Logs;
 use verbb\imageresizer\services\Resize;
 use verbb\imageresizer\services\Service;
-use verbb\imageresizer\services\Logs;
 
 use Craft;
-use craft\log\FileTarget;
 
 use yii\log\Logger;
 
@@ -18,33 +17,33 @@ trait PluginTrait
     // Static Properties
     // =========================================================================
 
-    public static $plugin;
+    public static ImageResizer $plugin;
 
 
     // Public Methods
     // =========================================================================
 
-    public function getService()
-    {
-        return $this->get('service');
-    }
-
-    public function getLogs()
+    public function getLogs(): Logs
     {
         return $this->get('logs');
     }
 
-    public function getResize()
+    public function getResize(): Resize
     {
         return $this->get('resize');
     }
 
-    public static function log($message)
+    public function getService(): Service
+    {
+        return $this->get('service');
+    }
+
+    public static function log($message): void
     {
         Craft::getLogger()->log($message, Logger::LEVEL_INFO, 'image-resizer');
     }
 
-    public static function error($message)
+    public static function error($message): void
     {
         Craft::getLogger()->log($message, Logger::LEVEL_ERROR, 'image-resizer');
     }
@@ -53,18 +52,18 @@ trait PluginTrait
     // Private Methods
     // =========================================================================
 
-    private function _setPluginComponents()
+    private function _setPluginComponents(): void
     {
         $this->setComponents([
-            'service' => Service::class,
             'logs' => Logs::class,
             'resize' => Resize::class,
+            'service' => Service::class,
         ]);
 
         BaseHelper::registerModule();
     }
 
-    private function _setLogging()
+    private function _setLogging(): void
     {
         BaseHelper::setFileLogging('image-resizer');
     }

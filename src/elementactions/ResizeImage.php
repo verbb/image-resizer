@@ -1,18 +1,18 @@
 <?php
 namespace verbb\imageresizer\elementactions;
 
+use verbb\imageresizer\assetbundles\ImageResizerAsset;
+use verbb\imageresizer\ImageResizer;
+
 use Craft;
 use craft\base\ElementAction;
 use craft\helpers\Json;
 
-use verbb\imageresizer\assetbundles\ImageResizerAsset;
-use verbb\imageresizer\ImageResizer;
-
 class ResizeImage extends ElementAction
 {
-    /**
-     * @return string
-     */
+    // Public Methods
+    // =========================================================================
+
     public function getTriggerLabel(): string
     {
         return Craft::t('image-resizer', 'Resize image');
@@ -21,18 +21,20 @@ class ResizeImage extends ElementAction
     /**
      * @throws \yii\base\InvalidConfigException
      */
-    public function getTriggerHtml()
+    public function getTriggerHtml(): ?string
     {
         $imageWidth = ImageResizer::$plugin->getSettings()->imageWidth;
         $imageHeight = ImageResizer::$plugin->getSettings()->imageHeight;
         $type = Json::encode(static::className());
 
-        Craft::$app->view->registerAssetBundle(ImageResizerAsset::class);
+        Craft::$app->getView()->registerAssetBundle(ImageResizerAsset::class);
 
-        Craft::$app->view->registerJs('new Craft.ImageResizer.ResizeElementAction(' .
+        Craft::$app->getView()->registerJs('new Craft.ImageResizer.ResizeElementAction(' .
             '"' . $imageWidth . '", ' .
             '"' . $imageHeight . '", '
             . $type .
         ');');
+
+        return null;
     }
 }

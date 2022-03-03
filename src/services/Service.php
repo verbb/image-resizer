@@ -11,6 +11,7 @@ use craft\elements\Asset;
 use craft\events\AssetEvent;
 use craft\events\RegisterElementActionsEvent;
 use craft\helpers\Image as ImageHelper;
+use craft\image\Raster;
 
 use lsolesen\pel\PelJpeg;
 use lsolesen\pel\PelIfd;
@@ -22,14 +23,14 @@ class Service extends Component
     // Public Methods
     // =========================================================================
 
-    public function beforeHandleAssetFile(AssetEvent $event)
+    public function beforeHandleAssetFile(AssetEvent $event): void
     {
         $asset = $event->sender;
         $filename = $asset->filename;
         $path = $asset->tempFilePath;
 
         if (!$path) {
-            ImageResizer::$plugin->logs->resizeLog(null, 'error', $filename, ['message' => 'Unable to find path: ' . $path]);
+            ImageResizer::$plugin->getLogs()->resizeLog(null, 'error', $filename, ['message' => 'Unable to find path: ' . $path]);
 
             return;
         }
@@ -37,53 +38,49 @@ class Service extends Component
         // Because this is fired on the before-save event, and validation hasn't kicked in yet
         // we check it here. Otherwise, we potentially process it twice when there's a conflict.
         // if (!$asset->validate()) {
-        //     ImageResizer::$plugin->logs->resizeLog(null, 'error', $filename, ['message' => json_encode($asset->getErrors())]);
+        //     ImageResizer::$plugin->getLogs()->resizeLog(null, 'error', $filename, ['message' => json_encode($asset->getErrors())]);
 
         //     return;
         // }
 
         // Should we be modifying images in this source?
-        if (!ImageResizer::$plugin->service->getSettingForAssetSource($asset->volumeId, 'enabled')) {
-            ImageResizer::$plugin->logs->resizeLog(null, 'skipped-volume-disabled', $filename);
+        if (!ImageResizer::$plugin->getService()->getSettingForAssetSource($asset->volumeId, 'enabled')) {
+            ImageResizer::$plugin->getLogs()->resizeLog(null, 'skipped-volume-disabled', $filename);
 
             return;
         }
 
         // Resize the image
-        ImageResizer::$plugin->resize->resize($asset, $filename, $path);
+        ImageResizer::$plugin->getResize()->resize($asset, $filename, $path);
     }
 
-    public function registerAssetActions(RegisterElementActionsEvent $event)
+    public function registerAssetActions(RegisterElementActionsEvent $event): void
     {
         if (Craft::$app->getUser()->checkPermission('imageResizer-resizeImage')) {
             $event->actions[] = new ResizeImage();
         }
     }
 
-    public function getSettingForAssetSource($sourceId, string $setting)
+    public function getSettingForAssetSource($sourceId, string $setting): mixed
     {
         $settings = ImageResizer::$plugin->getSettings();
         $globalSetting = $settings->$setting;
 
-        if (isset($settings->assetSourceSettings[$sourceId])) {
-            if ($settings->assetSourceSettings[$sourceId][$setting]) {
-                return $settings->assetSourceSettings[$sourceId][$setting];
-            }
+        if (isset($settings->assetSourceSettings[$sourceId]) && $settings->assetSourceSettings[$sourceId][$setting]) {
+            return $settings->assetSourceSettings[$sourceId][$setting];
         }
 
         return $globalSetting;
     }
 
     /**
-     * @param string   $path
      * @param int|null $quality
      *
-     * @return int
      */
     public function getImageQuality(string $path, int $quality = null): int
     {
-        $desiredQuality = (!$quality) ? ImageResizer::$plugin->getSettings()->imageQuality : $quality;
-        $desiredQuality = (!$desiredQuality) ? Craft::$app->config->general->defaultImageQuality : $desiredQuality;
+        $desiredQuality = $quality ?: ImageResizer::$plugin->getSettings()->imageQuality;
+        $desiredQuality = $desiredQuality ?: Craft::$app->getConfig()->getGeneral->defaultImageQuality;
 
         if (@pathinfo($path, PATHINFO_EXTENSION) == 'png') {
             // Valid PNG quality settings are 0-9, so normalize and flip, because we're talking about compression
@@ -105,11 +102,7 @@ class Service extends Component
         return $quality;
     }
 
-    /**
-     * @param array $tree
-     * @param array $folderOptions
-     */
-    public function getAssetFolders(array $tree, array &$folderOptions)
+    public function getAssetFolders(array $tree, array &$folderOptions): void
     {
         foreach ($tree as $folder) {
             $folderOptions[] = ['label' => $folder->name, 'value' => $folder->id];
@@ -125,23 +118,19 @@ class Service extends Component
     /**
      * Our own custom save function that respects EXIF data. Using image->saveAs strips EXIF data!
      *
-     * @param \craft\base\Image|\craft\image\Raster $image
-     * @param string $filePath
-     *
-     * @return true
      */
-    public function saveAs(&$image, string $filePath): bool
+    public function saveAs(Image|Raster &$image, string $filePath): bool
     {
         $image->saveAs($filePath);
 
         try {
             if (Craft::$app->getConfig()->getGeneral()->rotateImagesOnUploadByExifData) {
-                Craft::$app->images->rotateImageByExifData($filePath);
+                Craft::$app->getImages()->rotateImageByExifData($filePath);
             }
 
-            Craft::$app->images->stripOrientationFromExifData($filePath);
-        } catch (\Throwable $e) {
-            ImageResizer::$plugin->logs->resizeLog(null, 'error', $filePath, ['message' => 'Tried to rotate or strip EXIF data from image and failed: ' . $e->getMessage()]);
+            Craft::$app->getImages()->stripOrientationFromExifData($filePath);
+        } catch (\Throwable $throwable) {
+            ImageResizer::$plugin->getLogs()->resizeLog(null, 'error', $filePath, ['message' => 'Tried to rotate or strip EXIF data from image and failed: ' . $throwable->getMessage()]);
 
             return false;
         }

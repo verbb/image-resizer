@@ -16,16 +16,12 @@ class Resize extends Component
 {
     // Public Methods
     // =========================================================================
-
+    
     /**
-     * @param Asset    $asset
-     * @param string   $filename
-     * @param string   $path
      * @param int|null $width
      * @param int|null $height
      * @param null     $taskId
      *
-     * @return bool
      * @throws \yii\base\InvalidConfigException
      */
     public function resize(Asset $asset, string $filename, string $path, int $width = null, int $height = null, $taskId = null): bool
@@ -34,21 +30,21 @@ class Resize extends Component
 
         // Does the volume exist?
         if (!$volume) {
-            ImageResizer::$plugin->logs->resizeLog($taskId, 'skipped-no-volume', $filename);
+            ImageResizer::$plugin->getLogs()->resizeLog($taskId, 'skipped-no-volume', $filename);
 
             return false;
         }
 
         // Is this a manipulatable image?
         if (!ImageHelper::canManipulateAsImage(@pathinfo($path, PATHINFO_EXTENSION))) {
-            ImageResizer::$plugin->logs->resizeLog($taskId, 'skipped-non-image', $filename);
+            ImageResizer::$plugin->getLogs()->resizeLog($taskId, 'skipped-non-image', $filename);
 
             return false;
         }
 
         try {
             $settings = ImageResizer::$plugin->getSettings();
-            $image = Craft::$app->images->loadImage($path);
+            $image = Craft::$app->getImages()->loadImage($path);
 
             // Save some existing properties for logging (see savings)
             $originalProperties = [
@@ -59,12 +55,12 @@ class Resize extends Component
 
             // We can have settings globally, or per asset source. Check!
             // Our maximum width/height for assets from plugin settings
-            $imageWidth = ImageResizer::$plugin->service->getSettingForAssetSource($asset->volumeId, 'imageWidth');
-            $imageHeight = ImageResizer::$plugin->service->getSettingForAssetSource($asset->volumeId, 'imageHeight');
+            $imageWidth = ImageResizer::$plugin->getService()->getSettingForAssetSource($asset->getVolumeId(), 'imageWidth');
+            $imageHeight = ImageResizer::$plugin->getService()->getSettingForAssetSource($asset->getVolumeId(), 'imageHeight');
 
             // Allow for overrides passed on-demand
-            $imageWidth = $width ? $width : $imageWidth;
-            $imageHeight = $height ? $height : $imageHeight;
+            $imageWidth = $width ?: $imageWidth;
+            $imageHeight = $height ?: $imageHeight;
 
             // Check to see if we should make a copy of our original image first?
             if ($settings->nonDestructiveResize) {
@@ -104,20 +100,20 @@ class Resize extends Component
             if ($hasResized) {
                 // Set image quality - but normalise (for PNG)!
                 if (method_exists($image, 'setQuality')) {
-                    $image->setQuality(ImageResizer::$plugin->service->getImageQuality($path));
+                    $image->setQuality(ImageResizer::$plugin->getService()->getImageQuality($path));
                 }
 
                 // If we're checking for larger images
                 if ($settings->skipLarger) {
                     // Save this resized image in a temporary location - we need to test filesize difference
                     $tempPath = AssetsHelper::tempFilePath($filename);
-                    ImageResizer::$plugin->service->saveAs($image, $tempPath);
+                    ImageResizer::$plugin->getService()->saveAs($image, $tempPath);
 
                     clearstatcache();
 
                     // Lets check to see if this resize resulted in a larger file - revert if so.
                     if (filesize($tempPath) < filesize($path)) {
-                        ImageResizer::$plugin->service->saveAs($image, $path); // Its a smaller file - properly save
+                        ImageResizer::$plugin->getService()->saveAs($image, $path); // Its a smaller file - properly save
 
                         // Create remote file
                         // if (!$volume instanceof LocalVolumeInterface) {
@@ -132,15 +128,15 @@ class Resize extends Component
                             'size'   => filesize($path),
                         ];
 
-                        ImageResizer::$plugin->logs->resizeLog($taskId, 'success', $filename, ['prev' => $originalProperties, 'curr' => $newProperties]);
+                        ImageResizer::$plugin->getLogs()->resizeLog($taskId, 'success', $filename, ['prev' => $originalProperties, 'curr' => $newProperties]);
                     } else {
-                        ImageResizer::$plugin->logs->resizeLog($taskId, 'skipped-larger-result', $filename);
+                        ImageResizer::$plugin->getLogs()->resizeLog($taskId, 'skipped-larger-result', $filename);
                     }
 
                     // Delete our temp file we test filesize with
                     @unlink($tempPath);
                 } else {
-                    ImageResizer::$plugin->service->saveAs($image, $path);
+                    ImageResizer::$plugin->getService()->saveAs($image, $path);
 
                     // Create remote file
                     // if (!$volume instanceof LocalVolumeInterface) {
@@ -155,15 +151,15 @@ class Resize extends Component
                         'size'   => filesize($path),
                     ];
 
-                    ImageResizer::$plugin->logs->resizeLog($taskId, 'success', $filename, ['prev' => $originalProperties, 'curr' => $newProperties]);
+                    ImageResizer::$plugin->getLogs()->resizeLog($taskId, 'success', $filename, ['prev' => $originalProperties, 'curr' => $newProperties]);
                 }
             } else {
-                ImageResizer::$plugin->logs->resizeLog($taskId, 'skipped-under-limits', $filename);
+                ImageResizer::$plugin->getLogs()->resizeLog($taskId, 'skipped-under-limits', $filename);
             }
 
             return true;
         } catch (\Exception $e) {
-            ImageResizer::$plugin->logs->resizeLog($taskId, 'error', $filename, ['message' => $e->getMessage()]);
+            ImageResizer::$plugin->getLogs()->resizeLog($taskId, 'error', $filename, ['message' => $e->getMessage()]);
 
             return false;
         }
@@ -172,13 +168,11 @@ class Resize extends Component
 
     // Private Methods
     // =========================================================================
-
     /**
-     * @param Image    $image
      * @param int|null $width
      * @param int|null $height
      */
-    private function _resizeImage(Image $image, int $width = null, int $height = null)
+    private function _resizeImage(Image $image, int $width = null, int $height = null): void
     {
         // Calculate the missing width/height for the asset - ensure aspect ratio is maintained
         $dimensions = ImageHelper::calculateMissingDimension($width, $height, $image->getWidth(), $image->getHeight());
@@ -190,13 +184,11 @@ class Resize extends Component
      * Store new created file on cloud server
      *
      * @param VolumeInterface $volume
-     * @param string          $filename
-     * @param string          $path
      *
      * @throws \craft\errors\VolumeException
      * @throws \craft\errors\VolumeObjectExistsException
      */
-    private function _createRemoteFile(VolumeInterface $volume, string $filename, string $path)
+    private function _createRemoteFile(VolumeInterface $volume, string $filename, string $path): void
     {
         // Delete already existing file
         $volume->deleteFile($filename);

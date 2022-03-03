@@ -6,6 +6,7 @@ use verbb\imageresizer\elementactions\ResizeImage;
 use verbb\imageresizer\models\Settings;
 
 use Craft;
+use craft\base\Model;
 use craft\base\Plugin;
 use craft\elements\Asset;
 use craft\events\RegisterUrlRulesEvent;
@@ -22,9 +23,9 @@ class ImageResizer extends Plugin
     // Public Properties
     // =========================================================================
 
-    public $schemaVersion = '2.0.0';
-    public $hasCpSettings = true;
-    public $hasCpSection = false;
+    public string $schemaVersion = '2.0.0';
+    public bool $hasCpSettings = true;
+    public bool $hasCpSection = false;
 
 
     // Traits
@@ -36,7 +37,7 @@ class ImageResizer extends Plugin
     // Public Methods
     // =========================================================================
 
-    public function init()
+    public function init(): void
     {
         parent::init();
 
@@ -49,7 +50,7 @@ class ImageResizer extends Plugin
         $this->_registerCraftEventListeners();
     }
 
-    public function getSettingsResponse()
+    public function getSettingsResponse(): mixed
     {
         return Craft::$app->getResponse()->redirect(UrlHelper::cpUrl('image-resizer/settings'));
     }
@@ -57,7 +58,7 @@ class ImageResizer extends Plugin
     // Protected Methods
     // =========================================================================
 
-    protected function createSettingsModel(): Settings
+    protected function createSettingsModel(): ?Model
     {
         return new Settings();
     }
@@ -66,7 +67,7 @@ class ImageResizer extends Plugin
     // Private Methods
     // =========================================================================
 
-    private function _registerCpRoutes()
+    private function _registerCpRoutes(): void
     {
         Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_CP_URL_RULES, function(RegisterUrlRulesEvent $event) {
             $event->rules = array_merge($event->rules, [
@@ -79,7 +80,7 @@ class ImageResizer extends Plugin
         });
     }
 
-    private function _registerPermissions()
+    private function _registerPermissions(): void
     {
         Event::on(UserPermissions::class, UserPermissions::EVENT_REGISTER_PERMISSIONS, function(RegisterUserPermissionsEvent $event) {
             $event->permissions[Craft::t('image-resizer', 'Image Resizer')] = [
@@ -88,7 +89,7 @@ class ImageResizer extends Plugin
         });
     }
 
-    private function _registerCraftEventListeners()
+    private function _registerCraftEventListeners(): void
     {
         Event::on(Asset::class, Asset::EVENT_BEFORE_HANDLE_FILE, [$this->getService(), 'beforeHandleAssetFile']);
         Event::on(Asset::class, Asset::EVENT_REGISTER_ACTIONS, [$this->getService(), 'registerAssetActions']);

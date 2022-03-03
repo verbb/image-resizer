@@ -4,49 +4,19 @@ namespace verbb\imageresizer\models;
 use Craft;
 use craft\base\Model;
 
-/**
- * @property \DateTime $dateTime
- * @property string    $taskId
- * @property string    $handle
- * @property string    $filename
- * @property mixed     $data
- * @property string    $message
- */
+use DateTime;
+
 class Log extends Model
 {
-
     // Public Properties
     // =========================================================================
 
-    /**
-     * @var \DateTime
-     */
-    public $dateTime;
-
-    /**
-     * @var string
-     */
-    public $taskId;
-
-    /**
-     * @var string
-     */
-    public $handle;
-
-    /**
-     * @var string
-     */
-    public $filename;
-
-    /**
-     * @var mixed
-     */
-    public $data;
-
-    /**
-     * @var string
-     */
-    public $message;
+    public DateTime $dateTime;
+    public ?string $taskId;
+    public string $handle;
+    public string $filename;
+    public mixed $data;
+    public string $message;
 
 
     // Public Methods
@@ -63,30 +33,18 @@ class Log extends Model
         return 'error';
     }
 
-    /**
-     * @return string
-     */
-    public function getDescription()
+    public function getDescription(): string
     {
-        switch ($this->handle) {
-            case 'success':
-                return Craft::t('image-resizer', 'Resized successfully.');
-            case 'skipped-larger-result':
-                return Craft::t('image-resizer', 'Resizing would result in a larger file size.');
-            case 'skipped-non-image':
-                return Craft::t('image-resizer', 'Image cannot be resized (not manipulatable).');
-            case 'skipped-under-limits':
-                return Craft::t('image-resizer', 'Image already under maximum width/height.');
-            case 'skipped-no-volume':
-                return Craft::t('image-resizer', 'Volume not found.');
-            case 'skipped-no-volume-type':
-                return Craft::t('image-resizer', 'Source type not found.');
-            case 'skipped-volume-disabled':
-                return Craft::t('image-resizer', 'Volume not enabled to auto-resize on upload.');
-            case 'error':
-                return Craft::t('image-resizer', 'Error.');
-            default:
-                return $this->message;
-        }
+        return match ($this->handle) {
+            'success' => Craft::t('image-resizer', 'Resized successfully.'),
+            'skipped-larger-result' => Craft::t('image-resizer', 'Resizing would result in a larger file size.'),
+            'skipped-non-image' => Craft::t('image-resizer', 'Image cannot be resized (not manipulatable).'),
+            'skipped-under-limits' => Craft::t('image-resizer', 'Image already under maximum width/height.'),
+            'skipped-no-volume' => Craft::t('image-resizer', 'Volume not found.'),
+            'skipped-no-volume-type' => Craft::t('image-resizer', 'Source type not found.'),
+            'skipped-volume-disabled' => Craft::t('image-resizer', 'Volume not enabled to auto-resize on upload.'),
+            'error' => Craft::t('image-resizer', 'Error.'),
+            default => $this->message,
+        };
     }
 }

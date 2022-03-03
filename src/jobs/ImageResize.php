@@ -1,49 +1,31 @@
 <?php
 namespace verbb\imageresizer\jobs;
 
+use verbb\imageresizer\ImageResizer;
+
 use Craft;
 use craft\helpers\FileHelper;
 use craft\helpers\Image;
 use craft\queue\BaseJob;
-
-use verbb\imageresizer\ImageResizer;
 
 class ImageResize extends BaseJob
 {
     // Properties
     // =========================================================================
 
-    /**
-     * @var string
-     */
-    public $taskId;
-
-    /**
-     * @var array
-     */
-    public $assetIds;
-
-    /**
-     * @var int
-     */
-    public $imageWidth;
-
-    /**
-     * @var int
-     */
-    public $imageHeight;
-
-    /**
-     * @return string
-     */
-    public function getDescription(): string
-    {
-        return Craft::t('image-resizer', 'Resizing images');
-    }
-
+    public ?string $taskId;
+    public array $assetIds = [];
+    public int $imageWidth;
+    public int $imageHeight;
+    
 
     // Public Methods
     // =========================================================================
+
+    public function getDescription(): ?string
+    {
+        return Craft::t('image-resizer', 'Resizing images');
+    }
 
     /**
      * @param \craft\queue\QueueInterface|\yii\queue\Queue $queue
@@ -52,12 +34,12 @@ class ImageResize extends BaseJob
      * @throws \craft\errors\ElementNotFoundException
      * @throws \yii\base\Exception
      */
-    public function execute($queue)
+    public function execute($queue): void
     {
         $totalSteps = count($this->assetIds);
 
-        for ($step = 0; $step < $totalSteps; $step++) {
-            $asset = Craft::$app->assets->getAssetById($this->assetIds[$step]);
+        for ($step = 0; $step < $totalSteps; ++$step) {
+            $asset = Craft::$app->getAssets()->getAssetById($this->assetIds[$step]);
             
             if ($asset) {
                 $filename = $asset->filename;
@@ -65,7 +47,7 @@ class ImageResize extends BaseJob
                 $width = $this->imageWidth;
                 $height = $this->imageHeight;
 
-                $result = ImageResizer::$plugin->resize->resize($asset, $filename, $path, $width, $height, $this->taskId);
+                $result = ImageResizer::$plugin->getResize()->resize($asset, $filename, $path, $width, $height, $this->taskId);
 
                 // If the image resize was successful we can continue
                 if ($result === true) {
@@ -75,7 +57,7 @@ class ImageResize extends BaseJob
                     $asset->size = filesize($path);
                     $asset->dateModified = FileHelper::lastModifiedTime($path);
 
-                    list ($assetWidth, $assetHeight) = Image::imageSize($path);
+                    [$assetWidth, $assetHeight] = Image::imageSize($path);
                     $asset->width = $assetWidth;
                     $asset->height = $assetHeight;
 

@@ -12,7 +12,7 @@ class ImageResizerAsset extends AssetBundle
     // Public Methods
     // =========================================================================
 
-    public function init()
+    public function init(): void
     {
         $this->sourcePath = "@verbb/imageresizer/resources/dist";
 

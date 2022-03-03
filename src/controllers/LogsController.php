@@ -1,30 +1,32 @@
 <?php
 namespace verbb\imageresizer\controllers;
 
+use verbb\imageresizer\ImageResizer;
+
 use Craft;
 use craft\web\Controller;
 
-use verbb\imageresizer\ImageResizer;
+use yii\web\Response;
 
 class LogsController extends Controller
 {
     // Public Methods
     // =========================================================================
 
-    public function actionLogs()
+    public function actionLogs(): Response
     {
-        $logEntries = ImageResizer::$plugin->logs->getLogEntries();
+        $logEntries = ImageResizer::$plugin->getLogs()->getLogEntries();
 
-        $this->renderTemplate('image-resizer/logs', array(
+        return $this->renderTemplate('image-resizer/logs', [
             'logEntries' => $logEntries,
-        ));
+        ]);
     }
 
-    public function actionClear()
+    public function actionClear(): Response
     {
         $this->requirePostRequest();
 
-        ImageResizer::$plugin->logs->clear();
+        ImageResizer::$plugin->getLogs()->clear();
 
         return $this->redirect('image-resizer/logs');
     }
