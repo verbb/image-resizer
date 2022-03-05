@@ -18,11 +18,11 @@ class Resize extends Component
 {
     // Public Methods
     // =========================================================================
-    
+
     /**
      * @param int|null $width
      * @param int|null $height
-     * @param null     $taskId
+     * @param null $taskId
      *
      * @throws InvalidConfigException
      */
@@ -50,9 +50,9 @@ class Resize extends Component
 
             // Save some existing properties for logging (see savings)
             $originalProperties = [
-                'width'  => $image->getWidth(),
+                'width' => $image->getWidth(),
                 'height' => $image->getHeight(),
-                'size'   => filesize($path),
+                'size' => filesize($path),
             ];
 
             // We can have settings globally, or per asset source. Check!
@@ -125,9 +125,9 @@ class Resize extends Component
                         clearstatcache();
 
                         $newProperties = [
-                            'width'  => $image->getWidth(),
+                            'width' => $image->getWidth(),
                             'height' => $image->getHeight(),
-                            'size'   => filesize($path),
+                            'size' => filesize($path),
                         ];
 
                         ImageResizer::$plugin->getLogs()->resizeLog($taskId, 'success', $filename, ['prev' => $originalProperties, 'curr' => $newProperties]);
@@ -148,9 +148,9 @@ class Resize extends Component
                     clearstatcache();
 
                     $newProperties = [
-                        'width'  => $image->getWidth(),
+                        'width' => $image->getWidth(),
                         'height' => $image->getHeight(),
-                        'size'   => filesize($path),
+                        'size' => filesize($path),
                     ];
 
                     ImageResizer::$plugin->getLogs()->resizeLog($taskId, 'success', $filename, ['prev' => $originalProperties, 'curr' => $newProperties]);

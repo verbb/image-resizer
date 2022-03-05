@@ -47,7 +47,7 @@ class ImageResize extends BaseJob
 
         foreach ($this->assetIds as $step => $assetId) {
             $asset = Craft::$app->getAssets()->getAssetById($assetId);
-            
+
             if ($asset) {
                 $filename = $asset->filename;
                 $path = $asset->getImageTransformSourcePath();

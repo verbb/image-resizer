@@ -35,7 +35,7 @@ class ResizeImage extends ElementAction
             '"' . $imageWidth . '", ' .
             '"' . $imageHeight . '", '
             . $type .
-        ');');
+            ');');
 
         return null;
     }

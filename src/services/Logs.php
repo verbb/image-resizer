@@ -13,6 +13,7 @@ use craft\helpers\Json;
 use DateTime;
 
 use yii\base\ErrorException;
+use yii\base\Exception;
 
 class Logs extends Component
 {
@@ -42,7 +43,7 @@ class Logs extends Component
     }
 
     /**
-     * @throws \yii\base\Exception
+     * @throws Exception
      */
     public function clear(): void
     {
@@ -73,8 +74,8 @@ class Logs extends Component
 
     /**
      * @return Log[]
-     * @throws \yii\base\Exception
-     * @throws \yii\base\Exception
+     * @throws Exception
+     * @throws Exception
      */
     public function getLogEntries(): array
     {

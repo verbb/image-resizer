@@ -85,7 +85,7 @@ class BaseController extends Controller
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();
-        
+
         $request = Craft::$app->getRequest();
         $taskId = $request->getParam('taskId');
 
