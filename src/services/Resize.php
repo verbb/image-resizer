@@ -6,11 +6,13 @@ use verbb\imageresizer\ImageResizer;
 use Craft;
 use craft\base\Component;
 use craft\base\Image;
-use craft\base\LocalVolumeInterface;
-use craft\base\VolumeInterface;
 use craft\elements\Asset;
 use craft\helpers\Assets as AssetsHelper;
 use craft\helpers\Image as ImageHelper;
+
+use Exception;
+
+use yii\base\InvalidConfigException;
 
 class Resize extends Component
 {
@@ -22,7 +24,7 @@ class Resize extends Component
      * @param int|null $height
      * @param null     $taskId
      *
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      */
     public function resize(Asset $asset, string $filename, string $path, int $width = null, int $height = null, $taskId = null): bool
     {
@@ -67,29 +69,29 @@ class Resize extends Component
                 $folderPath = 'originals/';
 
                 // Create a new folder 'originals'
-                if (!$volume->folderExists($folderPath)) {
-                    $volume->createDirectory($folderPath);
+                if (!$volume->getFs()->directoryExists($folderPath)) {
+                    $volume->getFs()->createDirectory($folderPath);
                 }
 
                 $filePath = $folderPath . $filename;
 
                 // Only copy the original if there's not already one created
-                if (!$volume->fileExists($filePath)) {
+                if (!$volume->getFs()->fileExists($filePath)) {
                     $stream = @fopen($path, 'rb');
-                    $volume->createFileByStream($filePath, $stream, []);
+                    $volume->getFs()->writeFileFromStream($filePath, $stream, []);
 
                     // Spin up asset indexer
-                    Craft::$app->getAssetIndexer()->indexFile($volume, $filePath);
+                    Craft::$app->getAssetIndexer()->indexFile($volume, $filePath, 'image-resizer');
                 }
             }
 
-            // Lets check to see if this image needs resizing. Split into two steps to ensure
-            // proper aspect ratio is preserved and no upscaling occurs.
+            // Let's check to see if this image needs resizing. Split into two steps to ensure
+            // proper aspect ratio is preserved and no up-scaling occurs.
             $hasResized = false;
 
             if ($image->getWidth() > $imageWidth) {
                 $hasResized = true;
-                $this->_resizeImage($image, $imageWidth, null);
+                $this->_resizeImage($image, $imageWidth);
             }
 
             if ($image->getHeight() > $imageHeight) {
@@ -111,9 +113,9 @@ class Resize extends Component
 
                     clearstatcache();
 
-                    // Lets check to see if this resize resulted in a larger file - revert if so.
+                    // Let's check to see if this resize resulted in a larger file - revert if so.
                     if (filesize($tempPath) < filesize($path)) {
-                        ImageResizer::$plugin->getService()->saveAs($image, $path); // Its a smaller file - properly save
+                        ImageResizer::$plugin->getService()->saveAs($image, $path); // It's a smaller file - properly save
 
                         // Create remote file
                         // if (!$volume instanceof LocalVolumeInterface) {
@@ -158,7 +160,7 @@ class Resize extends Component
             }
 
             return true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             ImageResizer::$plugin->getLogs()->resizeLog($taskId, 'error', $filename, ['message' => $e->getMessage()]);
 
             return false;
@@ -182,13 +184,8 @@ class Resize extends Component
 
     /**
      * Store new created file on cloud server
-     *
-     * @param VolumeInterface $volume
-     *
-     * @throws \craft\errors\VolumeException
-     * @throws \craft\errors\VolumeObjectExistsException
      */
-    private function _createRemoteFile(VolumeInterface $volume, string $filename, string $path): void
+    private function _createRemoteFile($volume, string $filename, string $path): void
     {
         // Delete already existing file
         $volume->deleteFile($filename);

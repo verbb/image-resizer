@@ -2,7 +2,6 @@
 namespace verbb\imageresizer;
 
 use verbb\imageresizer\base\PluginTrait;
-use verbb\imageresizer\elementactions\ResizeImage;
 use verbb\imageresizer\models\Settings;
 
 use Craft;
@@ -14,9 +13,9 @@ use craft\events\RegisterUserPermissionsEvent;
 use craft\helpers\UrlHelper;
 use craft\services\UserPermissions;
 use craft\web\UrlManager;
-use craft\web\twig\variables\CraftVariable;
 
 use yii\base\Event;
+use craft\base\Element;
 
 class ImageResizer extends Plugin
 {
@@ -25,7 +24,6 @@ class ImageResizer extends Plugin
 
     public string $schemaVersion = '2.0.0';
     public bool $hasCpSettings = true;
-    public bool $hasCpSection = false;
 
 
     // Traits
@@ -92,7 +90,7 @@ class ImageResizer extends Plugin
     private function _registerCraftEventListeners(): void
     {
         Event::on(Asset::class, Asset::EVENT_BEFORE_HANDLE_FILE, [$this->getService(), 'beforeHandleAssetFile']);
-        Event::on(Asset::class, Asset::EVENT_REGISTER_ACTIONS, [$this->getService(), 'registerAssetActions']);
+        Event::on(Asset::class, Element::EVENT_REGISTER_ACTIONS, [$this->getService(), 'registerAssetActions']);
     }
 
 }

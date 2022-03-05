@@ -8,6 +8,8 @@ use Craft;
 use craft\base\ElementAction;
 use craft\helpers\Json;
 
+use yii\base\InvalidConfigException;
+
 class ResizeImage extends ElementAction
 {
     // Public Methods
@@ -19,7 +21,7 @@ class ResizeImage extends ElementAction
     }
 
     /**
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      */
     public function getTriggerHtml(): ?string
     {

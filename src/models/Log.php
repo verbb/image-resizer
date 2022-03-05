@@ -11,26 +11,22 @@ class Log extends Model
     // Public Properties
     // =========================================================================
 
-    public DateTime $dateTime;
-    public ?string $taskId;
-    public string $handle;
-    public string $filename;
-    public mixed $data;
-    public string $message;
+    public ?DateTime $dateTime = null;
+    public ?string $taskId = null;
+    public ?string $handle = null;
+    public ?string $filename = null;
+    public mixed $data = null;
+    public ?string $message = null;
 
 
     // Public Methods
     // =========================================================================
 
-    public function getResult()
+    public function getResult(): string
     {
         $parts = explode('-', $this->handle);
 
-        if (isset($parts[0])) {
-            return $parts[0];
-        }
-
-        return 'error';
+        return $parts[0] ?? 'error';
     }
 
     public function getDescription(): string

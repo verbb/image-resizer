@@ -5,10 +5,10 @@ use verbb\imageresizer\ImageResizer;
 use verbb\imageresizer\jobs\ImageResize;
 
 use Craft;
-use craft\base\Volume;
 use craft\elements\Asset;
 use craft\web\Controller;
 
+use yii\web\BadRequestHttpException;
 use yii\web\Response;
 
 class BaseController extends Controller
@@ -28,7 +28,7 @@ class BaseController extends Controller
 
         $sourceOptions = [];
         $folderOptions = [];
-        /** @var Volume $source */
+
         foreach (Craft::$app->getVolumes()->getAllVolumes() as $source) {
             $sourceOptions[] = ['label' => $source->name, 'value' => $source->id];
         }
@@ -44,7 +44,7 @@ class BaseController extends Controller
     }
 
     /**
-     * @throws \yii\web\BadRequestHttpException
+     * @throws BadRequestHttpException
      */
     public function actionResizeElementAction(): Response
     {
@@ -79,7 +79,7 @@ class BaseController extends Controller
     }
 
     /**
-     * @throws \yii\web\BadRequestHttpException
+     * @throws BadRequestHttpException
      */
     public function actionGetTaskSummary(): Response
     {

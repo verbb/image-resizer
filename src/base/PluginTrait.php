@@ -14,7 +14,7 @@ use verbb\base\BaseHelper;
 
 trait PluginTrait
 {
-    // Static Properties
+    // Properties
     // =========================================================================
 
     public static ImageResizer $plugin;

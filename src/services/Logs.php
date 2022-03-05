@@ -12,6 +12,8 @@ use craft\helpers\Json;
 
 use DateTime;
 
+use yii\base\ErrorException;
+
 class Logs extends Component
 {
     // Properties
@@ -40,7 +42,7 @@ class Logs extends Component
     }
 
     /**
-     * @throws \yii\base\ErrorException
+     * @throws \yii\base\Exception
      */
     public function clear(): void
     {
@@ -54,7 +56,7 @@ class Logs extends Component
     /**
      * @param $taskId
      *
-     * @return mixed[]
+     * @return array
      */
     public function getLogsForTaskId($taskId): array
     {
@@ -70,7 +72,9 @@ class Logs extends Component
     }
 
     /**
-     * @return \verbb\imageresizer\models\Log[]
+     * @return Log[]
+     * @throws \yii\base\Exception
+     * @throws \yii\base\Exception
      */
     public function getLogEntries(): array
     {
@@ -79,8 +83,6 @@ class Logs extends Component
         App::maxPowerCaptain();
 
         if (@file_exists(Craft::$app->getPath()->getLogPath())) {
-            $logEntries = [];
-
             $currentFullPath = Craft::$app->getPath()->getLogPath() . DIRECTORY_SEPARATOR . $this->_currentLogFileName;
 
             if (@file_exists($currentFullPath)) {
@@ -90,14 +92,14 @@ class Logs extends Component
 
                 foreach ($requests as $request) {
                     // Put details via json_decode into an array
-                    $logChunks = Json::decode($request, true, 512) ?? [];
+                    $logChunks = Json::decode($request) ?? [];
 
                     // Loop through them
                     if ((is_countable($logChunks) ? count($logChunks) : 0) > 0) {
 
                         // Create new Log model and set attributes
                         $logEntryModel = new Log();
-                        $logEntryModel->dateTime = \DateTime::createFromFormat('Y-m-d H:i:s', $logChunks['dateTime']);
+                        $logEntryModel->dateTime = DateTime::createFromFormat('Y-m-d H:i:s', $logChunks['dateTime']);
                         $logEntryModel->taskId = $logChunks['taskId'];
                         $logEntryModel->handle = $logChunks['handle'];
                         $logEntryModel->filename = $logChunks['filename'];

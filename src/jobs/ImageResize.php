@@ -4,19 +4,26 @@ namespace verbb\imageresizer\jobs;
 use verbb\imageresizer\ImageResizer;
 
 use Craft;
+use craft\errors\ElementNotFoundException;
 use craft\helpers\FileHelper;
 use craft\helpers\Image;
 use craft\queue\BaseJob;
+use craft\queue\QueueInterface;
+
+use yii\base\Exception;
+use yii\queue\Queue;
+
+use Throwable;
 
 class ImageResize extends BaseJob
 {
     // Properties
     // =========================================================================
 
-    public ?string $taskId;
+    public ?string $taskId = null;
     public array $assetIds = [];
-    public int $imageWidth;
-    public int $imageHeight;
+    public ?int $imageWidth = null;
+    public ?int $imageHeight = null;
     
 
     // Public Methods
@@ -28,18 +35,18 @@ class ImageResize extends BaseJob
     }
 
     /**
-     * @param \craft\queue\QueueInterface|\yii\queue\Queue $queue
+     * @param QueueInterface|Queue $queue
      *
-     * @throws \Throwable
-     * @throws \craft\errors\ElementNotFoundException
-     * @throws \yii\base\Exception
+     * @throws Throwable
+     * @throws ElementNotFoundException
+     * @throws Exception
      */
     public function execute($queue): void
     {
         $totalSteps = count($this->assetIds);
 
-        for ($step = 0; $step < $totalSteps; ++$step) {
-            $asset = Craft::$app->getAssets()->getAssetById($this->assetIds[$step]);
+        foreach ($this->assetIds as $step => $assetId) {
+            $asset = Craft::$app->getAssets()->getAssetById($assetId);
             
             if ($asset) {
                 $filename = $asset->filename;

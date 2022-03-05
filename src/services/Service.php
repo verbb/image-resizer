@@ -7,16 +7,11 @@ use verbb\imageresizer\elementactions\ResizeImage;
 use Craft;
 use craft\base\Component;
 use craft\base\Image;
-use craft\elements\Asset;
 use craft\events\AssetEvent;
 use craft\events\RegisterElementActionsEvent;
-use craft\helpers\Image as ImageHelper;
 use craft\image\Raster;
 
-use lsolesen\pel\PelJpeg;
-use lsolesen\pel\PelIfd;
-use lsolesen\pel\PelTag;
-use lsolesen\pel\PelDataWindow;
+use Throwable;
 
 class Service extends Component
 {
@@ -35,10 +30,10 @@ class Service extends Component
             return;
         }
 
-        // Because this is fired on the before-save event, and validation hasn't kicked in yet
+        // Because this is fired on the before-save event, and validation hasn't kicked in, yet
         // we check it here. Otherwise, we potentially process it twice when there's a conflict.
         // if (!$asset->validate()) {
-        //     ImageResizer::$plugin->getLogs()->resizeLog(null, 'error', $filename, ['message' => json_encode($asset->getErrors())]);
+        //     ImageResizer::$plugin->getLogs()->resizeLog(null, 'error', $filename, ['message' => Json::encode($asset->getErrors())]);
 
         //     return;
         // }
@@ -80,7 +75,7 @@ class Service extends Component
     public function getImageQuality(string $path, int $quality = null): int
     {
         $desiredQuality = $quality ?: ImageResizer::$plugin->getSettings()->imageQuality;
-        $desiredQuality = $desiredQuality ?: Craft::$app->getConfig()->getGeneral->defaultImageQuality;
+        $desiredQuality = $desiredQuality ?: Craft::$app->getConfig()->getGeneral()->defaultImageQuality;
 
         if (@pathinfo($path, PATHINFO_EXTENSION) == 'png') {
             // Valid PNG quality settings are 0-9, so normalize and flip, because we're talking about compression
@@ -129,7 +124,7 @@ class Service extends Component
             }
 
             Craft::$app->getImages()->stripOrientationFromExifData($filePath);
-        } catch (\Throwable $throwable) {
+        } catch (Throwable $throwable) {
             ImageResizer::$plugin->getLogs()->resizeLog(null, 'error', $filePath, ['message' => 'Tried to rotate or strip EXIF data from image and failed: ' . $throwable->getMessage()]);
 
             return false;

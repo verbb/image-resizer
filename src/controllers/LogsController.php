@@ -3,7 +3,6 @@ namespace verbb\imageresizer\controllers;
 
 use verbb\imageresizer\ImageResizer;
 
-use Craft;
 use craft\web\Controller;
 
 use yii\web\Response;
