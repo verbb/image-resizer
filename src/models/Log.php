@@ -8,7 +8,7 @@ use DateTime;
 
 class Log extends Model
 {
-    // Public Properties
+    // Properties
     // =========================================================================
 
     public ?DateTime $dateTime = null;
