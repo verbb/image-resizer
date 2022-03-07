@@ -81,8 +81,11 @@ class ImageResizer extends Plugin
     private function _registerPermissions(): void
     {
         Event::on(UserPermissions::class, UserPermissions::EVENT_REGISTER_PERMISSIONS, function(RegisterUserPermissionsEvent $event) {
-            $event->permissions[Craft::t('image-resizer', 'Image Resizer')] = [
-                'imageResizer-resizeImage' => ['label' => Craft::t('image-resizer', 'Resize images')],
+            $event->permissions[] = [
+                'heading' => Craft::t('image-resizer', 'Image Resizer'),
+                'permissions' => [
+                    'imageResizer-resizeImage' => ['label' => Craft::t('image-resizer', 'Resize images')],
+                ],
             ];
         });
     }
