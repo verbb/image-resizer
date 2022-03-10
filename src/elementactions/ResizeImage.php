@@ -27,7 +27,7 @@ class ResizeImage extends ElementAction
     {
         $imageWidth = ImageResizer::$plugin->getSettings()->imageWidth;
         $imageHeight = ImageResizer::$plugin->getSettings()->imageHeight;
-        $type = Json::encode(static::className());
+        $type = Json::encode(static::class);
 
         Craft::$app->getView()->registerAssetBundle(ImageResizerAsset::class);
 
