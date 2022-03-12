@@ -3,6 +3,7 @@ namespace verbb\imageresizer\elementactions;
 
 use verbb\imageresizer\assetbundles\ImageResizerAsset;
 use verbb\imageresizer\ImageResizer;
+use verbb\imageresizer\models\Settings;
 
 use Craft;
 use craft\base\ElementAction;
@@ -25,8 +26,10 @@ class ResizeImage extends ElementAction
      */
     public function getTriggerHtml(): ?string
     {
-        $imageWidth = ImageResizer::$plugin->getSettings()->imageWidth;
-        $imageHeight = ImageResizer::$plugin->getSettings()->imageHeight;
+        /* @var Settings $settings */
+        $settings = ImageResizer::$plugin->getSettings();
+        $imageWidth = $settings->imageWidth;
+        $imageHeight = $settings->imageHeight;
         $type = Json::encode(static::class);
 
         Craft::$app->getView()->registerAssetBundle(ImageResizerAsset::class);

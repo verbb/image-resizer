@@ -2,6 +2,7 @@
 namespace verbb\imageresizer\services;
 
 use verbb\imageresizer\ImageResizer;
+use verbb\imageresizer\models\Settings;
 
 use Craft;
 use craft\base\Component;
@@ -45,6 +46,7 @@ class Resize extends Component
         }
 
         try {
+            /* @var Settings $settings */
             $settings = ImageResizer::$plugin->getSettings();
             $image = Craft::$app->getImages()->loadImage($path);
 

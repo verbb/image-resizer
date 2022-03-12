@@ -3,6 +3,7 @@ namespace verbb\imageresizer\controllers;
 
 use verbb\imageresizer\ImageResizer;
 use verbb\imageresizer\jobs\ImageResize;
+use verbb\imageresizer\models\Settings;
 
 use Craft;
 use craft\elements\Asset;
@@ -24,6 +25,7 @@ class BaseController extends Controller
 
     public function actionSettings(): Response
     {
+        /* @var Settings $settings */
         $settings = ImageResizer::$plugin->getSettings();
 
         $sourceOptions = [];

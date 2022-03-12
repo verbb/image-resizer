@@ -3,6 +3,7 @@ namespace verbb\imageresizer\services;
 
 use verbb\imageresizer\ImageResizer;
 use verbb\imageresizer\elementactions\ResizeImage;
+use verbb\imageresizer\models\Settings;
 
 use Craft;
 use craft\base\Component;
@@ -58,6 +59,7 @@ class Service extends Component
 
     public function getSettingForAssetSource($sourceId, string $setting): mixed
     {
+        /* @var Settings $settings */
         $settings = ImageResizer::$plugin->getSettings();
         $globalSetting = $settings->$setting;
 
