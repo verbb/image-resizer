@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.1.1 - 2022-04-04
+
+### Fixed
+- Fix images not being rotated correctly, according to the `rotateImagesOnUploadByExifData` Craft config setting.
+
 ## 2.1.0 - 2021-02-19
 
 ### Changed
