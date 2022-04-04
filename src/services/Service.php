@@ -12,11 +12,6 @@ use craft\events\AssetEvent;
 use craft\events\RegisterElementActionsEvent;
 use craft\helpers\Image as ImageHelper;
 
-use lsolesen\pel\PelJpeg;
-use lsolesen\pel\PelIfd;
-use lsolesen\pel\PelTag;
-use lsolesen\pel\PelDataWindow;
-
 class Service extends Component
 {
     // Public Methods
@@ -130,22 +125,40 @@ class Service extends Component
      *
      * @return true
      */
-    public function saveAs(&$image, string $filePath): bool
+    public function saveAs(&$image, string $filePath): void
     {
-        $image->saveAs($filePath);
+        // Get the current orientation from Exif - we might need this later to rotate
+        $orientation = $image->getImagineImage()->metadata()->get('ifd0.Orientation');
 
-        try {
-            if (Craft::$app->getConfig()->getGeneral()->rotateImagesOnUploadByExifData) {
-                Craft::$app->images->rotateImageByExifData($filePath);
-            }
+        $degrees = false;
 
-            Craft::$app->images->stripOrientationFromExifData($filePath);
-        } catch (\Throwable $e) {
-            ImageResizer::$plugin->logs->resizeLog(null, 'error', $filePath, ['message' => 'Tried to rotate or strip EXIF data from image and failed: ' . $e->getMessage()]);
-
-            return false;
+        switch ($orientation) {
+            case ImageHelper::EXIF_IFD0_ROTATE_180:
+                $degrees = 180;
+                break;
+            case ImageHelper::EXIF_IFD0_ROTATE_90:
+                $degrees = 90;
+                break;
+            case ImageHelper::EXIF_IFD0_ROTATE_270:
+                $degrees = 270;
+                break;
         }
 
-        return true;
+        // Save the resized image. Note that this can potentially strip all Exif metadata (with `preserveExifData = false`).
+        // We need to do this ASAP, because this is the in-memory, resized image. All other operations such as stripping
+        // Exif data or rotating images need an on-file, saved image to mess around with.
+        $image->saveAs($filePath);
+
+        // If we want to `rotateImagesOnUploadByExifData` we will need to do this manually, rather than rely on
+        // `rotateImageByExifData()` because that will try and load the image again, but because it's aready saved
+        // above, there's no Exif orientation data to look at. Fortunately, we've captured that already before the save.
+        if ($degrees && Craft::$app->getConfig()->getGeneral()->rotateImagesOnUploadByExifData) {
+            // Load in the image again, fresh (it's been resized after all)
+            $image = Craft::$app->getImages()->loadImage($filePath);
+
+            // Perform the rotate and save again
+            $image->rotate($degrees);
+            $image->saveAs($filePath);
+        }
     }
 }
