@@ -27,7 +27,7 @@ return [
 ];
 ```
 
-### Configuration options
+## Configuration options
 - `enabled` - Whether to enable the plugin.
 - `imageWidth` - The maximum width in pixels allowed for uploaded images.
 - `imageHeight` - The maximum height in pixels allowed for uploaded images.
