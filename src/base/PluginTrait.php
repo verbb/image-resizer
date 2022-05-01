@@ -5,12 +5,11 @@ use verbb\imageresizer\ImageResizer;
 use verbb\imageresizer\services\Logs;
 use verbb\imageresizer\services\Resize;
 use verbb\imageresizer\services\Service;
+use verbb\base\BaseHelper;
 
 use Craft;
 
 use yii\log\Logger;
-
-use verbb\base\BaseHelper;
 
 trait PluginTrait
 {
@@ -23,13 +22,17 @@ trait PluginTrait
     // Static Methods
     // =========================================================================
 
-    public static function log($message): void
+    public static function log(string $message, array $params = []): void
     {
+        $message = Craft::t('image-resizer', $message, $params);
+
         Craft::getLogger()->log($message, Logger::LEVEL_INFO, 'image-resizer');
     }
 
-    public static function error($message): void
+    public static function error(string $message, array $params = []): void
     {
+        $message = Craft::t('image-resizer', $message, $params);
+
         Craft::getLogger()->log($message, Logger::LEVEL_ERROR, 'image-resizer');
     }
 
@@ -56,7 +59,7 @@ trait PluginTrait
     // Private Methods
     // =========================================================================
 
-    private function _setPluginComponents(): void
+    private function _registerComponents(): void
     {
         $this->setComponents([
             'logs' => Logs::class,
@@ -67,7 +70,7 @@ trait PluginTrait
         BaseHelper::registerModule();
     }
 
-    private function _setLogging(): void
+    private function _registerLogTarget(): void
     {
         BaseHelper::setFileLogging('image-resizer');
     }
