@@ -43,9 +43,15 @@ class ImageResizer extends Plugin
 
         $this->_registerComponents();
         $this->_registerLogTarget();
-        $this->_registerCpRoutes();
-        $this->_registerPermissions();
         $this->_registerCraftEventListeners();
+
+        if (Craft::$app->getRequest()->getIsCpRequest()) {
+            $this->_registerCpRoutes();
+        }
+        
+        if (Craft::$app->getEdition() === Craft::Pro) {
+            $this->_registerPermissions();
+        }
     }
 
     public function getSettingsResponse(): mixed
