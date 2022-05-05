@@ -6,7 +6,7 @@ Image Resizer works for all Asset Sources: Local, Rackspace Cloud Files, Amazon 
 
 ## Resizing
 
-Resizing of images can be setup to run automatically (through the plugin settings) whenever new images are uploaded. The aspect ratio of images are maintained, and will always match the maximum width/height options in your plugin settings. For example, given a 4000 x 2500px image and a max width/height of 1024px, the resulting image would be 1024 x 640px.
+Resizing of images can be setup to run automatically (through the plugin settings) whenever new images are uploaded. The aspect ratio of images is maintained, and will always match the maximum width/height options in your plugin settings. For example, given a 4000 x 2500px image and a max width/height of 1024px, the resulting image would be 1024 x 640px.
 
 Please note that resizing of images will **permanently** alter the original uploaded image, so be sure to set the maximum allowed size to something that works for your purposes, while maintaining image quality.
 
@@ -26,7 +26,7 @@ Additionally, using the plugin settings page (Bulk Resize tab), you can bulk-res
 
 ## Logs
 
-Each time an image is processed, a log item will be created to provide feedback on the task that has occured. Particularly useful for resizing images. When using the Element Action, or bulk resizing, you'll be shown a summary of files resized and their state (as below).
+Each time an image is processed, a log item will be created to provide feedback on the task that has occurred. Particularly useful for resizing images. When using the Element Action, or bulk resizing, you'll be shown a summary of files resized and their state (as below).
 
 ![](/docs/screenshots/resizeelementaction-logs.png)
 

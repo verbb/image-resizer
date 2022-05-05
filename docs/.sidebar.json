@@ -14,12 +14,5 @@
         "children": [
             "feature-tour/image-resizer"
         ]
-    },
-    {
-        "title": "Support",
-        "collapsable": false,
-        "children": [
-            "support/get-support"
-        ]
     }
 ]

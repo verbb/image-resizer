@@ -6,6 +6,13 @@
 - Now requires PHP `^8.0.2`.
 - Now requires Craft `^4.0.0-beta.1`.
 
+
+## 2.1.1 - 2022-04-04
+
+### Fixed
+- Fix images not being rotated correctly, according to the `rotateImagesOnUploadByExifData` Craft config setting.
+
+
 ## 2.1.0 - 2021-02-19
 
 ### Changed
