@@ -15,9 +15,9 @@ class LogsController extends Controller
     {
         $logEntries = ImageResizer::$plugin->logs->getLogEntries();
 
-        $this->renderTemplate('image-resizer/logs', array(
+        $this->renderTemplate('image-resizer/logs', [
             'logEntries' => $logEntries,
-        ));
+        ]);
     }
 
     public function actionClear()

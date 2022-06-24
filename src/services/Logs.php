@@ -24,7 +24,7 @@ class Logs extends Component
      * @param        $taskId
      * @param string $handle
      * @param string $filename
-     * @param array  $data
+     * @param array $data
      */
     public function resizeLog($taskId, string $handle, string $filename, array $data = [])
     {
@@ -32,10 +32,10 @@ class Logs extends Component
 
         $options = [
             'dateTime' => $dateTime->format('Y-m-d H:i:s'),
-            'taskId'   => $taskId,
-            'handle'   => $handle,
+            'taskId' => $taskId,
+            'handle' => $handle,
             'filename' => $filename,
-            'data'     => $data,
+            'data' => $data,
         ];
 
         // Using our own logging function (Craft is not creating a new plugin log file for any reason)

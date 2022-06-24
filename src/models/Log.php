@@ -6,11 +6,11 @@ use craft\base\Model;
 
 /**
  * @property \DateTime $dateTime
- * @property string    $taskId
- * @property string    $handle
- * @property string    $filename
- * @property mixed     $data
- * @property string    $message
+ * @property string $taskId
+ * @property string $handle
+ * @property string $filename
+ * @property mixed $data
+ * @property string $message
  */
 class Log extends Model
 {

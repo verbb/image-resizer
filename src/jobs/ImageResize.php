@@ -58,7 +58,7 @@ class ImageResize extends BaseJob
 
         for ($step = 0; $step < $totalSteps; $step++) {
             $asset = Craft::$app->assets->getAssetById($this->assetIds[$step]);
-            
+
             if ($asset) {
                 $filename = $asset->filename;
                 $path = $asset->getImageTransformSourcePath();
@@ -75,7 +75,7 @@ class ImageResize extends BaseJob
                     $asset->size = filesize($path);
                     $asset->dateModified = FileHelper::lastModifiedTime($path);
 
-                    list ($assetWidth, $assetHeight) = Image::imageSize($path);
+                    [$assetWidth, $assetHeight] = Image::imageSize($path);
                     $asset->width = $assetWidth;
                     $asset->height = $assetHeight;
 

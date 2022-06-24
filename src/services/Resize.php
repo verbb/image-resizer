@@ -59,8 +59,8 @@ class Resize extends Component
 
             // We can have settings globally, or per asset source. Check!
             // Our maximum width/height for assets from plugin settings
-            $imageWidth = ImageResizer::$plugin->service->getSettingForAssetSource($asset->volumeId, 'imageWidth');
-            $imageHeight = ImageResizer::$plugin->service->getSettingForAssetSource($asset->volumeId, 'imageHeight');
+            $imageWidth = ImageResizer::$plugin->getService()->getSettingForAssetSource($asset->volumeId, 'imageWidth');
+            $imageHeight = ImageResizer::$plugin->getService()->getSettingForAssetSource($asset->volumeId, 'imageHeight');
 
             // Allow for overrides passed on-demand
             $imageWidth = $width ? $width : $imageWidth;
@@ -104,20 +104,20 @@ class Resize extends Component
             if ($hasResized) {
                 // Set image quality - but normalise (for PNG)!
                 if (method_exists($image, 'setQuality')) {
-                    $image->setQuality(ImageResizer::$plugin->service->getImageQuality($path));
+                    $image->setQuality(ImageResizer::$plugin->getService()->getImageQuality($path));
                 }
 
                 // If we're checking for larger images
                 if ($settings->skipLarger) {
                     // Save this resized image in a temporary location - we need to test filesize difference
                     $tempPath = AssetsHelper::tempFilePath($filename);
-                    ImageResizer::$plugin->service->saveAs($image, $tempPath);
+                    ImageResizer::$plugin->getService()->saveAs($image, $tempPath);
 
                     clearstatcache();
 
                     // Lets check to see if this resize resulted in a larger file - revert if so.
                     if (filesize($tempPath) < filesize($path)) {
-                        ImageResizer::$plugin->service->saveAs($image, $path); // Its a smaller file - properly save
+                        ImageResizer::$plugin->getService()->saveAs($image, $path); // Its a smaller file - properly save
 
                         // Create remote file
                         // if (!$volume instanceof LocalVolumeInterface) {
@@ -140,7 +140,7 @@ class Resize extends Component
                     // Delete our temp file we test filesize with
                     @unlink($tempPath);
                 } else {
-                    ImageResizer::$plugin->service->saveAs($image, $path);
+                    ImageResizer::$plugin->getService()->saveAs($image, $path);
 
                     // Create remote file
                     // if (!$volume instanceof LocalVolumeInterface) {

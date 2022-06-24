@@ -33,7 +33,7 @@ class BaseController extends Controller
         }
 
         $assetTree = Craft::$app->assets->getFolderTreeByVolumeIds(Craft::$app->volumes->getAllVolumeIds());
-        ImageResizer::$plugin->service->getAssetFolders($assetTree, $folderOptions);
+        ImageResizer::$plugin->getService()->getAssetFolders($assetTree, $folderOptions);
 
         $this->renderTemplate('image-resizer/settings/index.html', array(
             'settings' => $settings,
@@ -51,12 +51,12 @@ class BaseController extends Controller
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $assetIds = Craft::$app->request->getParam('assetIds');
-        $imageWidth = Craft::$app->request->getParam('imageWidth');
-        $imageHeight = Craft::$app->request->getParam('imageHeight');
-        $bulkResize = Craft::$app->request->getParam('bulkResize');
-        $assetFolderId = Craft::$app->request->getParam('assetFolderId');
-        $taskId = Craft::$app->request->getParam('taskId');
+        $assetIds = Craft::$app->getRequest()->getParam('assetIds');
+        $imageWidth = Craft::$app->getRequest()->getParam('imageWidth');
+        $imageHeight = Craft::$app->getRequest()->getParam('imageHeight');
+        $bulkResize = Craft::$app->getRequest()->getParam('bulkResize');
+        $assetFolderId = Craft::$app->getRequest()->getParam('assetFolderId');
+        $taskId = Craft::$app->getRequest()->getParam('taskId');
 
         if ($bulkResize) {
             $assets = Asset::find()
@@ -83,7 +83,7 @@ class BaseController extends Controller
      */
     public function actionClearTasks()
     {
-        Craft::$app->db->createCommand()->delete('queue')->execute();
+        Craft::$app->getDb()->createCommand()->delete('queue')->execute();
 
         return $this->redirect('image-resizer/settings');
     }
@@ -97,7 +97,7 @@ class BaseController extends Controller
         $this->requirePostRequest();
         $this->requireAcceptsJson();
         
-        $taskId = Craft::$app->request->getParam('taskId');
+        $taskId = Craft::$app->getRequest()->getParam('taskId');
 
         $result = ImageResizer::$plugin->logs->getLogsForTaskId($taskId);
 

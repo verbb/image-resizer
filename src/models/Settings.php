@@ -5,10 +5,10 @@ use craft\base\Model;
 
 /**
  * @property boolean $enabled
- * @property int     $imageWidth
- * @property int     $imageHeight
- * @property int     $imageQuality
- * @property mixed   $assetSourceSettings
+ * @property int $imageWidth
+ * @property int $imageHeight
+ * @property int $imageQuality
+ * @property mixed $assetSourceSettings
  * @property boolean $skipLarger
  * @property boolean $nonDestructiveResize
  * @property boolean $nonDestructiveCrop

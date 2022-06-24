@@ -38,7 +38,7 @@ class Service extends Component
         // }
 
         // Should we be modifying images in this source?
-        if (!ImageResizer::$plugin->service->getSettingForAssetSource($asset->volumeId, 'enabled')) {
+        if (!ImageResizer::$plugin->getService()->getSettingForAssetSource($asset->volumeId, 'enabled')) {
             ImageResizer::$plugin->logs->resizeLog(null, 'skipped-volume-disabled', $filename);
 
             return;
