@@ -6,7 +6,7 @@ body:
       value: |
         Before you send through your bug report, please ensure you have taken these steps first:
 
-          ✅ I‘ve searched the [documentation](https://verbb.io/craft-plugins/mage-resizer/docs).
+          ✅ I‘ve searched the [documentation](https://verbb.io/craft-plugins/image-resizer/docs).
           ✅ I‘ve searched open and closed issues.
 
   - type: textarea
