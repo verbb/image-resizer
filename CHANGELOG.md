@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.0.0 - 2022-05-05
+## 3.0.0 - 2022-07-10
 
 ### Added
 - Add checks for registering events for performance.
