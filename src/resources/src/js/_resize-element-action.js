@@ -156,7 +156,7 @@ Craft.ImageResizer.ResizeModal = Garnish.Modal.extend({
         }
 
         // Trigger the task creation
-        Craft.postActionRequest('image-resizer/base/resize-element-action', data, $.proxy(function(response, textStatus) {}, this));
+        Craft.sendActionRequest('POST', 'image-resizer/base/resize-element-action', { data });
 
         new Craft.ImageResizer.ResizeTaskProgress(this, taskId, function() {
             modal.$footerSpinner.addClass('hidden');
@@ -209,7 +209,8 @@ Craft.ImageResizer.ResizeTaskProgress = Garnish.Base.extend({
         // Force the tasks icon to run
         setTimeout($.proxy(function() {
             // Trigger running the task - from JS so as not to lock the browser session
-            Craft.postActionRequest('queue/run', $.proxy(function(taskInfo, textStatus) {}, this));
+            Craft.sendActionRequest('POST', 'queue/run');
+
         }, this), 500);
 
         // Force the tasks icon to run
@@ -221,11 +222,10 @@ Craft.ImageResizer.ResizeTaskProgress = Garnish.Base.extend({
     updateTasks: function() {
         this.completed = false;
 
-        Craft.postActionRequest('queue/get-job-info?dontExtendSession=1', $.proxy(function(taskInfo, textStatus) {
-            if (textStatus == 'success') {
-                this.showTaskInfo(taskInfo[0]);
-            }
-        }, this))
+        Craft.sendActionRequest('POST', 'queue/get-job-info?dontExtendSession=1')
+            .then((response) => {
+                this.showTaskInfo(response.data.taskInfo[0]);
+            });
     },
 
     showTaskInfo: function(taskInfo) {
@@ -342,20 +342,20 @@ Craft.ImageResizer.ResizeTaskProgress.Task = Garnish.Base.extend({
         }
     },
 
-    complete: function()
-    {
+    complete: function() {
         // Get the summary of our processing
-        Craft.postActionRequest('image-resizer/base/get-task-summary', { taskId: this.taskId }, $.proxy(function(taskInfo, textStatus) {
-            if (textStatus == 'success') {
-                var html = '<span class="success">' + Craft.t('image-resizer', 'Success') + ': ' + taskInfo.summary.success + ', </span>' +
-                    '<span class="skipped">' + Craft.t('image-resizer', 'Skipped') + ': ' + taskInfo.summary.skipped + ', </span>' +
-                    '<span class="error">' + Craft.t('image-resizer', 'Error') + ': ' + taskInfo.summary.error + ' </span>' +
+        var data = { taskId: this.taskId };
+
+        Craft.sendActionRequest('POST', 'image-resizer/base/get-task-summary', { data })
+            .then((response) => {
+                var html = '<span class="success">' + Craft.t('image-resizer', 'Success') + ': ' + response.data.summary.success + ', </span>' +
+                    '<span class="skipped">' + Craft.t('image-resizer', 'Skipped') + ': ' + response.data.summary.skipped + ', </span>' +
+                    '<span class="error">' + Craft.t('image-resizer', 'Error') + ': ' + response.data.summary.error + ' </span>' +
                     '<a class="go" href="' + Craft.getUrl('image-resizer/logs') + '">' + Craft.t('image-resizer', 'View logs') + '</a>';
 
                 this.$statusContainer.empty();
                 $('<div>' + html + '</div>').appendTo(this.$statusContainer);
-            }
-        }, this));
+            });
     },
 
     destroy: function() {
