@@ -8,6 +8,7 @@ use verbb\imageresizer\models\Settings;
 use Craft;
 use craft\base\Component;
 use craft\base\Image;
+use craft\helpers\Image as ImageHelper;
 use craft\events\AssetEvent;
 use craft\events\RegisterElementActionsEvent;
 use craft\image\Raster;
