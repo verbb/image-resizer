@@ -1,5 +1,16 @@
 # Changelog
 
+## 3.0.1 - 2022-07-15
+
+### Added
+- Add translations.
+
+### Changed
+- Replace deprecated `Craft.postActionRequest()` for JS.
+
+### Fixed
+- Fix an error with `ImageHelper` class. (thanks @nicolaskrebs).
+
 ## 3.0.0 - 2022-07-10
 
 ### Added
