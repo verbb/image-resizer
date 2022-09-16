@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.2 - 2022-11-16
+
+### Fixed
+- Fix bulk resize actions not working correctly.
+
 ## 3.0.1 - 2022-07-15
 
 ### Added
