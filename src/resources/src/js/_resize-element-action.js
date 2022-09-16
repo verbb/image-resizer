@@ -83,9 +83,9 @@ Craft.ImageResizer.ResizeModal = Garnish.Modal.extend({
         }
 
         var bodyHtml = '<div class="body">' +
-            '<div class="content">' +
-                '<div class="main">' +
-                    '<div class="elements">' +
+            '<div class="modal-content">' +
+                '<div class="modal-main">' +
+                    '<div class="modal-elements">' +
                         '<h1>' + Craft.t('image-resizer', 'Resize Images') + '</h1>' +
                         '<p>' + Craft.t('image-resizer', 'You are about to resize {desc} to be a maximum of {width}px wide and {height}px high. Alternatively, set the width and height limits below for on-demand resizing.', { desc: actionDescription, width: settings.width, height: settings.height }) + '</p>' +
 
@@ -224,13 +224,16 @@ Craft.ImageResizer.ResizeTaskProgress = Garnish.Base.extend({
 
         Craft.sendActionRequest('POST', 'queue/get-job-info?dontExtendSession=1')
             .then((response) => {
-                this.showTaskInfo(response.data.taskInfo[0]);
+                console.log(response)
+                this.showTaskInfo(response.data.jobs[0]);
             });
     },
 
     showTaskInfo: function(taskInfo) {
         // First remove any tasks that have completed
         var newTaskIds = [];
+
+        console.log(taskInfo)
 
         if (taskInfo) {
             newTaskIds.push(taskInfo.id);
@@ -256,9 +259,10 @@ Craft.ImageResizer.ResizeTaskProgress = Garnish.Base.extend({
             var anyTasksRunning = false,
                 anyTasksFailed = false;
 
-            if (!anyTasksRunning && taskInfo.status == 'running') {
+            // 1 = waiting, 2 = reserved, 3 = done, 4 = failed
+            if (!anyTasksRunning && (taskInfo.status == 1 || taskInfo.status == 2)) {
                 anyTasksRunning = true;
-            } else if (!anyTasksFailed && taskInfo.status == 'error') {
+            } else if (!anyTasksFailed && taskInfo.status == 4) {
                 anyTasksFailed = true;
             }
 
@@ -303,13 +307,17 @@ Craft.ImageResizer.ResizeTaskProgress.Task = Garnish.Base.extend({
         this.taskId = taskId;
         this.modal = modal;
 
+        console.log(modal)
+        console.log(taskId)
+        console.log(info)
+
         if (info) {
             this.id = info.id;
             this.level = info.level;
             this.description = info.description;
         }
 
-        this.$container = $('<div class="task"/>').appendTo(this.modal.$body.find('.main'));
+        this.$container = $('<div class="task"/>').appendTo(this.modal.$body.find('.modal-main'));
         this.$statusContainer = $('<div class="task-status"/>').appendTo(this.$container);
 
         this.$container.data('task', this);
@@ -324,21 +332,27 @@ Craft.ImageResizer.ResizeTaskProgress.Task = Garnish.Base.extend({
             this.$statusContainer.empty();
             this.status = info.status;
 
+            // 1 = waiting, 2 = reserved, 3 = done, 4 = failed
             switch (this.status) {
-                case 'running': {
+                case 1: {
                     this._progressBar = new Craft.ProgressBar(this.$statusContainer);
                     this._progressBar.showProgressBar();
                     break;
                 }
-                case 'error': {
+                case 2: {
+                    this._progressBar = new Craft.ProgressBar(this.$statusContainer);
+                    this._progressBar.showProgressBar();
+                    break;
+                }
+                case 4: {
                     $('<div class="error">' + Craft.t('image-resizer', 'Processing failed. <a class="go" href="' + Craft.getUrl('image-resizer/logs') + '">View logs</a>') + '</div>').appendTo(this.$statusContainer);
                     break;
                 }
             }
         }
 
-        if (this.status == 'running') {
-            this._progressBar.setProgressPercentage(info.progress*100);
+        if (this.status == 1 || this.status == 2) {
+            this._progressBar.setProgressPercentage(info.progress / 100);
         }
     },
 

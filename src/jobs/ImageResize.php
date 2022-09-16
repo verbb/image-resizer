@@ -15,6 +15,8 @@ use yii\queue\Queue;
 
 use Throwable;
 
+use DateTime;
+
 class ImageResize extends BaseJob
 {
     // Properties
@@ -62,7 +64,8 @@ class ImageResize extends BaseJob
 
                     // Update Craft's data
                     $asset->size = filesize($path);
-                    $asset->dateModified = FileHelper::lastModifiedTime($path);
+                    $mtime = FileHelper::lastModifiedTime($path);
+                    $asset->dateModified = $mtime ? new DateTime('@' . $mtime) : null;
 
                     [$assetWidth, $assetHeight] = Image::imageSize($path);
                     $asset->width = $assetWidth;
