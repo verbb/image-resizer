@@ -83,7 +83,7 @@ class Resize extends Component
                     $volume->getFs()->writeFileFromStream($filePath, $stream, []);
 
                     // Spin up asset indexer
-                    Craft::$app->getAssetIndexer()->indexFile($volume, $filePath, 'image-resizer');
+                    Craft::$app->getAssetIndexer()->indexFile($volume, $filePath);
                 }
             }
 
