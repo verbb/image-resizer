@@ -1,6 +1,11 @@
 # Changelog
 
-## 3.0.2 - 2022-11-16
+## 3.0.3 - 2022-10-29
+
+### Fixed
+- Fix an error when asset-indexing resized images.
+
+## 3.0.2 - 2022-09-16
 
 ### Fixed
 - Fix bulk resize actions not working correctly.
