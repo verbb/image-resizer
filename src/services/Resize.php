@@ -30,6 +30,7 @@ class Resize extends Component
     public function resize(Asset $asset, string $filename, string $path, int $width = null, int $height = null, $taskId = null): bool
     {
         $volume = $asset->getVolume();
+        $assetIndexer = Craft::$app->getAssetIndexer();
 
         // Does the volume exist?
         if (!$volume) {
@@ -83,7 +84,9 @@ class Resize extends Component
                     $volume->getFs()->writeFileFromStream($filePath, $stream, []);
 
                     // Spin up asset indexer
-                    Craft::$app->getAssetIndexer()->indexFile($volume, $filePath, 'image-resizer');
+                    $session = $assetIndexer->createIndexingSession([$volume]);
+                    $assetIndexer->indexFile($volume, $filePath, $session->id);
+                    $assetIndexer->stopIndexingSession($session);
                 }
             }
 
