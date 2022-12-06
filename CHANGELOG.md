@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.2.0 - 2022-12-06
+
+### Changed
+- Improve performance when resizing images and larger-than checks.
+
 ## 2.1.1 - 2022-04-04
 
 ### Fixed
