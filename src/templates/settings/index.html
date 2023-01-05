@@ -1,6 +1,9 @@
 {% extends 'image-resizer/_layouts' %}
+
 {% import '_includes/forms' as forms %}
 {% import 'image-resizer/_macros' as macros %}
+
+{% requireAdmin %}
 
 {% set crumbs = [
     { label: 'Image Resizer' | t('image-resizer'), url: url('image-resizer') },

@@ -1,6 +1,6 @@
 {
     "name": "verbb/image-resizer",
-    "description": "Image Resizer is a Craft plugin that resizes your assets when they are uploaded.",
+    "description": "Resize assets when they are uploaded.",
     "type": "craft-plugin",
     "version": "3.0.4",
     "keywords": [
