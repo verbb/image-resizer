@@ -1,6 +1,6 @@
 # Image Resizer Plugin for Craft CMS
 
-<img width="500" src="https://verbb.io/uploads/plugins/image-resizer/image-resizer-social-card.png?v=1">
+<img width="500" src="https://verbb.imgix.net/plugins/image-resizer/image-resizer-social-card.png?v=1">
 
 Image Resizer is a Craft plugin that resizes your assets when they are uploaded. This allows huge images to be resized so as not to use up unnecessary disk space, but still kept at a reasonable resolution. This plugin is not a replacement for using image transforms throughout your site.
 
