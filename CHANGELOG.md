@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.0.5 - 2023-05-02
+
+### Changed
+- Only admins are now allowed to access plugin settings.
+
+### Fixed
+- Fix an error when fetching asset source settings.
+
 ## 3.0.4 - 2022-11-08
 
 ### Fixed
