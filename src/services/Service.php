@@ -63,7 +63,7 @@ class Service extends Component
         /* @var Settings $settings */
         $settings = ImageResizer::$plugin->getSettings();
 
-        return $settings->assetSourceSettings[$sourceId][$setting] ?? $settings->$setting;
+        return $settings->assetSourceSettings[$sourceId][$setting] ?: $settings->$setting;
     }
 
     /**
