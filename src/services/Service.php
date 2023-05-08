@@ -63,7 +63,11 @@ class Service extends Component
         /* @var Settings $settings */
         $settings = ImageResizer::$plugin->getSettings();
 
-        return $settings->assetSourceSettings[$sourceId][$setting] ?? $settings->$setting;
+        // Check if there's a specific setting for the source
+        $sourceSetting = $settings->assetSourceSettings[$sourceId][$setting] ?? null;
+
+        // Otherwise, fall back to the default, global setting for all sources
+        return $sourceSetting ?: $settings->$setting;
     }
 
     /**

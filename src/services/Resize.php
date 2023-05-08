@@ -179,7 +179,7 @@ class Resize extends Component
      * @param int|null $width
      * @param int|null $height
      */
-    private function _resizeImage(Image $image, int $width = null, int $height = null): void
+    private function _resizeImage(Image $image, ?int $width = null, ?int $height = null): void
     {
         // Calculate the missing width/height for the asset - ensure aspect ratio is maintained
         $dimensions = ImageHelper::calculateMissingDimension($width, $height, $image->getWidth(), $image->getHeight());
