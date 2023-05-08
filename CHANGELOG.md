@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.6 - 2023-05-08
+
+### Fixed
+- Fix an error when uploading assets.
+
 ## 3.0.5 - 2023-05-02
 
 ### Changed
