@@ -46,6 +46,11 @@ class Resize extends Component
             return false;
         }
 
+        // Check to see if this path exists. For some remote filesystems, the file may not be locally cached
+        if (!file_exists($path)) {
+            AssetsHelper::downloadFile($volume, $filename, $path);
+        }
+
         try {
             /* @var Settings $settings */
             $settings = ImageResizer::$plugin->getSettings();
