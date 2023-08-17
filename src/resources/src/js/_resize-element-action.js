@@ -233,8 +233,6 @@ Craft.ImageResizer.ResizeTaskProgress = Garnish.Base.extend({
         // First remove any tasks that have completed
         var newTaskIds = [];
 
-        console.log(taskInfo)
-
         if (taskInfo) {
             newTaskIds.push(taskInfo.id);
         } else {
@@ -306,10 +304,6 @@ Craft.ImageResizer.ResizeTaskProgress.Task = Garnish.Base.extend({
     init: function(modal, taskId, info) {
         this.taskId = taskId;
         this.modal = modal;
-
-        console.log(modal)
-        console.log(taskId)
-        console.log(info)
 
         if (info) {
             this.id = info.id;
