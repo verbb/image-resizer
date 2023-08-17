@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.7 - 2023-08-17
+
+### Fixed
+- Fix an issue when using with Servd Assets.
+
 ## 3.0.6 - 2023-05-08
 
 ### Fixed
