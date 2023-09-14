@@ -125,8 +125,8 @@ class Resize extends Component
                     // but it's unperformant. Instead, generate the image from the resource (GD or Imagick), get the in-memory inline image
                     // and render it as a JPG, reporting the size of the resulting string representation. We force things to be JPG, because
                     // dealing with PNGs is very, very slow.
-                    // `strlen` seems to give more accurate results than `mb_strlen` as well.
-                    $resizedSize = strlen((string)$image->getImagineImage()->get('jpg')) * 10;
+                    // See https://stackoverflow.com/a/63376880 for converting string to estimated filesize.
+                    $resizedSize = (strlen(rtrim(base64_encode($image->getImagineImage()->get('jpg')), '=')) * 0.75);
 
                     // Lets check to see if this resize resulted in a larger file - revert if so.
                     if ($resizedSize < filesize($path)) {
