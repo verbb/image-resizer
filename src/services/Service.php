@@ -21,7 +21,7 @@ class Service extends Component
     {
         $asset = $event->sender;
         $filename = $asset->filename;
-        $path = $asset->tempFilePath;
+        $path = $asset->tempFilePath ?? $asset->getImageTransformSourcePath();
 
         if (!$path) {
             ImageResizer::$plugin->logs->resizeLog(null, 'error', $filename, ['message' => 'Unable to find path: ' . $path]);

@@ -61,7 +61,7 @@ class ImageResize extends BaseJob
 
             if ($asset) {
                 $filename = $asset->filename;
-                $path = $asset->getImageTransformSourcePath();
+                $path = $asset->tempFilePath ?? $asset->getImageTransformSourcePath();
                 $width = $this->imageWidth;
                 $height = $this->imageHeight;
 
