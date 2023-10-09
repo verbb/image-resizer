@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.2.2 - 2023-10-10
+
+### Fixed
+- Fix an error when trying to process remote-filesystem assets.
+- Fix filesize estimation to detect resulting larger images not being correct.
+
 ## 2.2.1 - 2023-08-17
 
 ### Fixed
