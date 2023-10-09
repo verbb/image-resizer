@@ -32,7 +32,7 @@
     },
     "autoload": {
         "psr-4": {
-          "verbb\\imageresizer\\": "src/"
+            "verbb\\imageresizer\\": "src/"
         }
     },
     "extra": {
