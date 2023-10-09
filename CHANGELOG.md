@@ -55,6 +55,22 @@
 - Rename service classes.
 - Rename base plugin methods.
 
+## 2.2.2 - 2023-10-10
+
+### Fixed
+- Fix an error when trying to process remote-filesystem assets.
+- Fix filesize estimation to detect resulting larger images not being correct.
+
+## 2.2.1 - 2023-08-17
+
+### Fixed
+- Fix an issue when using with Servd Assets.
+
+## 2.2.0 - 2022-12-06
+
+### Changed
+- Improve performance when resizing images and larger-than checks.
+
 ## 2.1.1 - 2022-04-04
 
 ### Fixed

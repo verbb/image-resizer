@@ -95,18 +95,25 @@ class Resize extends Component
                 }
             }
 
-            // Let's check to see if this image needs resizing. Split into two steps to ensure
-            // proper aspect ratio is preserved and no up-scaling occurs.
+            // Let's check to see if this image needs resizing. We calculate the new height and width based on the
+            // aspect ratio of the current file when resizing, to keep the aspect ratio.
             $hasResized = false;
 
-            if ($image->getWidth() > $imageWidth) {
+            if ($image->getWidth() > $imageWidth || $image->getHeight() > $imageHeight) {
                 $hasResized = true;
-                $this->_resizeImage($image, $imageWidth);
-            }
 
-            if ($image->getHeight() > $imageHeight) {
-                $hasResized = true;
-                $this->_resizeImage($image, null, $imageHeight);
+                // Calculate ratio of desired maximum sizes and original sizes.
+                $widthRatio = $imageWidth / $image->getWidth();
+                $heightRatio = $imageHeight / $image->getHeight();
+
+                // Ratio used for calculating new image dimensions.
+                $ratio = min($widthRatio, $heightRatio);
+
+                // Calculate new image dimensions.
+                $newWidth = (int)$image->getWidth() * $ratio;
+                $newHeight = (int)$image->getHeight() * $ratio;
+
+                $this->_resizeImage($image, $newWidth, $newHeight);
             }
 
             if ($hasResized) {
@@ -117,14 +124,15 @@ class Resize extends Component
 
                 // If we're checking for larger images
                 if ($settings->skipLarger) {
-                    // Save this resized image in a temporary location - we need to test filesize difference
-                    $tempPath = AssetsHelper::tempFilePath($filename);
-                    ImageResizer::$plugin->getService()->saveAs($image, $tempPath);
+                    // We need to check if the resulting image has a larger file size. Normally you would create the image file and read that
+                    // but it's unperformant. Instead, generate the image from the resource (GD or Imagick), get the in-memory inline image
+                    // and render it as a JPG, reporting the size of the resulting string representation. We force things to be JPG, because
+                    // dealing with PNGs is very, very slow.
+                    // See https://stackoverflow.com/a/63376880 for converting string to estimated filesize.
+                    $resizedSize = (strlen(rtrim(base64_encode($image->getImagineImage()->get('jpg')), '=')) * 0.75);
 
-                    clearstatcache();
-
-                    // Let's check to see if this resize resulted in a larger file - revert if so.
-                    if (filesize($tempPath) < filesize($path)) {
+                    // Lets check to see if this resize resulted in a larger file - revert if so.
+                    if ($resizedSize < filesize($path)) {
                         ImageResizer::$plugin->getService()->saveAs($image, $path); // It's a smaller file - properly save
 
                         // Create remote file
@@ -144,9 +152,6 @@ class Resize extends Component
                     } else {
                         ImageResizer::$plugin->getLogs()->resizeLog($taskId, 'skipped-larger-result', $filename);
                     }
-
-                    // Delete our temp file we test filesize with
-                    @unlink($tempPath);
                 } else {
                     ImageResizer::$plugin->getService()->saveAs($image, $path);
 
