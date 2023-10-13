@@ -41,9 +41,7 @@ class ImageResizer extends Plugin
 
         self::$plugin = $this;
 
-        $this->_registerComponents();
-        $this->_registerLogTarget();
-        $this->_registerCraftEventListeners();
+        $this->_registerEventHandlers();
 
         if (Craft::$app->getRequest()->getIsCpRequest()) {
             $this->_registerCpRoutes();
@@ -96,7 +94,7 @@ class ImageResizer extends Plugin
         });
     }
 
-    private function _registerCraftEventListeners(): void
+    private function _registerEventHandlers(): void
     {
         Event::on(Asset::class, Asset::EVENT_BEFORE_HANDLE_FILE, [$this->getService(), 'beforeHandleAssetFile']);
         Event::on(Asset::class, Element::EVENT_REGISTER_ACTIONS, [$this->getService(), 'registerAssetActions']);
