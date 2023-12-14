@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.9 - 2023-12-14
+
+### Fixed
+- Fix file size estimate checks to rely on real file sizes.
+
 ## 3.0.8 - 2023-10-10
 
 ### Changed
