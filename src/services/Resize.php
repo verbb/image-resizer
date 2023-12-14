@@ -124,21 +124,16 @@ class Resize extends Component
 
                 // If we're checking for larger images
                 if ($settings->skipLarger) {
-                    // We need to check if the resulting image has a larger file size. Normally you would create the image file and read that
-                    // but it's unperformant. Instead, generate the image from the resource (GD or Imagick), get the in-memory inline image
-                    // and render it as a JPG, reporting the size of the resulting string representation. We force things to be JPG, because
-                    // dealing with PNGs is very, very slow.
-                    // See https://stackoverflow.com/a/63376880 for converting string to estimated filesize.
-                    $resizedSize = (strlen(rtrim(base64_encode($image->getImagineImage()->get('jpg')), '=')) * 0.75);
+                    // Save this resized image in a temporary location - we need to test filesize difference
+                    $tempPath = AssetsHelper::tempFilePath($filename);
+                    ImageResizer::$plugin->getService()->saveAs($image, $tempPath);
+
+                    clearstatcache();
 
                     // Lets check to see if this resize resulted in a larger file - revert if so.
-                    if ($resizedSize < filesize($path)) {
-                        ImageResizer::$plugin->getService()->saveAs($image, $path); // It's a smaller file - properly save
-
-                        // Create remote file
-                        // if (!$volume instanceof LocalVolumeInterface) {
-                        //     $this->_createRemoteFile($volume, $filename, $path);
-                        // }
+                    if (filesize($tempPath) < filesize($path)) {
+                        // Copy the temp image we create to check filesize
+                        copy($tempPath, $path);
 
                         clearstatcache();
 
@@ -152,13 +147,11 @@ class Resize extends Component
                     } else {
                         ImageResizer::$plugin->getLogs()->resizeLog($taskId, 'skipped-larger-result', $filename);
                     }
+
+                    // Delete our temp file we test filesize with
+                    @unlink($tempPath);
                 } else {
                     ImageResizer::$plugin->getService()->saveAs($image, $path);
-
-                    // Create remote file
-                    // if (!$volume instanceof LocalVolumeInterface) {
-                    //     $this->_createRemoteFile($volume, $filename, $path);
-                    // }
 
                     clearstatcache();
 
