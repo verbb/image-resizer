@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.2.3 - 2023-12-20
+
+### Fixed
+- Fix an error when trying to process remote-filesystem assets.
+
 ## 2.2.2 - 2023-10-10
 
 ### Fixed
