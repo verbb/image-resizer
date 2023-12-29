@@ -1,5 +1,19 @@
 # Changelog
 
+## 3.0.9 - 2023-12-14
+
+### Fixed
+- Fix file size estimate checks to rely on real file sizes.
+
+## 3.0.8 - 2023-10-10
+
+### Changed
+- Improve performance when resizing images and larger-than checks.
+
+### Fixed
+- Fix an error when trying to process remote-filesystem assets.
+- Fix filesize estimation to detect resulting larger images not being correct.
+
 ## 3.0.7 - 2023-08-17
 
 ### Fixed
@@ -54,6 +68,22 @@
 - Now requires Craft `4.0.0+`.
 - Rename service classes.
 - Rename base plugin methods.
+
+## 2.2.2 - 2023-10-10
+
+### Fixed
+- Fix an error when trying to process remote-filesystem assets.
+- Fix filesize estimation to detect resulting larger images not being correct.
+
+## 2.2.1 - 2023-08-17
+
+### Fixed
+- Fix an issue when using with Servd Assets.
+
+## 2.2.0 - 2022-12-06
+
+### Changed
+- Improve performance when resizing images and larger-than checks.
 
 ## 2.1.1 - 2022-04-04
 

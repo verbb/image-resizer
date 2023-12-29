@@ -95,18 +95,25 @@ class Resize extends Component
                 }
             }
 
-            // Let's check to see if this image needs resizing. Split into two steps to ensure
-            // proper aspect ratio is preserved and no up-scaling occurs.
+            // Let's check to see if this image needs resizing. We calculate the new height and width based on the
+            // aspect ratio of the current file when resizing, to keep the aspect ratio.
             $hasResized = false;
 
-            if ($image->getWidth() > $imageWidth) {
+            if ($image->getWidth() > $imageWidth || $image->getHeight() > $imageHeight) {
                 $hasResized = true;
-                $this->_resizeImage($image, $imageWidth);
-            }
 
-            if ($image->getHeight() > $imageHeight) {
-                $hasResized = true;
-                $this->_resizeImage($image, null, $imageHeight);
+                // Calculate ratio of desired maximum sizes and original sizes.
+                $widthRatio = $imageWidth / $image->getWidth();
+                $heightRatio = $imageHeight / $image->getHeight();
+
+                // Ratio used for calculating new image dimensions.
+                $ratio = min($widthRatio, $heightRatio);
+
+                // Calculate new image dimensions.
+                $newWidth = (int)$image->getWidth() * $ratio;
+                $newHeight = (int)$image->getHeight() * $ratio;
+
+                $this->_resizeImage($image, $newWidth, $newHeight);
             }
 
             if ($hasResized) {
@@ -123,14 +130,10 @@ class Resize extends Component
 
                     clearstatcache();
 
-                    // Let's check to see if this resize resulted in a larger file - revert if so.
+                    // Lets check to see if this resize resulted in a larger file - revert if so.
                     if (filesize($tempPath) < filesize($path)) {
-                        ImageResizer::$plugin->getService()->saveAs($image, $path); // It's a smaller file - properly save
-
-                        // Create remote file
-                        // if (!$volume instanceof LocalVolumeInterface) {
-                        //     $this->_createRemoteFile($volume, $filename, $path);
-                        // }
+                        // Copy the temp image we create to check filesize
+                        copy($tempPath, $path);
 
                         clearstatcache();
 
@@ -149,11 +152,6 @@ class Resize extends Component
                     @unlink($tempPath);
                 } else {
                     ImageResizer::$plugin->getService()->saveAs($image, $path);
-
-                    // Create remote file
-                    // if (!$volume instanceof LocalVolumeInterface) {
-                    //     $this->_createRemoteFile($volume, $filename, $path);
-                    // }
 
                     clearstatcache();
 
