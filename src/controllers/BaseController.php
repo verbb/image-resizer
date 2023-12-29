@@ -53,14 +53,12 @@ class BaseController extends Controller
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $request = Craft::$app->getRequest();
-
-        $assetIds = $request->getParam('assetIds');
-        $imageWidth = $request->getParam('imageWidth');
-        $imageHeight = $request->getParam('imageHeight');
-        $bulkResize = $request->getParam('bulkResize');
-        $assetFolderId = $request->getParam('assetFolderId');
-        $taskId = $request->getParam('taskId');
+        $assetIds = $this->request->getParam('assetIds');
+        $imageWidth = $this->request->getParam('imageWidth');
+        $imageHeight = $this->request->getParam('imageHeight');
+        $bulkResize = $this->request->getParam('bulkResize');
+        $assetFolderId = $this->request->getParam('assetFolderId');
+        $taskId = $this->request->getParam('taskId');
 
         if ($bulkResize) {
             $assetIds = Asset::find()
@@ -88,8 +86,7 @@ class BaseController extends Controller
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $request = Craft::$app->getRequest();
-        $taskId = $request->getParam('taskId');
+        $taskId = $this->request->getParam('taskId');
 
         $result = ImageResizer::$plugin->getLogs()->getLogsForTaskId($taskId);
 
