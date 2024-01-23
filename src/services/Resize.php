@@ -48,7 +48,7 @@ class Resize extends Component
 
         // Check to see if this path exists. For some remote filesystems, the file may not be locally cached
         if (!file_exists($path)) {
-            AssetsHelper::downloadFile($volume, $filename, $path);
+            AssetsHelper::downloadFile($volume, $asset->getPath(), $path);
         }
 
         try {
