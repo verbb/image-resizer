@@ -17,8 +17,6 @@
                     <td>{{ item.label }}</td>
 
                     <td>
-                        {{ item.label | t('image-resizer') }}
-
                         <div class="btn small bulk-resize-btn" data-id="{{ item.value }}" data-name="{{ item.label | striptags }}">
                             {{ 'Bulk Resize' | t('image-resizer') }}
                         </div>
