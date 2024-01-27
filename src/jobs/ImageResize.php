@@ -4,6 +4,7 @@ namespace verbb\imageresizer\jobs;
 use verbb\imageresizer\ImageResizer;
 
 use Craft;
+use craft\base\LocalFsInterface;
 use craft\errors\ElementNotFoundException;
 use craft\helpers\FileHelper;
 use craft\helpers\Image;
@@ -56,6 +57,10 @@ class ImageResize extends BaseJob
                 $width = $this->imageWidth;
                 $height = $this->imageHeight;
 
+                $volume = $asset->getVolume();
+                $fs = $volume->getFs();
+                $isLocal = $fs instanceof LocalFsInterface;
+
                 $result = ImageResizer::$plugin->getResize()->resize($asset, $filename, $path, $width, $height, $this->taskId);
 
                 // If the image resize was successful we can continue
@@ -73,6 +78,11 @@ class ImageResize extends BaseJob
 
                     // Create new record for asset
                     Craft::$app->getElements()->saveElement($asset);
+
+                    // For remote file systems, re-saving the asset won't trigger a re-upload of it with altered metadata
+                    if (!$isLocal) {
+                        $volume->write($asset->path, file_get_contents($path));
+                    }
                 }
             }
 
