@@ -63,11 +63,20 @@ class Service extends Component
         /* @var Settings $settings */
         $settings = ImageResizer::$plugin->getSettings();
 
-        // Check if there's a specific setting for the source
-        $sourceSetting = $settings->assetSourceSettings[$sourceId][$setting] ?? null;
+        // If the plugin itself is disabled, return nothing.
+        if (!$settings->enabled) {
+            return null;
+        }
 
-        // Otherwise, fall back to the default, global setting for all sources
-        return $sourceSetting ?: $settings->$setting;
+        // Check if there's a specific setting for the source - no matter what it is, it takes precendence
+        $sourceSettings = $settings->assetSourceSettings[$sourceId] ?? [];
+
+        if (array_key_exists($setting, $sourceSettings)) {
+            return $sourceSettings[$setting];
+        }
+
+        // Otherwise, fall back to the default, global setting for all sources.
+        return $settings->$setting;
     }
 
     /**

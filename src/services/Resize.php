@@ -48,7 +48,7 @@ class Resize extends Component
 
         // Check to see if this path exists. For some remote filesystems, the file may not be locally cached
         if (!file_exists($path)) {
-            AssetsHelper::downloadFile($volume, $filename, $path);
+            AssetsHelper::downloadFile($volume, $asset->getPath(), $path);
         }
 
         try {
@@ -58,8 +58,8 @@ class Resize extends Component
 
             // Save some existing properties for logging (see savings)
             $originalProperties = [
-                'width' => $image->getWidth(),
-                'height' => $image->getHeight(),
+                'width' => (int)$image->getWidth(),
+                'height' => (int)$image->getHeight(),
                 'size' => filesize($path),
             ];
 
@@ -103,8 +103,8 @@ class Resize extends Component
                 $hasResized = true;
 
                 // Calculate ratio of desired maximum sizes and original sizes.
-                $widthRatio = $imageWidth / $image->getWidth();
-                $heightRatio = $imageHeight / $image->getHeight();
+                $widthRatio = ((int)$imageWidth) / ((int)$image->getWidth());
+                $heightRatio = ((int)$imageHeight) / ((int)$image->getHeight());
 
                 // Ratio used for calculating new image dimensions.
                 $ratio = min($widthRatio, $heightRatio);

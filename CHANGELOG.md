@@ -1,5 +1,18 @@
 # Changelog
 
+## 3.0.11 - 2024-01-30
+
+### Fixed
+- Fix bulk resize not working for non-local filesystems.
+- Fix an error when uploading an asset in some instances.
+- Fix bulk resize volume name formatting.
+- Fix asset volume-specific settings not being properly set.
+
+## 3.0.10 - 2024-01-23
+
+### Fixed
+- Fix an error when downloading temporary files for remote volumes when images exist within a subfolder.
+
 ## 3.0.9 - 2023-12-14
 
 ### Fixed

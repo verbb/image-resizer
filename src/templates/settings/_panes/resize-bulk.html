@@ -3,7 +3,7 @@
 
 <div class="field">
     <div class="heading">
-        <label for="settings-assetFolders">{{ "Bulk Resize" | t('image-resizer') }}</label>
+        <label for="settings-assetFolders">{{ 'Bulk Resize' | t('image-resizer') }}</label>
 
         <div class="instructions">
             <p>{{ "For any Asset folder below, click on Bulk Resize to automatically resize all assets within." | t('image-resizer') }}</p>
@@ -17,10 +17,8 @@
                     <td>{{ item.label }}</td>
 
                     <td>
-                        {{ item.label | t('image-resizer') }}
-
-                        <div class="btn small bulk-resize-btn" data-id="{{ item.value }}" data-name="{{ item.label | e('js') }}">
-                            {{ "Bulk Resize" | t('image-resizer') }}
+                        <div class="btn small bulk-resize-btn" data-id="{{ item.value }}" data-name="{{ item.label | striptags }}">
+                            {{ 'Bulk Resize' | t('image-resizer') }}
                         </div>
                     </td>
                 </tr>
