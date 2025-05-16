@@ -27,7 +27,6 @@
     "require": {
         "php": "^8.2",
         "craftcms/cms": "^5.0.0",
-        "lsolesen/pel": "^0.9.6",
         "verbb/base": "^3.0.0"
     },
     "autoload": {
