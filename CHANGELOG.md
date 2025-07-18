@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.0.4 - 2025-07-18
+
+### Changed
+- Remove `lsolesen/pel` dependency.
+
 ## 4.0.3 - 2025-03-04
 
 ### Added
