@@ -27,6 +27,11 @@
 - Now requires PHP `8.2.0+`.
 - Now requires Craft `5.0.0+`.
 
+## 3.0.14 - 2025-07-18
+
+### Changed
+- Remove `lsolesen/pel` dependency.
+
 ## 3.0.13 - 2025-03-04
 
 ### Added
