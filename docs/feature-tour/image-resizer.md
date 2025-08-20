@@ -13,7 +13,7 @@ To batch resize images, use the Assets Index to select which image files you'd l
 
 You'll be presented with a warning screen advising that the selected images will be resized according to your plugin settings.
 
-Under the hood, the batch processing is run through Craft's Queue service, which will allow you to process plenty of images at once, without timing out or running into memory issues.
+Under the hood, the batch processing is run through Craft's Queue service, which will allow you to process plenty of images as a background process.
 
 Additionally, using the plugin settings page (Bulk Resize tab), you can bulk-resize all assets in a single folder.
 
