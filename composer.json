@@ -2,7 +2,7 @@
     "name": "verbb/image-resizer",
     "description": "Resize assets when they are uploaded.",
     "type": "craft-plugin",
-    "version": "4.0.4",
+    "version": "5.0.0-alpha.1",
     "keywords": [
         "craft",
         "cms",
@@ -25,9 +25,9 @@
         }
     ],
     "require": {
-        "php": "^8.2",
-        "craftcms/cms": "^5.0.0",
-        "verbb/base": "^3.0.0"
+        "php": "^8.4",
+        "craftcms/cms": "6.x-dev",
+        "verbb/base": "dev-craft-6"
     },
     "autoload": {
         "psr-4": {
@@ -39,7 +39,9 @@
         "handle": "image-resizer",
         "description": "Image Resizer resizes your assets when they are uploaded.",
         "documentationUrl": "https://github.com/verbb/image-resizer",
-        "changelogUrl": "https://raw.githubusercontent.com/verbb/image-resizer/craft-5/CHANGELOG.md",
+        "changelogUrl": "https://raw.githubusercontent.com/verbb/image-resizer/craft-6/CHANGELOG.md",
         "class": "verbb\\imageresizer\\ImageResizer"
-    }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }
