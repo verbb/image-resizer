@@ -8,6 +8,7 @@ use verbb\imageresizer\models\Settings;
 use Craft;
 use craft\base\Component;
 use craft\base\Image;
+use craft\elements\Asset;
 use craft\helpers\Image as ImageHelper;
 use craft\events\AssetEvent;
 use craft\events\RegisterElementActionsEvent;
@@ -25,6 +26,12 @@ class Service extends Component
         $asset = $event->sender;
         $filename = $asset->filename;
         $path = $asset->tempFilePath ?? $asset->getImageTransformSourcePath();
+
+        // `EVENT_BEFORE_HANDLE_FILE` fires for any file operations (create/replace/move/etc).
+        // Restrict auto-resize to upload-style operations only.
+        if (!in_array($asset->getScenario(), [Asset::SCENARIO_CREATE, Asset::SCENARIO_REPLACE], true)) {
+            return;
+        }
 
         if (!$path) {
             ImageResizer::$plugin->getLogs()->resizeLog(null, 'error', $filename, ['message' => 'Unable to find path: ' . $path]);
