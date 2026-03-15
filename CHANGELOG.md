@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.0.5 - 2026-03-15
+
+### Fixed
+- Fix resizing ocurring on non create/replace asset scenarios.
+
 ## 4.0.4 - 2025-07-18
 
 ### Changed
