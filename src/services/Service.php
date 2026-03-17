@@ -24,14 +24,15 @@ class Service extends Component
     public function beforeHandleAssetFile(AssetEvent $event): void
     {
         $asset = $event->sender;
-        $filename = $asset->filename;
-        $path = $asset->tempFilePath ?? $asset->getImageTransformSourcePath();
 
         // `EVENT_BEFORE_HANDLE_FILE` fires for any file operations (create/replace/move/etc).
         // Restrict auto-resize to upload-style operations only.
         if (!in_array($asset->getScenario(), [Asset::SCENARIO_CREATE, Asset::SCENARIO_REPLACE], true)) {
             return;
         }
+
+        $filename = $asset->filename;
+        $path = $asset->tempFilePath ?? $asset->getImageTransformSourcePath();
 
         if (!$path) {
             ImageResizer::$plugin->getLogs()->resizeLog(null, 'error', $filename, ['message' => 'Unable to find path: ' . $path]);
