@@ -32,7 +32,17 @@ class Service extends Component
         }
 
         $filename = $asset->filename;
-        $path = $asset->tempFilePath ?? $asset->getImageTransformSourcePath();
+        $path = $asset->tempFilePath;
+
+        // For some remote filesystem workflows, tempFilePath may be null even for valid
+        // create/replace operations. Fall back to source path only for non-propagated saves.
+        if (!$path) {
+            if ($asset->propagating) {
+                return;
+            }
+
+            $path = $asset->getImageTransformSourcePath();
+        }
 
         if (!$path) {
             ImageResizer::$plugin->getLogs()->resizeLog(null, 'error', $filename, ['message' => 'Unable to find path: ' . $path]);
