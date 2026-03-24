@@ -1,5 +1,11 @@
 # Changelog
 
+## 4.0.6 - 2026-03-24
+
+### Fixed
+- Fix `getImageTransformSourcePath` handling based on asset propagation.
+- Fix order of operations check for create/replace asset scenarios.
+
 ## 4.0.5 - 2026-03-15
 
 ### Fixed
