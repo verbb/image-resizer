@@ -39,9 +39,18 @@ class Resize extends Component
             return false;
         }
 
-        // Is this a manipulatable image?
-        if (!ImageHelper::canManipulateAsImage(@pathinfo($path, PATHINFO_EXTENSION))) {
-            ImageResizer::$plugin->getLogs()->resizeLog($taskId, 'skipped-non-image', $filename);
+        // Prefer the asset/filename extension over the temp path. Upload temp files (and some
+        // remote FS cache paths) can be extensionless or use uniqid entropy as a fake extension
+        // (e.g. `upload….66030315`), which would falsely fail canManipulateAsImage().
+        $extension = $asset->getExtension()
+            ?: pathinfo($filename, PATHINFO_EXTENSION)
+            ?: pathinfo($path, PATHINFO_EXTENSION);
+
+        if (!ImageHelper::canManipulateAsImage($extension)) {
+            ImageResizer::$plugin->getLogs()->resizeLog($taskId, 'skipped-non-image', $filename, [
+                'path' => $path,
+                'extension' => $extension,
+            ]);
 
             return false;
         }
