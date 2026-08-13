@@ -45,7 +45,7 @@
                                 {% set saved = prevSize - currSize %}
 
                                 {% set filesize = imageResizerMacro.filesize(saved) %}
-                                {% set percentage = ((saved / prevSize) * 100) | number_format %}
+                                {% set percentage = prevSize ? ((saved / prevSize) * 100) | number_format : '?' %}
 
                                 {{ "Saved {perc}% ({num})." | t('image-resizer', { num: filesize, perc: percentage }) }}
                             {% endif %}

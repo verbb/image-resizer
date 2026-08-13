@@ -58,6 +58,7 @@ class Resize extends Component
         // Check to see if this path exists. For some remote filesystems, the file may not be locally cached
         if (!file_exists($path)) {
             AssetsHelper::downloadFile($volume, $asset->getPath(), $path);
+            clearstatcache(true, $path);
         }
 
         try {
@@ -66,10 +67,11 @@ class Resize extends Component
             $image = Craft::$app->getImages()->loadImage($path);
 
             // Save some existing properties for logging (see savings)
+            $originalSize = filesize($path);
             $originalProperties = [
                 'width' => (int)$image->getWidth(),
                 'height' => (int)$image->getHeight(),
-                'size' => filesize($path),
+                'size' => $originalSize !== false ? (int)$originalSize : (int)($asset->size ?? 0),
             ];
 
             // We can have settings globally, or per asset source. Check!
@@ -149,7 +151,7 @@ class Resize extends Component
                         $newProperties = [
                             'width' => $image->getWidth(),
                             'height' => $image->getHeight(),
-                            'size' => filesize($path),
+                            'size' => (int)filesize($path),
                         ];
 
                         ImageResizer::$plugin->getLogs()->resizeLog($taskId, 'success', $filename, ['prev' => $originalProperties, 'curr' => $newProperties]);
@@ -167,7 +169,7 @@ class Resize extends Component
                     $newProperties = [
                         'width' => $image->getWidth(),
                         'height' => $image->getHeight(),
-                        'size' => filesize($path),
+                        'size' => (int)filesize($path),
                     ];
 
                     ImageResizer::$plugin->getLogs()->resizeLog($taskId, 'success', $filename, ['prev' => $originalProperties, 'curr' => $newProperties]);
