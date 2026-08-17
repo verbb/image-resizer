@@ -155,8 +155,17 @@ class Service extends Component
      */
     public function saveAs(Image|Raster &$image, string $filePath): void
     {
-        // Get the current orientation from Exif - we might need this later to rotate
-        $orientation = $image->getImagineImage()->metadata()->get('ifd0.Orientation');
+        // Get the current orientation from Exif - we might need this later to rotate.
+        // Imagick/EXIF can throw here (missing EXIF extension, stripped metadata); don't abort the resize.
+        $orientation = null;
+
+        if ($image instanceof Raster) {
+            try {
+                $orientation = $image->getImagineImage()?->metadata()->get('ifd0.Orientation');
+            } catch (Throwable) {
+                $orientation = null;
+            }
+        }
 
         $degrees = false;
 
