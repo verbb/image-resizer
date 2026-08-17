@@ -8,6 +8,7 @@ use Craft;
 use craft\base\Component;
 use craft\base\Image;
 use craft\elements\Asset;
+use craft\helpers\App;
 use craft\helpers\Assets as AssetsHelper;
 use craft\helpers\Image as ImageHelper;
 
@@ -61,13 +62,42 @@ class Resize extends Component
             clearstatcache(true, $path);
         }
 
+        // Imagick determines encode/decode format from the filename. Upload temps can be
+        // extensionless (`phpXXXX`) or end in uniqid entropy (`upload….66030315`), which
+        // GD will often sniff but Imagick will refuse. Work on a copy with a real extension.
+        $workingPath = $path;
+        $createdWorkingCopy = false;
+        $pathExtension = (string)pathinfo($path, PATHINFO_EXTENSION);
+
+        if (!ImageHelper::canManipulateAsImage($pathExtension)) {
+            $workingPath = AssetsHelper::tempFilePath($extension);
+
+            if (!@copy($path, $workingPath)) {
+                ImageResizer::$plugin->getLogs()->resizeLog($taskId, 'error', $filename, [
+                    'message' => 'Unable to copy image to a working file with a valid extension.',
+                    'path' => $path,
+                    'workingPath' => $workingPath,
+                ]);
+
+                @unlink($workingPath);
+
+                return false;
+            }
+
+            clearstatcache(true, $workingPath);
+            $createdWorkingCopy = true;
+        }
+
+        // Upload requests often have a tighter memory_limit than queue/CLI bulk resizes.
+        App::maxPowerCaptain();
+
         try {
             /* @var Settings $settings */
             $settings = ImageResizer::$plugin->getSettings();
-            $image = Craft::$app->getImages()->loadImage($path);
+            $image = Craft::$app->getImages()->loadImage($workingPath);
 
             // Save some existing properties for logging (see savings)
-            $originalSize = filesize($path);
+            $originalSize = filesize($workingPath);
             $originalProperties = [
                 'width' => (int)$image->getWidth(),
                 'height' => (int)$image->getHeight(),
@@ -96,7 +126,7 @@ class Resize extends Component
 
                 // Only copy the original if there's not already one created
                 if (!$volume->getFs()->fileExists($filePath)) {
-                    $stream = @fopen($path, 'rb');
+                    $stream = @fopen($workingPath, 'rb');
                     $volume->getFs()->writeFileFromStream($filePath, $stream, []);
 
                     // Spin up asset indexer
@@ -109,6 +139,7 @@ class Resize extends Component
             // Let's check to see if this image needs resizing. We calculate the new height and width based on the
             // aspect ratio of the current file when resizing, to keep the aspect ratio.
             $hasResized = false;
+            $didWrite = false;
 
             if ($image->getWidth() > $imageWidth || $image->getHeight() > $imageHeight) {
                 $hasResized = true;
@@ -130,7 +161,7 @@ class Resize extends Component
             if ($hasResized) {
                 // Set image quality - but normalise (for PNG)!
                 if (method_exists($image, 'setQuality')) {
-                    $image->setQuality(ImageResizer::$plugin->getService()->getImageQuality($path));
+                    $image->setQuality(ImageResizer::$plugin->getService()->getImageQuality($workingPath));
                 }
 
                 // If we're checking for larger images
@@ -142,19 +173,20 @@ class Resize extends Component
                     clearstatcache();
 
                     // Lets check to see if this resize resulted in a larger file - revert if so.
-                    if (filesize($tempPath) < filesize($path)) {
+                    if (filesize($tempPath) < filesize($workingPath)) {
                         // Copy the temp image we create to check filesize
-                        copy($tempPath, $path);
+                        copy($tempPath, $workingPath);
 
                         clearstatcache();
 
                         $newProperties = [
                             'width' => $image->getWidth(),
                             'height' => $image->getHeight(),
-                            'size' => (int)filesize($path),
+                            'size' => (int)filesize($workingPath),
                         ];
 
                         ImageResizer::$plugin->getLogs()->resizeLog($taskId, 'success', $filename, ['prev' => $originalProperties, 'curr' => $newProperties]);
+                        $didWrite = true;
                     } else {
                         ImageResizer::$plugin->getLogs()->resizeLog($taskId, 'skipped-larger-result', $filename);
                     }
@@ -162,27 +194,46 @@ class Resize extends Component
                     // Delete our temp file we test filesize with
                     @unlink($tempPath);
                 } else {
-                    ImageResizer::$plugin->getService()->saveAs($image, $path);
+                    ImageResizer::$plugin->getService()->saveAs($image, $workingPath);
 
                     clearstatcache();
 
                     $newProperties = [
                         'width' => $image->getWidth(),
                         'height' => $image->getHeight(),
-                        'size' => (int)filesize($path),
+                        'size' => (int)filesize($workingPath),
                     ];
 
                     ImageResizer::$plugin->getLogs()->resizeLog($taskId, 'success', $filename, ['prev' => $originalProperties, 'curr' => $newProperties]);
+                    $didWrite = true;
                 }
             } else {
                 ImageResizer::$plugin->getLogs()->resizeLog($taskId, 'skipped-under-limits', $filename);
             }
 
+            if ($didWrite && $createdWorkingCopy && !@copy($workingPath, $path)) {
+                throw new Exception('Could not write resized image back to ' . $path);
+            }
+
             return true;
         } catch (Exception $e) {
-            ImageResizer::$plugin->getLogs()->resizeLog($taskId, 'error', $filename, ['message' => $e->getMessage()]);
+            $message = $e->getMessage();
+
+            if ($previous = $e->getPrevious()) {
+                $message .= ' — ' . $previous->getMessage();
+            }
+
+            ImageResizer::$plugin->getLogs()->resizeLog($taskId, 'error', $filename, [
+                'message' => $message,
+                'path' => $path,
+                'workingPath' => $workingPath,
+            ]);
 
             return false;
+        } finally {
+            if ($createdWorkingCopy && is_file($workingPath)) {
+                @unlink($workingPath);
+            }
         }
     }
 
