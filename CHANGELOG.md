@@ -1,10 +1,10 @@
 # Changelog
 
-## Unreleased
+## 4.0.7 - 2026-08-20
 
 ### Fixed
-- Fix resize-on-upload failing with Imagick when the working file has no real image extension — copy to a named temp file before load/save, raise the memory limit, and don’t abort the resize if EXIF orientation can’t be read. (#89)
-- Fix remote-volume resizes logging `prev.size` as `false` (missing `clearstatcache` after download), which caused a division-by-zero on the logs page. (#93)
+- Fix remote-volume resizes logging `prev.size` as `false` (missing `clearstatcache` after download), which caused a division-by-zero on the logs page. #93.
+- Fix resize-on-upload being skipped as “not manipulatable” when the temp file path lacks a real image extension (e.g. Craft Cloud / remote filesystem workflows). #89.
 
 ## 4.0.6 - 2026-03-24
 
