@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fix `nonDestructiveResize` leaving uploaded images at their original dimensions when saving/indexing the `originals/` backup threw an error (the resize was aborted after the copy had already succeeded).
+- Only create the `originals/` backup when an image actually exceeds the configured max width/height.
+
 ## 4.0.7 - 2026-08-20
 
 ### Fixed

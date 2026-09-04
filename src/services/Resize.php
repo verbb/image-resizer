@@ -113,35 +113,60 @@ class Resize extends Component
             $imageWidth = $width ?: $imageWidth;
             $imageHeight = $height ?: $imageHeight;
 
-            // Check to see if we should make a copy of our original image first?
-            if ($settings->nonDestructiveResize) {
-                $folderPath = 'originals/';
-
-                // Create a new folder 'originals'
-                if (!$volume->getFs()->directoryExists($folderPath)) {
-                    $volume->getFs()->createDirectory($folderPath);
-                }
-
-                $filePath = $folderPath . $filename;
-
-                // Only copy the original if there's not already one created
-                if (!$volume->getFs()->fileExists($filePath)) {
-                    $stream = @fopen($workingPath, 'rb');
-                    $volume->getFs()->writeFileFromStream($filePath, $stream, []);
-
-                    // Spin up asset indexer
-                    $session = $assetIndexer->createIndexingSession([$volume]);
-                    $assetIndexer->indexFile($volume, $filePath, $session->id);
-                    $assetIndexer->stopIndexingSession($session);
-                }
-            }
-
             // Let's check to see if this image needs resizing. We calculate the new height and width based on the
             // aspect ratio of the current file when resizing, to keep the aspect ratio.
             $hasResized = false;
             $didWrite = false;
+            $needsResize = $image->getWidth() > $imageWidth || $image->getHeight() > $imageHeight;
 
-            if ($image->getWidth() > $imageWidth || $image->getHeight() > $imageHeight) {
+            // Save an untouched copy before we mutate the working file. Keep this best-effort: a failure
+            // copying/indexing into `originals/` must not skip the actual resize (that left users with
+            // identical files in both locations when indexing threw mid-upload).
+            if ($settings->nonDestructiveResize && $needsResize) {
+                try {
+                    $folderPath = 'originals/';
+
+                    if (!$volume->getFs()->directoryExists($folderPath)) {
+                        $volume->getFs()->createDirectory($folderPath);
+                    }
+
+                    $filePath = $folderPath . $filename;
+
+                    if (!$volume->getFs()->fileExists($filePath)) {
+                        $stream = @fopen($workingPath, 'rb');
+
+                        if ($stream === false) {
+                            throw new Exception('Unable to open image for non-destructive backup.');
+                        }
+
+                        try {
+                            $volume->getFs()->writeFileFromStream($filePath, $stream, []);
+                        } finally {
+                            if (is_resource($stream)) {
+                                fclose($stream);
+                            }
+                        }
+
+                        // Index separately — nested element saves during EVENT_BEFORE_HANDLE_FILE are fragile
+                        try {
+                            $session = $assetIndexer->createIndexingSession([$volume]);
+                            $assetIndexer->indexFile($volume, $filePath, $session->id);
+                            $assetIndexer->stopIndexingSession($session);
+                        } catch (Exception $indexException) {
+                            ImageResizer::$plugin->getLogs()->resizeLog($taskId, 'error', $filename, [
+                                'message' => 'Saved originals backup, but failed to index it: ' . $indexException->getMessage(),
+                                'path' => $filePath,
+                            ]);
+                        }
+                    }
+                } catch (Exception $backupException) {
+                    ImageResizer::$plugin->getLogs()->resizeLog($taskId, 'error', $filename, [
+                        'message' => 'Non-destructive originals backup failed: ' . $backupException->getMessage(),
+                    ]);
+                }
+            }
+
+            if ($needsResize) {
                 $hasResized = true;
 
                 // Calculate ratio of desired maximum sizes and original sizes.
