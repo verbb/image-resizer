@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 4.0.8 - 2026-09-04
 
 ### Fixed
 - Fix asset uploads failing on Craft Cloud with `stream_copy_to_stream(): Argument #2 ($to) must be of type resource, false given` when resizing on upload. #94.
