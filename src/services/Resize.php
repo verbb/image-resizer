@@ -11,8 +11,10 @@ use craft\elements\Asset;
 use craft\helpers\App;
 use craft\helpers\Assets as AssetsHelper;
 use craft\helpers\Image as ImageHelper;
+use craft\models\Volume;
 
 use Exception;
+use Throwable;
 
 use yii\base\InvalidConfigException;
 
@@ -56,10 +58,54 @@ class Resize extends Component
             return false;
         }
 
-        // Check to see if this path exists. For some remote filesystems, the file may not be locally cached
-        if (!file_exists($path)) {
-            AssetsHelper::downloadFile($volume, $asset->getPath(), $path);
-            clearstatcache(true, $path);
+        // For remote/Cloud uploads the file may not be locally cached yet. Craft Cloud also uses a
+        // non-local `__tempFilePath__` sentinel during CREATE/REPLACE validation — never fopen that.
+        $writeBackToVolume = false;
+        $managedLocalPath = null;
+
+        if (!is_file($path)) {
+            $downloadPath = $path;
+
+            if (!$this->_isUsableDownloadDestination($path)) {
+                $downloadPath = AssetsHelper::tempFilePath($extension);
+                $managedLocalPath = $downloadPath;
+                // Cloud (presigned) uploads already live on the volume; Craft will not re-upload from
+                // a local temp, so the resized bytes must be written back explicitly.
+                $writeBackToVolume = true;
+            }
+
+            try {
+                AssetsHelper::downloadFile($volume->getFs(), $asset->getPath(), $downloadPath);
+                clearstatcache(true, $downloadPath);
+            } catch (Throwable $e) {
+                if ($managedLocalPath) {
+                    @unlink($managedLocalPath);
+                }
+
+                ImageResizer::$plugin->getLogs()->resizeLog($taskId, 'error', $filename, [
+                    'message' => 'Unable to download image for resize: ' . $e->getMessage(),
+                    'path' => $path,
+                    'downloadPath' => $downloadPath,
+                ]);
+
+                return false;
+            }
+
+            if (!is_file($downloadPath)) {
+                if ($managedLocalPath) {
+                    @unlink($managedLocalPath);
+                }
+
+                ImageResizer::$plugin->getLogs()->resizeLog($taskId, 'error', $filename, [
+                    'message' => 'Unable to download image for resize to a local file.',
+                    'path' => $path,
+                    'downloadPath' => $downloadPath,
+                ]);
+
+                return false;
+            }
+
+            $path = $downloadPath;
         }
 
         // Imagick determines encode/decode format from the filename. Upload temps can be
@@ -80,6 +126,10 @@ class Resize extends Component
                 ]);
 
                 @unlink($workingPath);
+
+                if ($managedLocalPath) {
+                    @unlink($managedLocalPath);
+                }
 
                 return false;
             }
@@ -236,7 +286,18 @@ class Resize extends Component
                 ImageResizer::$plugin->getLogs()->resizeLog($taskId, 'skipped-under-limits', $filename);
             }
 
-            if ($didWrite && $createdWorkingCopy && !@copy($workingPath, $path)) {
+            if ($didWrite && $writeBackToVolume) {
+                $fileToPersist = $createdWorkingCopy ? $workingPath : $path;
+                $this->_writeFileToVolume($volume, $asset->getPath(), $fileToPersist);
+
+                clearstatcache(true, $fileToPersist);
+                $asset->width = (int)$image->getWidth();
+                $asset->height = (int)$image->getHeight();
+                $size = filesize($fileToPersist);
+                if ($size !== false) {
+                    $asset->size = (int)$size;
+                }
+            } else if ($didWrite && $createdWorkingCopy && !@copy($workingPath, $path)) {
                 throw new Exception('Could not write resized image back to ' . $path);
             }
 
@@ -259,6 +320,10 @@ class Resize extends Component
             if ($createdWorkingCopy && is_file($workingPath)) {
                 @unlink($workingPath);
             }
+
+            if ($managedLocalPath && is_file($managedLocalPath)) {
+                @unlink($managedLocalPath);
+            }
         }
     }
 
@@ -278,15 +343,42 @@ class Resize extends Component
     }
 
     /**
-     * Store new created file on cloud server
+     * Whether `$path` can be used as a local download destination for `fopen(..., 'wb')`.
      */
-    private function _createRemoteFile($volume, string $filename, string $path): void
+    private function _isUsableDownloadDestination(string $path): bool
     {
-        // Delete already existing file
-        $volume->deleteFile($filename);
+        // Craft Cloud sets this sentinel so CREATE/REPLACE validation passes without a local file.
+        if ($path === '__tempFilePath__') {
+            return false;
+        }
 
-        // Create new file
-        $stream = @fopen($path, 'rb');
-        $volume->createFileByStream($filename, $stream, []);
+        $directory = dirname($path);
+
+        return $directory !== '' && $directory !== '.' && is_dir($directory) && is_writable($directory);
+    }
+
+    /**
+     * Replace a volume file with the contents of a local path.
+     */
+    private function _writeFileToVolume(Volume $volume, string $uriPath, string $localPath): void
+    {
+        $fs = $volume->getFs();
+        $stream = @fopen($localPath, 'rb');
+
+        if ($stream === false) {
+            throw new Exception('Unable to open resized image for writing to volume.');
+        }
+
+        try {
+            if ($fs->fileExists($uriPath)) {
+                $fs->deleteFile($uriPath);
+            }
+
+            $fs->writeFileFromStream($uriPath, $stream, []);
+        } finally {
+            if (is_resource($stream)) {
+                fclose($stream);
+            }
+        }
     }
 }

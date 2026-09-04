@@ -36,6 +36,8 @@ class Service extends Component
 
         // For some remote filesystem workflows, tempFilePath may be null even for valid
         // create/replace operations. Fall back to source path only for non-propagated saves.
+        // Craft Cloud sets tempFilePath to the non-local sentinel `__tempFilePath__` during
+        // CREATE/REPLACE; Resize detects that and downloads/writes back to the volume.
         if (!$path) {
             if ($asset->propagating) {
                 return;

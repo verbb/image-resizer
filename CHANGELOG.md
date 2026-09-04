@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Fixed
+- Fix asset uploads failing on Craft Cloud with `stream_copy_to_stream(): Argument #2 ($to) must be of type resource, false given` when resizing on upload. #94.
 - Fix `nonDestructiveResize` leaving uploaded images at their original dimensions when saving/indexing the `originals/` backup threw an error (the resize was aborted after the copy had already succeeded).
 - Only create the `originals/` backup when an image actually exceeds the configured max width/height.
 
