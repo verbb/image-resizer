@@ -77,6 +77,7 @@ class ImageResizer extends Plugin
                 'image-resizer/logs' => 'image-resizer/logs/logs',
                 'image-resizer/logs/clear' => 'image-resizer/logs/clear',
                 'image-resizer/settings' => 'image-resizer/base/settings',
+                'image-resizer/settings/<settingsNavItem:{handle}>' => 'image-resizer/base/settings',
                 'image-resizer/clear-tasks' => 'image-resizer/base/clear-tasks',
             ]);
         });

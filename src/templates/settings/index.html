@@ -1,57 +1,24 @@
-{% extends 'image-resizer/_layouts' %}
+{% extends 'image-resizer/_layouts/settings' %}
 
 {% import '_includes/forms' as forms %}
 {% import 'image-resizer/_macros' as macros %}
 
 {% requireAdmin %}
 
-{% set crumbs = [
-    { label: 'Image Resizer' | t('image-resizer'), url: url('image-resizer') },
-    { label: 'Settings' | t('app'), url: url('image-resizer/settings') },
-] %}
-
-{% set navItems = {
-    'resize': { title: 'Resize' | t('image-resizer') },
-    'resize-bulk': { title: 'Resize Bulk' | t('image-resizer') },
-} %}
-
-{% set selectedTab = 'settings' %}
-{% set selectedItem = 'resize' %}
+{% set selectedTab = selectedTab ?? craft.app.request.getSegment(3) %}
+{% set selectedTab = selectedTab ?: 'general' %}
 {% set fullPageForm = true %}
+{% set pageTabs = {
+    general: { title: 'General Settings' | t('image-resizer'), url: url('image-resizer/settings') },
+    'resize-bulk': { title: 'Resize Bulk' | t('image-resizer'), url: url('image-resizer/settings/resize-bulk') },
+} %}
+{% set pageTitle = pageTabs[selectedTab].title ?? pageTabs[selectedTab].heading ?? null %}
+{% if not pageTitle %}{% exit 404 %}{% endif %}
+{% set pageAction = 'plugins/save-plugin-settings' %}
+{% set pageUrl = selectedTab == 'general' ? 'image-resizer/settings' : 'image-resizer/settings/' ~ selectedTab %}
 
-{% block sidebar %}
-    <nav class="image-resizer-settings-tabs" data-vui-tabs>
-        <ul>
-            {% for id, item in navItems %}
-                {% if item.heading is defined %}
-                    <li class="heading"><span>{{ item.heading }}</span></li>
-                {% else %}
-                    <li>
-                        <a id="tab-{{ loop.index }}" href="#tab-{{ id }}" class="tab {% if id == selectedItem %}sel{% endif %}">
-                            {{ item.title }}
-                        </a>
-                    </li>
-                {% endif %}
-            {% endfor %}
-        </ul>
-    </nav>
-{% endblock %}
-
-{% block blockContent %}
-
-<input type="hidden" name="action" value="plugins/save-plugin-settings">
-<input type="hidden" name="pluginHandle" value="image-resizer">
-
-{% for id, item in navItems %}
-    {% if item.title is defined %}
-        <div id="tab-{{ id }}" {% if not loop.first %}class="hidden"{% endif %}>
-            <h2>{{ item.title }}</h2>
-
-            {% namespace 'settings' %}
-                {% include 'image-resizer/settings/_panes/' ~ id ignore missing %}
-            {% endnamespace %}
-        </div>
-    {% endif %}
-{% endfor %}
-
+{% block settingsContent %}
+    {# General Settings maps to the existing resize pane — no new fields. #}
+    {% set pane = selectedTab == 'general' ? 'resize' : selectedTab %}
+    {% include 'image-resizer/settings/_panes/' ~ pane ignore missing %}
 {% endblock %}

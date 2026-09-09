@@ -38,8 +38,9 @@ class BaseController extends Controller
         $assetTree = Craft::$app->getAssets()->getFolderTreeByVolumeIds(Craft::$app->getVolumes()->getAllVolumeIds());
         ImageResizer::$plugin->getService()->getAssetFolders($assetTree, $folderOptions);
 
-        return $this->renderTemplate('image-resizer/settings/index.html', [
+        return $this->renderTemplate('image-resizer/settings', [
             'settings' => $settings,
+            'selectedTab' => Craft::$app->getRequest()->getSegment(3) ?: 'general',
             'folderOptions' => $folderOptions,
             'sourceOptions' => $sourceOptions,
         ]);

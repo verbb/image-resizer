@@ -1,0 +1,26 @@
+{% extends 'verbb-base/_layouts/settings' %}
+
+{% import '_includes/forms' as forms %}
+{% import 'image-resizer/_macros' as macros %}
+
+{% requireAdmin %}
+
+{% set crumbs = [
+    { label: 'Settings' | t('app'), url: url('settings') },
+    { label: 'Plugins' | t('app'), url: url('settings/plugins') },
+    { label: 'Image Resizer' | t('image-resizer'), url: url('image-resizer/settings') },
+] | merge(crumbs ?? []) %}
+
+{% set pageTabs = pageTabs ?? {
+    general: { title: 'General Settings' | t('image-resizer'), url: url('image-resizer/settings') },
+    'resize-bulk': { title: 'Resize Bulk' | t('image-resizer'), url: url('image-resizer/settings/resize-bulk') },
+} %}
+
+{% set pageTitle = pageTitle ?? false %}
+{% if title is not defined and pageTitle %}
+    {% set title = pageTitle %}
+{% endif %}
+
+{% block settingsMeta %}
+    {{ hiddenInput('pluginHandle', 'image-resizer') }}
+{% endblock %}
