@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+- Updated documentation for clearer, more consistent guidance.
+
 ## 4.0.9 - 2026-09-13
 
 ### Changed
