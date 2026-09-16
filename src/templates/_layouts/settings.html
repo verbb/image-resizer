@@ -1,5 +1,7 @@
 {% extends 'verbb-base/_layouts/settings' %}
 
+{% do view.registerAssetBundle('verbb\\imageresizer\\assetbundles\\ImageResizerAsset') %}
+
 {% import '_includes/forms' as forms %}
 {% import 'image-resizer/_macros' as macros %}
 

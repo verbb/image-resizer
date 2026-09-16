@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed the Resize Bulk settings page returning a 404 error. ([#95](https://github.com/verbb/image-resizer/issues/95))
+- Fixed Bulk Resize buttons not opening the resize modal. ([#95](https://github.com/verbb/image-resizer/issues/95))
+
 ## 4.0.10 - 2026-09-14
 
 ### Changed
