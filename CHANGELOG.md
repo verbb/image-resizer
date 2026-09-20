@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 4.0.11 - 2026-09-20
 
 ### Fixed
 - Fixed the Resize Bulk settings page returning a 404 error. ([#95](https://github.com/verbb/image-resizer/issues/95))
