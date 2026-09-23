@@ -14,7 +14,7 @@
 } %}
 {% set pageTitle = pageTabs[selectedTab].title ?? pageTabs[selectedTab].heading ?? null %}
 {% if not pageTitle %}{% exit 404 %}{% endif %}
-{% set pageAction = 'plugins/save-plugin-settings' %}
+{% set pageAction = 'image-resizer/settings/save-settings' %}
 {% set pageUrl = selectedTab == 'general' ? 'image-resizer/settings' : 'image-resizer/settings/' ~ selectedTab %}
 
 {% block settingsContent %}
