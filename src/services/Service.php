@@ -9,9 +9,10 @@ use Craft;
 use craft\base\Component;
 use craft\base\Image;
 use craft\elements\Asset;
-use craft\helpers\Image as ImageHelper;
 use craft\events\AssetEvent;
 use craft\events\RegisterElementActionsEvent;
+use craft\helpers\Assets as AssetsHelper;
+use craft\helpers\Image as ImageHelper;
 use craft\image\Raster;
 
 use Throwable;
@@ -31,7 +32,14 @@ class Service extends Component
             return;
         }
 
-        $filename = $asset->filename;
+        // During replacements, Craft retains the existing filename until after this event and
+        // stores the incoming filename in newLocation.
+        if ($asset->newLocation) {
+            [, $filename] = AssetsHelper::parseFileLocation($asset->newLocation);
+        } else {
+            $filename = $asset->filename;
+        }
+
         $path = $asset->tempFilePath;
 
         // For some remote filesystem workflows, tempFilePath may be null even for valid

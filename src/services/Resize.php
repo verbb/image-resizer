@@ -42,11 +42,11 @@ class Resize extends Component
             return false;
         }
 
-        // Prefer the asset/filename extension over the temp path. Upload temp files (and some
+        // Prefer the supplied filename/asset extension over the temp path. Upload temp files (and some
         // remote FS cache paths) can be extensionless or use uniqid entropy as a fake extension
         // (e.g. `upload….66030315`), which would falsely fail canManipulateAsImage().
-        $extension = $asset->getExtension()
-            ?: pathinfo($filename, PATHINFO_EXTENSION)
+        $extension = pathinfo($filename, PATHINFO_EXTENSION)
+            ?: $asset->getExtension()
             ?: pathinfo($path, PATHINFO_EXTENSION);
 
         if (!ImageHelper::canManipulateAsImage($extension)) {
