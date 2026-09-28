@@ -27,7 +27,7 @@
 
 {{ forms.lightswitchField({
     label: 'Non-destructive' | t('image-resizer'),
-    instructions: 'Image Resizer will save a copy of your original image, untouched. This will be in a folder called `originals`, relative to the source image.' | t('image-resizer'),
+    instructions: 'Image Resizer will save a pre-resize copy in an `originals` folder. Upload backups follow Craft’s configured image sanitization and metadata settings.' | t('image-resizer'),
     id: 'nonDestructiveResize',
     name: 'nonDestructiveResize',
     on: settings.nonDestructiveResize,

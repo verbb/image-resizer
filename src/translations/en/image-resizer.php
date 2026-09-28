@@ -18,7 +18,7 @@ return [
   'Image cannot be resized (not manipulatable).' => 'Image cannot be resized (not manipulatable).',
   'Image Height' => 'Image Height',
   'Image Resizer' => 'Image Resizer',
-  'Image Resizer will save a copy of your original image, untouched. This will be in a folder called `originals`, relative to the source image.' => 'Image Resizer will save a copy of your original image, untouched. This will be in a folder called `originals`, relative to the source image.',
+  'Image Resizer will save a pre-resize copy in an `originals` folder. Upload backups follow Craft’s configured image sanitization and metadata settings.' => 'Image Resizer will save a pre-resize copy in an `originals` folder. Upload backups follow Craft’s configured image sanitization and metadata settings.',
   'Image Width' => 'Image Width',
   'Logs' => 'Logs',
   'Manage Resize for All Volumes' => 'Manage Resize for All Volumes',

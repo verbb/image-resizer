@@ -75,7 +75,7 @@ Whether to skip resulting larger images.
 
 **Type:** `bool` · **Default:** `false`
 
-Whether to save a copy in an `originals` folder on-resize.
+Whether to save a pre-resize copy in an `originals` folder. Upload backups follow Craft’s configured image sanitisation and metadata settings.
 :::
 
 

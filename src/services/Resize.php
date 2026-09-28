@@ -169,9 +169,9 @@ class Resize extends Component
             $didWrite = false;
             $needsResize = $image->getWidth() > $imageWidth || $image->getHeight() > $imageHeight;
 
-            // Save an untouched copy before we mutate the working file. Keep this best-effort: a failure
-            // copying/indexing into `originals/` must not skip the actual resize (that left users with
-            // identical files in both locations when indexing threw mid-upload).
+            // Save a pre-resize copy before we mutate the working file. Keep this best-effort: a failure
+            // copying, cleaning, or indexing into `originals/` must not skip the actual resize (that left
+            // users with identical files in both locations when indexing threw mid-upload).
             if ($settings->nonDestructiveResize && $needsResize) {
                 try {
                     $folderPath = 'originals/';
@@ -183,17 +183,38 @@ class Resize extends Component
                     $filePath = $folderPath . $filename;
 
                     if (!$volume->getFs()->fileExists($filePath)) {
-                        $stream = @fopen($workingPath, 'rb');
-
-                        if ($stream === false) {
-                            throw new Exception('Unable to open image for non-destructive backup.');
-                        }
+                        $backupPath = $workingPath;
+                        $managedBackupPath = null;
+                        $stream = null;
 
                         try {
+                            // Match Craft's upload-cleaning decision, but clean an isolated copy so the resize
+                            // input and Craft's remaining upload lifecycle stay unchanged.
+                            if ($this->_shouldSanitizeUploadBackup($asset)) {
+                                $managedBackupPath = AssetsHelper::tempFilePath($extension);
+
+                                if (!@copy($workingPath, $managedBackupPath)) {
+                                    throw new Exception('Unable to copy image for non-destructive backup cleaning.');
+                                }
+
+                                ImageHelper::cleanImageByPath($managedBackupPath);
+                                $backupPath = $managedBackupPath;
+                            }
+
+                            $stream = @fopen($backupPath, 'rb');
+
+                            if ($stream === false) {
+                                throw new Exception('Unable to open image for non-destructive backup.');
+                            }
+
                             $volume->getFs()->writeFileFromStream($filePath, $stream, []);
                         } finally {
                             if (is_resource($stream)) {
                                 fclose($stream);
+                            }
+
+                            if ($managedBackupPath && is_file($managedBackupPath)) {
+                                @unlink($managedBackupPath);
                             }
                         }
 
@@ -209,7 +230,7 @@ class Resize extends Component
                             ]);
                         }
                     }
-                } catch (Exception $backupException) {
+                } catch (Throwable $backupException) {
                     ImageResizer::$plugin->getLogs()->resizeLog($taskId, 'error', $filename, [
                         'message' => 'Non-destructive originals backup failed: ' . $backupException->getMessage(),
                     ]);
@@ -355,6 +376,24 @@ class Resize extends Component
         $directory = dirname($path);
 
         return $directory !== '' && $directory !== '.' && is_dir($directory) && is_writable($directory);
+    }
+
+    /**
+     * Whether Craft is configured to clean this upload before saving it to the volume.
+     */
+    private function _shouldSanitizeUploadBackup(Asset $asset): bool
+    {
+        if (
+            $asset->propagating ||
+            !in_array($asset->getScenario(), [Asset::SCENARIO_CREATE, Asset::SCENARIO_REPLACE], true)
+        ) {
+            return false;
+        }
+
+        return $asset->sanitizeOnUpload ?? (
+            !Craft::$app->getRequest()->getIsCpRequest() ||
+            Craft::$app->getConfig()->getGeneral()->sanitizeCpImageUploads
+        );
     }
 
     /**
