@@ -156,22 +156,32 @@ Craft.ImageResizer.ResizeModal = Garnish.Modal.extend({
         }
 
         // Trigger the task creation
-        Craft.sendActionRequest('POST', 'image-resizer/base/resize-element-action', { data });
+        Craft.sendActionRequest('POST', 'image-resizer/base/resize-element-action', { data })
+            .then(() => {
+                new Craft.ImageResizer.ResizeTaskProgress(this, taskId, function() {
+                    modal.$footerSpinner.addClass('hidden');
 
-        new Craft.ImageResizer.ResizeTaskProgress(this, taskId, function() {
-            modal.$footerSpinner.addClass('hidden');
+                    modal.$closeBtn.removeClass('hidden');
+                    modal.$cancelBtn.addClass('hidden');
+                    modal.$saveBtn.addClass('hidden');
 
-            modal.$closeBtn.removeClass('hidden');
-            modal.$cancelBtn.addClass('hidden');
-            modal.$saveBtn.addClass('hidden');
+                    setTimeout($.proxy(function() {
+                        if (Craft.elementIndex) {
+                            Craft.elementIndex.updateElements();
+                        }
+                    }), 1000);
 
-            setTimeout($.proxy(function() {
-                if (Craft.elementIndex) {
-                    Craft.elementIndex.updateElements();
+                });
+            })
+            .catch(({response}) => {
+                modal.$footerSpinner.addClass('hidden');
+
+                if (response && response.data && response.data.message) {
+                    Craft.cp.displayError(response.data.message);
+                } else {
+                    Craft.cp.displayError();
                 }
-            }), 1000);
-
-        });
+            });
     },
 
     generateId: function() {
