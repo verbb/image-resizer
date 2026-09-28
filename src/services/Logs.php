@@ -59,12 +59,12 @@ class Logs extends Component
      *
      * @return array
      */
-    public function getLogsForTaskId($taskId): array
+    public function getLogsForTaskId(string $taskId): array
     {
         $logEntries = [];
 
         foreach (ImageResizer::$plugin->getLogs()->getLogEntries() as $entry) {
-            if ($entry->taskId == $taskId) {
+            if ($entry->taskId === $taskId) {
                 $logEntries[] = $entry;
             }
         }

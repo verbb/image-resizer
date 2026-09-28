@@ -7,6 +7,7 @@
 
 ### Fixed
 - Fixed a high-severity authorization vulnerability.
+- Fixed a medium-severity authorization vulnerability affecting resize logs and task summaries.
 - Fixed replacing an asset with a different file type using the previous file's extension, which could skip image resizing or write image data to a non-image file. ([#96](https://github.com/verbb/image-resizer/issues/96))
 
 ## 4.0.12 - 2026-09-23

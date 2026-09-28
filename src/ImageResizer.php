@@ -79,7 +79,6 @@ class ImageResizer extends Plugin
                 'image-resizer/settings' => 'image-resizer/settings/index',
                 'image-resizer/settings/resize-bulk' => 'image-resizer/settings/index',
                 'image-resizer/settings/<settingsNavItem:{handle}>' => 'image-resizer/settings/index',
-                'image-resizer/clear-tasks' => 'image-resizer/base/clear-tasks',
             ]);
         });
     }

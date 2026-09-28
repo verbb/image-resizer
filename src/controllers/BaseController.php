@@ -26,12 +26,6 @@ class BaseController extends Controller
     use AssetsControllerTrait;
 
 
-    // Properties
-    // =========================================================================
-
-    protected array|int|bool $allowAnonymous = ['clear-tasks'];
-
-
     // Public Methods
     // =========================================================================
 
@@ -50,7 +44,7 @@ class BaseController extends Controller
         $bulkResize = $this->_getBooleanBodyParam('bulkResize', false);
         $imageWidth = $this->_getResizeDimension('imageWidth');
         $imageHeight = $this->_getResizeDimension('imageHeight');
-        $taskId = $this->request->getBodyParam('taskId');
+        $taskId = $this->_getTaskId();
 
         if ($bulkResize) {
             if ($assetIds !== null) {
@@ -117,8 +111,10 @@ class BaseController extends Controller
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();
+        $this->requireCpRequest();
+        $this->requirePermission('imageResizer-resizeImage');
 
-        $taskId = $this->request->getParam('taskId');
+        $taskId = $this->_getTaskId();
 
         $result = ImageResizer::$plugin->getLogs()->getLogsForTaskId($taskId);
 
@@ -204,6 +200,17 @@ class BaseController extends Controller
         } catch (BadRequestHttpException) {
             throw new BadRequestHttpException("The $name parameter must be between 1 and " . self::MAX_RESIZE_DIMENSION . '.');
         }
+    }
+
+    private function _getTaskId(): string
+    {
+        $taskId = $this->request->getRequiredBodyParam('taskId');
+
+        if (!is_string($taskId) || $taskId === '' || strlen($taskId) > 255) {
+            throw new BadRequestHttpException('The taskId parameter must be a non-empty string no longer than 255 bytes.');
+        }
+
+        return $taskId;
     }
 
 }
