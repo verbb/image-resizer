@@ -7,12 +7,14 @@ use verbb\imageresizer\models\Settings;
 use Craft;
 use craft\base\Component;
 use craft\base\Image;
+use craft\base\LocalFsInterface;
 use craft\elements\Asset;
 use craft\helpers\App;
 use craft\helpers\Assets as AssetsHelper;
 use craft\helpers\Image as ImageHelper;
 use craft\models\Volume;
 
+use DateTime;
 use Exception;
 use Throwable;
 
@@ -28,6 +30,7 @@ class Resize extends Component
      * @param int|null $height
      * @param null $taskId
      *
+     * @return bool Whether resized bytes were successfully persisted.
      * @throws InvalidConfigException
      */
     public function resize(Asset $asset, string $filename, string $path, int $width = null, int $height = null, $taskId = null): bool
@@ -58,61 +61,52 @@ class Resize extends Component
             return false;
         }
 
-        // For remote/Cloud uploads the file may not be locally cached yet. Craft Cloud also uses a
-        // non-local `__tempFilePath__` sentinel during CREATE/REPLACE validation — never fopen that.
+        $isUploadOperation = in_array($asset->getScenario(), [Asset::SCENARIO_CREATE, Asset::SCENARIO_REPLACE], true);
+        $hasLocalUploadSource = $isUploadOperation && $asset->tempFilePath === $path && is_file($path);
+        $isLocalVolume = $volume->getFs() instanceof LocalFsInterface;
         $writeBackToVolume = false;
         $managedLocalPath = null;
+        $workingPath = null;
+        $createdWorkingCopy = false;
+        $outputPath = null;
 
-        if (!is_file($path)) {
-            $downloadPath = $path;
-
-            if (!$this->_isUsableDownloadDestination($path)) {
-                $downloadPath = AssetsHelper::tempFilePath($extension);
-                $managedLocalPath = $downloadPath;
-                // Cloud (presigned) uploads already live on the volume; Craft will not re-upload from
-                // a local temp, so the resized bytes must be written back explicitly.
-                $writeBackToVolume = true;
-            }
+        // A remote transform-source path is only a cache. Always fetch the volume object for existing
+        // assets, while leaving real CREATE/REPLACE temp files for Craft to upload normally.
+        if ((!$isLocalVolume && !$hasLocalUploadSource) || !is_file($path)) {
+            $managedLocalPath = AssetsHelper::tempFilePath($extension);
 
             try {
-                AssetsHelper::downloadFile($volume->getFs(), $asset->getPath(), $downloadPath);
-                clearstatcache(true, $downloadPath);
+                // Use the supplied filename's extension for replacement uploads, where Craft still exposes
+                // the existing asset filename until after this event.
+                AssetsHelper::downloadFile($volume, $asset->getPath(), $managedLocalPath);
+                $path = $managedLocalPath;
+                $writeBackToVolume = true;
+                clearstatcache(true, $path);
             } catch (Throwable $e) {
-                if ($managedLocalPath) {
-                    @unlink($managedLocalPath);
-                }
+                @unlink($managedLocalPath);
 
                 ImageResizer::$plugin->getLogs()->resizeLog($taskId, 'error', $filename, [
                     'message' => 'Unable to download image for resize: ' . $e->getMessage(),
                     'path' => $path,
-                    'downloadPath' => $downloadPath,
                 ]);
 
                 return false;
             }
 
-            if (!is_file($downloadPath)) {
-                if ($managedLocalPath) {
-                    @unlink($managedLocalPath);
-                }
-
+            if (!is_file($path)) {
                 ImageResizer::$plugin->getLogs()->resizeLog($taskId, 'error', $filename, [
                     'message' => 'Unable to download image for resize to a local file.',
                     'path' => $path,
-                    'downloadPath' => $downloadPath,
                 ]);
 
                 return false;
             }
-
-            $path = $downloadPath;
         }
 
         // Imagick determines encode/decode format from the filename. Upload temps can be
         // extensionless (`phpXXXX`) or end in uniqid entropy (`upload….66030315`), which
         // GD will often sniff but Imagick will refuse. Work on a copy with a real extension.
         $workingPath = $path;
-        $createdWorkingCopy = false;
         $pathExtension = (string)pathinfo($path, PATHINFO_EXTENSION);
 
         if (!ImageHelper::canManipulateAsImage($pathExtension)) {
@@ -163,33 +157,61 @@ class Resize extends Component
             $imageWidth = $width ?: $imageWidth;
             $imageHeight = $height ?: $imageHeight;
 
-            // Let's check to see if this image needs resizing. We calculate the new height and width based on the
-            // aspect ratio of the current file when resizing, to keep the aspect ratio.
-            $hasResized = false;
-            $didWrite = false;
+            // Calculate the new height and width from the configured bounds while preserving aspect ratio.
             $needsResize = $image->getWidth() > $imageWidth || $image->getHeight() > $imageHeight;
 
-            // Save a pre-resize copy before we mutate the working file. Keep this best-effort: a failure
-            // copying, cleaning, or indexing into `originals/` must not skip the actual resize (that left
-            // users with identical files in both locations when indexing threw mid-upload).
-            if ($settings->nonDestructiveResize && $needsResize) {
+            if (!$needsResize) {
+                ImageResizer::$plugin->getLogs()->resizeLog($taskId, 'skipped-under-limits', $filename);
+
+                return false;
+            }
+
+            $widthRatio = ((int)$imageWidth) / ((int)$image->getWidth());
+            $heightRatio = ((int)$imageHeight) / ((int)$image->getHeight());
+            $ratio = min($widthRatio, $heightRatio);
+            $newWidth = (int)$image->getWidth() * $ratio;
+            $newHeight = (int)$image->getHeight() * $ratio;
+
+            $this->_resizeImage($image, $newWidth, $newHeight);
+
+            if (method_exists($image, 'setQuality')) {
+                $image->setQuality(ImageResizer::$plugin->getService()->getImageQuality($workingPath));
+            }
+
+            // Always encode away from the source so encoder or EXIF-rotation failures cannot truncate it.
+            $outputPath = $this->_createSiblingTempPath($path, $extension);
+            ImageResizer::$plugin->getService()->saveAs($image, $outputPath);
+            clearstatcache(true, $outputPath);
+
+            $outputSize = filesize($outputPath);
+            if ($outputSize === false) {
+                throw new Exception('Unable to determine resized image size.');
+            }
+
+            if ($settings->skipLarger && $outputSize >= $originalProperties['size']) {
+                ImageResizer::$plugin->getLogs()->resizeLog($taskId, 'skipped-larger-result', $filename);
+
+                return false;
+            }
+
+            // Save the original only when a staged resize has actually been selected. This remains
+            // best-effort so backup or indexing failures do not abort the requested resize.
+            if ($settings->nonDestructiveResize) {
                 try {
                     $folderPath = 'originals/';
 
-                    if (!$volume->getFs()->directoryExists($folderPath)) {
-                        $volume->getFs()->createDirectory($folderPath);
+                    if (!$volume->directoryExists($folderPath)) {
+                        $volume->createDirectory($folderPath);
                     }
 
                     $filePath = $folderPath . $filename;
 
-                    if (!$volume->getFs()->fileExists($filePath)) {
+                    if (!$volume->fileExists($filePath)) {
                         $backupPath = $workingPath;
                         $managedBackupPath = null;
                         $stream = null;
 
                         try {
-                            // Match Craft's upload-cleaning decision, but clean an isolated copy so the resize
-                            // input and Craft's remaining upload lifecycle stay unchanged.
                             if ($this->_shouldSanitizeUploadBackup($asset)) {
                                 $managedBackupPath = AssetsHelper::tempFilePath($extension);
 
@@ -207,7 +229,7 @@ class Resize extends Component
                                 throw new Exception('Unable to open image for non-destructive backup.');
                             }
 
-                            $volume->getFs()->writeFileFromStream($filePath, $stream, []);
+                            $volume->writeFileFromStream($filePath, $stream, []);
                         } finally {
                             if (is_resource($stream)) {
                                 fclose($stream);
@@ -218,7 +240,6 @@ class Resize extends Component
                             }
                         }
 
-                        // Index separately — nested element saves during EVENT_BEFORE_HANDLE_FILE are fragile
                         try {
                             $session = $assetIndexer->createIndexingSession([$volume]);
                             $assetIndexer->indexFile($volume, $filePath, $session->id);
@@ -237,93 +258,39 @@ class Resize extends Component
                 }
             }
 
-            if ($needsResize) {
-                $hasResized = true;
+            $outputMtime = filemtime($outputPath);
 
-                // Calculate ratio of desired maximum sizes and original sizes.
-                $widthRatio = ((int)$imageWidth) / ((int)$image->getWidth());
-                $heightRatio = ((int)$imageHeight) / ((int)$image->getHeight());
-
-                // Ratio used for calculating new image dimensions.
-                $ratio = min($widthRatio, $heightRatio);
-
-                // Calculate new image dimensions.
-                $newWidth = (int)$image->getWidth() * $ratio;
-                $newHeight = (int)$image->getHeight() * $ratio;
-
-                $this->_resizeImage($image, $newWidth, $newHeight);
-            }
-
-            if ($hasResized) {
-                // Set image quality - but normalise (for PNG)!
-                if (method_exists($image, 'setQuality')) {
-                    $image->setQuality(ImageResizer::$plugin->getService()->getImageQuality($workingPath));
-                }
-
-                // If we're checking for larger images
-                if ($settings->skipLarger) {
-                    // Save this resized image in a temporary location - we need to test filesize difference
-                    $tempPath = AssetsHelper::tempFilePath($filename);
-                    ImageResizer::$plugin->getService()->saveAs($image, $tempPath);
-
-                    clearstatcache();
-
-                    // Lets check to see if this resize resulted in a larger file - revert if so.
-                    if (filesize($tempPath) < filesize($workingPath)) {
-                        // Copy the temp image we create to check filesize
-                        copy($tempPath, $workingPath);
-
-                        clearstatcache();
-
-                        $newProperties = [
-                            'width' => $image->getWidth(),
-                            'height' => $image->getHeight(),
-                            'size' => (int)filesize($workingPath),
-                        ];
-
-                        ImageResizer::$plugin->getLogs()->resizeLog($taskId, 'success', $filename, ['prev' => $originalProperties, 'curr' => $newProperties]);
-                        $didWrite = true;
-                    } else {
-                        ImageResizer::$plugin->getLogs()->resizeLog($taskId, 'skipped-larger-result', $filename);
-                    }
-
-                    // Delete our temp file we test filesize with
-                    @unlink($tempPath);
-                } else {
-                    ImageResizer::$plugin->getService()->saveAs($image, $workingPath);
-
-                    clearstatcache();
-
-                    $newProperties = [
-                        'width' => $image->getWidth(),
-                        'height' => $image->getHeight(),
-                        'size' => (int)filesize($workingPath),
-                    ];
-
-                    ImageResizer::$plugin->getLogs()->resizeLog($taskId, 'success', $filename, ['prev' => $originalProperties, 'curr' => $newProperties]);
-                    $didWrite = true;
-                }
+            if ($writeBackToVolume) {
+                $this->_writeFileToVolume($volume, $asset->getPath(), $outputPath);
             } else {
-                ImageResizer::$plugin->getLogs()->resizeLog($taskId, 'skipped-under-limits', $filename);
+                $this->_replaceLocalFile($outputPath, $path);
             }
 
-            if ($didWrite && $writeBackToVolume) {
-                $fileToPersist = $createdWorkingCopy ? $workingPath : $path;
-                $this->_writeFileToVolume($volume, $asset->getPath(), $fileToPersist);
+            $newProperties = [
+                'width' => (int)$image->getWidth(),
+                'height' => (int)$image->getHeight(),
+                'size' => (int)$outputSize,
+            ];
 
-                clearstatcache(true, $fileToPersist);
-                $asset->width = (int)$image->getWidth();
-                $asset->height = (int)$image->getHeight();
-                $size = filesize($fileToPersist);
-                if ($size !== false) {
-                    $asset->size = (int)$size;
+            $asset->width = $newProperties['width'];
+            $asset->height = $newProperties['height'];
+            $asset->size = $newProperties['size'];
+            $asset->dateModified = $outputMtime !== false ? new DateTime('@' . $outputMtime) : new DateTime();
+
+            // Uploads clear transforms during Craft's normal relocation. Bulk operations need to do it here,
+            // including deleting any stale remote transform-source cache that may have existed beforehand.
+            if (!$isUploadOperation && $asset->id) {
+                try {
+                    Craft::$app->getImageTransforms()->deleteAllTransformData($asset);
+                } catch (Throwable $e) {
+                    Craft::warning('Unable to clear transforms after resizing asset: ' . $e->getMessage(), __METHOD__);
                 }
-            } else if ($didWrite && $createdWorkingCopy && !@copy($workingPath, $path)) {
-                throw new Exception('Could not write resized image back to ' . $path);
             }
+
+            ImageResizer::$plugin->getLogs()->resizeLog($taskId, 'success', $filename, ['prev' => $originalProperties, 'curr' => $newProperties]);
 
             return true;
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             $message = $e->getMessage();
 
             if ($previous = $e->getPrevious()) {
@@ -345,6 +312,10 @@ class Resize extends Component
             if ($managedLocalPath && is_file($managedLocalPath)) {
                 @unlink($managedLocalPath);
             }
+
+            if ($outputPath && is_file($outputPath)) {
+                @unlink($outputPath);
+            }
         }
     }
 
@@ -361,21 +332,6 @@ class Resize extends Component
         $dimensions = ImageHelper::calculateMissingDimension($width, $height, $image->getWidth(), $image->getHeight());
 
         $image->resize($dimensions[0], $dimensions[1]);
-    }
-
-    /**
-     * Whether `$path` can be used as a local download destination for `fopen(..., 'wb')`.
-     */
-    private function _isUsableDownloadDestination(string $path): bool
-    {
-        // Craft Cloud sets this sentinel so CREATE/REPLACE validation passes without a local file.
-        if ($path === '__tempFilePath__') {
-            return false;
-        }
-
-        $directory = dirname($path);
-
-        return $directory !== '' && $directory !== '.' && is_dir($directory) && is_writable($directory);
     }
 
     /**
@@ -401,7 +357,6 @@ class Resize extends Component
      */
     private function _writeFileToVolume(Volume $volume, string $uriPath, string $localPath): void
     {
-        $fs = $volume->getFs();
         $stream = @fopen($localPath, 'rb');
 
         if ($stream === false) {
@@ -409,15 +364,79 @@ class Resize extends Component
         }
 
         try {
-            if ($fs->fileExists($uriPath)) {
-                $fs->deleteFile($uriPath);
-            }
-
-            $fs->writeFileFromStream($uriPath, $stream, []);
+            // Filesystem adapters replace the object as part of the write. Deleting first would leave
+            // the asset missing if the replacement upload fails.
+            $volume->writeFileFromStream($uriPath, $stream, []);
         } finally {
             if (is_resource($stream)) {
                 fclose($stream);
             }
         }
+    }
+
+    /**
+     * Create an encoder target beside the file it may replace, preserving rename atomicity.
+     */
+    private function _createSiblingTempPath(string $path, string $extension): string
+    {
+        $tempPath = @tempnam(dirname($path), '.image-resizer-');
+
+        if ($tempPath === false) {
+            throw new Exception('Unable to create a temporary image beside ' . $path);
+        }
+
+        $outputPath = $tempPath . '.' . $extension;
+
+        if (!@rename($tempPath, $outputPath)) {
+            @unlink($tempPath);
+            throw new Exception('Unable to prepare a temporary image beside ' . $path);
+        }
+
+        return $outputPath;
+    }
+
+    /**
+     * Replace a local file without exposing it to encoder failures or partial direct writes.
+     */
+    private function _replaceLocalFile(string $stagedPath, string $targetPath): void
+    {
+        $permissions = @fileperms($targetPath);
+
+        if ($permissions !== false) {
+            @chmod($stagedPath, $permissions & 0777);
+        }
+
+        // POSIX replaces an existing destination atomically. Some Windows filesystems reject that form,
+        // so retain the original under a sibling name while retrying there.
+        if (@rename($stagedPath, $targetPath)) {
+            return;
+        }
+
+        $rollbackPath = @tempnam(dirname($targetPath), '.image-resizer-original-');
+
+        if ($rollbackPath === false) {
+            throw new Exception('Unable to prepare a safe local image replacement.');
+        }
+
+        @unlink($rollbackPath);
+
+        if (!@rename($targetPath, $rollbackPath)) {
+            throw new Exception('Unable to preserve the original image before replacement.');
+        }
+
+        if (@rename($stagedPath, $targetPath)) {
+            @unlink($rollbackPath);
+            return;
+        }
+
+        if (!@rename($rollbackPath, $targetPath)) {
+            if (!@copy($rollbackPath, $targetPath)) {
+                throw new Exception('Unable to replace the image or restore its original. The original remains at ' . $rollbackPath);
+            }
+
+            @unlink($rollbackPath);
+        }
+
+        throw new Exception('Unable to replace the image. Its original was restored.');
     }
 }

@@ -4,13 +4,8 @@ namespace verbb\imageresizer\console\controllers;
 use verbb\imageresizer\ImageResizer;
 
 use Craft;
-use craft\base\LocalFsInterface;
 use craft\elements\Asset;
 use craft\helpers\Db;
-use craft\helpers\FileHelper;
-use craft\helpers\Image;
-
-use DateTime;
 use Throwable;
 
 use yii\console\Controller;
@@ -100,32 +95,11 @@ class ResizeController extends Controller
             $filename = $asset->filename;
             $path = $asset->tempFilePath ?? $asset->getImageTransformSourcePath();
 
-            $volume = $asset->getVolume();
-            $fs = $volume->getFs();
-            $isLocal = $fs instanceof LocalFsInterface;
-
             $result = ImageResizer::$plugin->getResize()->resize($asset, $filename, $path);
 
-            // If the image resize was successful we can continue
+            // The resize service updates metadata only after it has safely persisted new bytes.
             if ($result === true) {
-                clearstatcache();
-
-                // Update Craft's data
-                $asset->size = filesize($path);
-                $mtime = FileHelper::lastModifiedTime($path);
-                $asset->dateModified = $mtime ? new DateTime('@' . $mtime) : null;
-
-                [$assetWidth, $assetHeight] = Image::imageSize($path);
-                $asset->width = $assetWidth;
-                $asset->height = $assetHeight;
-
-                // Create new record for asset
                 Craft::$app->getElements()->saveElement($asset);
-
-                // For remote file systems, re-saving the asset won't trigger a re-upload of it with altered metadata
-                if (!$isLocal) {
-                    $volume->write($asset->path, file_get_contents($path));
-                }
 
                 $this->stdout("Resized asset #{$asset->id} ..." . PHP_EOL, Console::FG_GREEN);
             }
