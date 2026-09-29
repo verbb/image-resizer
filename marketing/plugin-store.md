@@ -4,12 +4,11 @@ Editors should not need to resize every photograph before it reaches Craft. Set 
 
 ## Features
 
-- **Upload resizing:** Apply the configured limits as new images enter an asset volume.
-- **Maximum dimensions:** Constrain large source files while preserving their proportions.
-- **Batch processing:** Resize a selected group of existing assets from the index.
-- **Console processing:** Bulk resize a folder or one or more volumes from the command line.
-- **Volume controls:** Manage resize settings across every volume or configure volumes individually.
-- **Non-destructive mode:** Keep the original source when the project requires a recoverable copy.
-- **Size safeguards:** Skip replacement when resizing would create a larger result.
-- **Processing logs:** Review which assets were resized and how the operation completed.
-- **Tidy up existing assets:** Resize selected files from their element index or run the process on demand, with recoverable copies and processing logs when needed.
+- Apply the configured limits as new images enter an asset volume.
+- Constrain large source files while preserving their proportions.
+- Resize a selected group of existing assets from the index.
+- Bulk resize a folder or one or more volumes from the command line.
+- Manage resize settings across every volume or configure volumes individually.
+- Keep the original source when the project requires a recoverable copy.
+- Skip replacement when resizing would create a larger result.
+- Review which assets were resized and how the operation completed.
