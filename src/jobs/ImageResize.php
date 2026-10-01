@@ -22,7 +22,7 @@ class ImageResize extends BaseJob
     public array $assetIds = [];
     public ?int $imageWidth = null;
     public ?int $imageHeight = null;
-    
+
 
     // Public Methods
     // =========================================================================

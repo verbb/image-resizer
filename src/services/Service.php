@@ -105,9 +105,9 @@ class Service extends Component
             // Some settings should fallback to the all-asset setting when empty, because of how the UI works
             if ($setting === 'imageWidth') {
                 $fallback = $settings->imageWidth;
-            } else if ($setting === 'imageHeight') {
+            } elseif ($setting === 'imageHeight') {
                 $fallback = $settings->imageHeight;
-            } else if ($setting === 'imageQuality') {
+            } elseif ($setting === 'imageQuality') {
                 $fallback = $settings->imageQuality;
             }
 

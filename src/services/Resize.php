@@ -184,6 +184,7 @@ class Resize extends Component
             clearstatcache(true, $outputPath);
 
             $outputSize = filesize($outputPath);
+
             if ($outputSize === false) {
                 throw new Exception('Unable to determine resized image size.');
             }
