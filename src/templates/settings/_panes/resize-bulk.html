@@ -28,6 +28,6 @@
 </div>
 
 {% js %}
-    new Craft.ImageResizer.BulkResizeAssetFolder('{{ settings.imageWidth }}', '{{ settings.imageHeight }}');
+    new Craft.ImageResizer.BulkResizeAssetFolder('{{ settings.imageWidth }}', '{{ settings.imageHeight }}', {{ currentUser.can('imageResizer-viewLogs') | json_encode | raw }});
     new Craft.TabsManager();
 {% endjs %}

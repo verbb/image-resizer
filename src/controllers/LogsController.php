@@ -15,7 +15,7 @@ class LogsController extends Controller
 
     public function actionLogs(): Response
     {
-        $this->_requireLogAccess();
+        $this->_requireLogViewAccess();
 
         if (!$this->request->getIsGet()) {
             throw new MethodNotAllowedHttpException('Get request required.');
@@ -31,7 +31,8 @@ class LogsController extends Controller
     public function actionClear(): Response
     {
         $this->requirePostRequest();
-        $this->_requireLogAccess();
+        $this->_requireLogViewAccess();
+        $this->requirePermission('imageResizer-clearLogs');
 
         ImageResizer::$plugin->getLogs()->clear();
 
@@ -42,9 +43,9 @@ class LogsController extends Controller
     // Private Methods
     // =========================================================================
 
-    private function _requireLogAccess(): void
+    private function _requireLogViewAccess(): void
     {
         $this->requireCpRequest();
-        $this->requirePermission('imageResizer-resizeImage');
+        $this->requirePermission('imageResizer-viewLogs');
     }
 }

@@ -6,10 +6,11 @@ if (typeof Craft.ImageResizer === typeof undefined) {
 
 Craft.ImageResizer.ResizeElementAction = Garnish.Base.extend({
 
-    init: function(imageWidth, imageHeight, type) {
+    init: function(imageWidth, imageHeight, type, canViewLogs) {
         var settings = {
             width: imageWidth,
-            height: imageHeight
+            height: imageHeight,
+            canViewLogs: canViewLogs,
         };
 
         var resizeTrigger = new Craft.ElementActionTrigger({
@@ -30,10 +31,11 @@ Craft.ImageResizer.ResizeElementAction = Garnish.Base.extend({
 
 Craft.ImageResizer.BulkResizeAssetFolder = Garnish.Base.extend({
 
-    init: function(imageWidth, imageHeight) {
+    init: function(imageWidth, imageHeight, canViewLogs) {
         var settings = {
             width: imageWidth,
             height: imageHeight,
+            canViewLogs: canViewLogs,
         };
 
         $('.bulk-resize-btn').on('click', function() {
@@ -349,7 +351,13 @@ Craft.ImageResizer.ResizeTaskProgress.Task = Garnish.Base.extend({
                     break;
                 }
                 case 4: {
-                    $('<div class="error">' + Craft.t('image-resizer', 'Processing failed. <a class="go" href="' + Craft.getUrl('image-resizer/logs') + '">View logs</a>') + '</div>').appendTo(this.$statusContainer);
+                    var html = Craft.t('image-resizer', 'Processing failed.');
+
+                    if (this.modal.settings.canViewLogs) {
+                        html += ' <a class="go" href="' + Craft.getUrl('image-resizer/logs') + '">' + Craft.t('image-resizer', 'View logs') + '</a>';
+                    }
+
+                    $('<div class="error">' + html + '</div>').appendTo(this.$statusContainer);
                     break;
                 }
             }
@@ -368,8 +376,11 @@ Craft.ImageResizer.ResizeTaskProgress.Task = Garnish.Base.extend({
             .then((response) => {
                 var html = '<span class="success">' + Craft.t('image-resizer', 'Success') + ': ' + response.data.summary.success + ', </span>' +
                     '<span class="skipped">' + Craft.t('image-resizer', 'Skipped') + ': ' + response.data.summary.skipped + ', </span>' +
-                    '<span class="error">' + Craft.t('image-resizer', 'Error') + ': ' + response.data.summary.error + ' </span>' +
-                    '<a class="go" href="' + Craft.getUrl('image-resizer/logs') + '">' + Craft.t('image-resizer', 'View logs') + '</a>';
+                    '<span class="error">' + Craft.t('image-resizer', 'Error') + ': ' + response.data.summary.error + '</span>';
+
+                if (this.modal.settings.canViewLogs) {
+                    html += ' <a class="go" href="' + Craft.getUrl('image-resizer/logs') + '">' + Craft.t('image-resizer', 'View logs') + '</a>';
+                }
 
                 this.$statusContainer.empty();
                 $('<div>' + html + '</div>').appendTo(this.$statusContainer);

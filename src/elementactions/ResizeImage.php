@@ -31,13 +31,15 @@ class ResizeImage extends ElementAction
         $imageWidth = $settings->imageWidth;
         $imageHeight = $settings->imageHeight;
         $type = Json::encode(static::class);
+        $canViewLogs = Json::encode(Craft::$app->getUser()->checkPermission('imageResizer-viewLogs'));
 
         Craft::$app->getView()->registerAssetBundle(ImageResizerAsset::class);
 
         Craft::$app->getView()->registerJs('new Craft.ImageResizer.ResizeElementAction(' .
             '"' . $imageWidth . '", ' .
             '"' . $imageHeight . '", '
-            . $type .
+            . $type . ', '
+            . $canViewLogs .
             ');');
 
         return null;

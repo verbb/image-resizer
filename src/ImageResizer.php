@@ -90,6 +90,12 @@ class ImageResizer extends Plugin
                 'heading' => Craft::t('image-resizer', 'Image Resizer'),
                 'permissions' => [
                     'imageResizer-resizeImage' => ['label' => Craft::t('image-resizer', 'Resize images')],
+                    'imageResizer-viewLogs' => [
+                        'label' => Craft::t('image-resizer', 'View all resize logs'),
+                        'nested' => [
+                            'imageResizer-clearLogs' => ['label' => Craft::t('image-resizer', 'Clear all resize logs')],
+                        ],
+                    ],
                 ],
             ];
         });

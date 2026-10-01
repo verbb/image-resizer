@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Added
+- Added dedicated permissions for viewing and clearing resize logs.
+
+### Fixed
+- Fixed a low-severity authorization vulnerability affecting resize logs.
+
 ## 4.0.13 - 2026-09-30
 
 ### Changed

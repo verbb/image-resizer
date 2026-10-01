@@ -1,5 +1,6 @@
 {% extends 'image-resizer/_layouts' %}
 {% import "image-resizer/_macros" as imageResizerMacro %}
+{% requirePermission 'imageResizer-viewLogs' %}
 
 {% set crumbs = [
     { label: "Image Resizer" | t('image-resizer'), url: url('image-resizer') },
@@ -10,12 +11,14 @@
 
 {% block blockContent %}
 
-    <form method="post" accept-charset="UTF-8">
-        {{ actionInput('image-resizer/logs/clear') }}
-        {{ csrfInput() }}
+    {% if currentUser.can('imageResizer-clearLogs') %}
+        <form method="post" accept-charset="UTF-8">
+            {{ actionInput('image-resizer/logs/clear') }}
+            {{ csrfInput() }}
 
-        <input class="btn right" type="submit" value="{{ 'Clear logs' | t('image-resizer') }}">
-    </form>
+            <input class="btn right" type="submit" value="{{ 'Clear logs' | t('image-resizer') }}">
+        </form>
+    {% endif %}
 
     <table id="logs" class="data fullwidth collapsible image-resizer-logs-table">
         <thead>
