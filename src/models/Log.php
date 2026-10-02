@@ -35,6 +35,8 @@ class Log extends Model
             'success' => Craft::t('image-resizer', 'Resized successfully.'),
             'skipped-larger-result' => Craft::t('image-resizer', 'Resizing would result in a larger file size.'),
             'skipped-non-image' => Craft::t('image-resizer', 'Image cannot be resized (not manipulatable).'),
+            'skipped-source-limits' => Craft::t('image-resizer', 'Image exceeds the configured source safety limits.'),
+            'skipped-source-unverified' => Craft::t('image-resizer', 'Image dimensions could not be safely determined.'),
             'skipped-under-limits' => Craft::t('image-resizer', 'Image already under maximum width/height.'),
             'skipped-no-volume' => Craft::t('image-resizer', 'Volume not found.'),
             'skipped-no-volume-type' => Craft::t('image-resizer', 'Source type not found.'),

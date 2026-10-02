@@ -22,6 +22,9 @@ use yii\base\InvalidConfigException;
 
 class Resize extends Component
 {
+    private const MAX_SVG_HEADER_BYTES = 1048576;
+
+
     // Public Methods
     // =========================================================================
 
@@ -44,6 +47,9 @@ class Resize extends Component
 
             return false;
         }
+
+        /* @var Settings $settings */
+        $settings = ImageResizer::$plugin->getSettings();
 
         // Prefer the supplied filename/asset extension over the temp path. Upload temp files (and some
         // remote FS cache paths) can be extensionless or use uniqid entropy as a fake extension
@@ -73,12 +79,36 @@ class Resize extends Component
         // A remote transform-source path is only a cache. Always fetch the volume object for existing
         // assets, while leaving real CREATE/REPLACE temp files for Craft to upload normally.
         if ((!$isLocalVolume && !$hasLocalUploadSource) || !is_file($path)) {
-            $managedLocalPath = AssetsHelper::tempFilePath($extension);
-
             try {
+                $remoteSize = $volume->getFileSize($asset->getPath());
+
+                if ($remoteSize > $settings->maxSourceFileSize) {
+                    ImageResizer::$plugin->getLogs()->resizeLog($taskId, 'skipped-source-limits', $filename, [
+                        'reason' => 'file-size',
+                        'size' => $remoteSize,
+                        'limit' => $settings->maxSourceFileSize,
+                    ]);
+
+                    return false;
+                }
+
+                $managedLocalPath = AssetsHelper::tempFilePath($extension);
+
                 // Use the supplied filename's extension for replacement uploads, where Craft still exposes
                 // the existing asset filename until after this event.
-                AssetsHelper::downloadFile($volume, $asset->getPath(), $managedLocalPath);
+                $withinFileSizeLimit = $this->_downloadFileWithinLimit($volume, $asset->getPath(), $managedLocalPath, $settings->maxSourceFileSize);
+
+                if (!$withinFileSizeLimit) {
+                    @unlink($managedLocalPath);
+
+                    ImageResizer::$plugin->getLogs()->resizeLog($taskId, 'skipped-source-limits', $filename, [
+                        'reason' => 'file-size',
+                        'limit' => $settings->maxSourceFileSize,
+                    ]);
+
+                    return false;
+                }
+
                 $path = $managedLocalPath;
                 $writeBackToVolume = true;
                 clearstatcache(true, $path);
@@ -94,6 +124,8 @@ class Resize extends Component
             }
 
             if (!is_file($path)) {
+                @unlink($managedLocalPath);
+
                 ImageResizer::$plugin->getLogs()->resizeLog($taskId, 'error', $filename, [
                     'message' => 'Unable to download image for resize to a local file.',
                     'path' => $path,
@@ -103,49 +135,80 @@ class Resize extends Component
             }
         }
 
-        // Imagick determines encode/decode format from the filename. Upload temps can be
-        // extensionless (`phpXXXX`) or end in uniqid entropy (`upload….66030315`), which
-        // GD will often sniff but Imagick will refuse. Work on a copy with a real extension.
-        $workingPath = $path;
-        $pathExtension = (string)pathinfo($path, PATHINFO_EXTENSION);
+        try {
+            $originalSize = filesize($path);
 
-        if (!ImageHelper::canManipulateAsImage($pathExtension)) {
-            $workingPath = AssetsHelper::tempFilePath($extension);
+            if ($originalSize === false) {
+                throw new Exception('Unable to determine source image size.');
+            }
 
-            if (!@copy($path, $workingPath)) {
-                ImageResizer::$plugin->getLogs()->resizeLog($taskId, 'error', $filename, [
-                    'message' => 'Unable to copy image to a working file with a valid extension.',
-                    'path' => $path,
-                    'workingPath' => $workingPath,
+            if ($originalSize > $settings->maxSourceFileSize) {
+                ImageResizer::$plugin->getLogs()->resizeLog($taskId, 'skipped-source-limits', $filename, [
+                    'reason' => 'file-size',
+                    'size' => $originalSize,
+                    'limit' => $settings->maxSourceFileSize,
                 ]);
-
-                @unlink($workingPath);
-
-                if ($managedLocalPath) {
-                    @unlink($managedLocalPath);
-                }
 
                 return false;
             }
 
-            clearstatcache(true, $workingPath);
-            $createdWorkingCopy = true;
-        }
+            $sourceDimensions = $this->_sourceImageDimensions($path, $extension);
 
-        // Upload requests often have a tighter memory_limit than queue/CLI bulk resizes.
-        App::maxPowerCaptain();
+            if ($sourceDimensions === null) {
+                ImageResizer::$plugin->getLogs()->resizeLog($taskId, 'skipped-source-unverified', $filename);
 
-        try {
-            /* @var Settings $settings */
-            $settings = ImageResizer::$plugin->getSettings();
+                return false;
+            }
+
+            [$sourceWidth, $sourceHeight] = $sourceDimensions;
+            $exceedsDimensionLimit = $sourceWidth > $settings->maxSourceDimension || $sourceHeight > $settings->maxSourceDimension;
+            $exceedsPixelLimit = $sourceWidth > intdiv($settings->maxSourcePixels, $sourceHeight);
+
+            if ($exceedsDimensionLimit || $exceedsPixelLimit) {
+                ImageResizer::$plugin->getLogs()->resizeLog($taskId, 'skipped-source-limits', $filename, [
+                    'reason' => $exceedsDimensionLimit ? 'dimensions' : 'pixels',
+                    'width' => $sourceWidth,
+                    'height' => $sourceHeight,
+                    'dimensionLimit' => $settings->maxSourceDimension,
+                    'pixelLimit' => $settings->maxSourcePixels,
+                ]);
+
+                return false;
+            }
+
+            // Imagick determines encode/decode format from the filename. Upload temps can be
+            // extensionless (`phpXXXX`) or end in uniqid entropy (`upload….66030315`), which
+            // GD will often sniff but Imagick will refuse. Work on a copy with a real extension.
+            $workingPath = $path;
+            $pathExtension = (string)pathinfo($path, PATHINFO_EXTENSION);
+
+            if (!ImageHelper::canManipulateAsImage($pathExtension)) {
+                $workingPath = AssetsHelper::tempFilePath($extension);
+                $createdWorkingCopy = true;
+
+                if (!@copy($path, $workingPath)) {
+                    ImageResizer::$plugin->getLogs()->resizeLog($taskId, 'error', $filename, [
+                        'message' => 'Unable to copy image to a working file with a valid extension.',
+                        'path' => $path,
+                        'workingPath' => $workingPath,
+                    ]);
+
+                    return false;
+                }
+
+                clearstatcache(true, $workingPath);
+            }
+
+            // Upload requests often have a tighter memory_limit than queue/CLI bulk resizes.
+            App::maxPowerCaptain();
+
             $image = Craft::$app->getImages()->loadImage($workingPath);
 
             // Save some existing properties for logging (see savings)
-            $originalSize = filesize($workingPath);
             $originalProperties = [
                 'width' => (int)$image->getWidth(),
                 'height' => (int)$image->getHeight(),
-                'size' => $originalSize !== false ? (int)$originalSize : (int)($asset->size ?? 0),
+                'size' => (int)$originalSize,
             ];
 
             // We can have settings globally, or per asset source. Check!
@@ -333,6 +396,83 @@ class Resize extends Component
         $dimensions = ImageHelper::calculateMissingDimension($width, $height, $image->getWidth(), $image->getHeight());
 
         $image->resize($dimensions[0], $dimensions[1]);
+    }
+
+    /**
+     * Read source dimensions without invoking the image decoder.
+     *
+     * @return array{int, int}|null
+     */
+    private function _sourceImageDimensions(string $path, string $extension): ?array
+    {
+        $stream = @fopen($path, 'rb');
+
+        if ($stream === false) {
+            return null;
+        }
+
+        try {
+            if (strtolower($extension) === 'svg') {
+                $svg = stream_get_contents($stream, self::MAX_SVG_HEADER_BYTES);
+
+                if (
+                    $svg === false ||
+                    !preg_match('/<svg\b/i', $svg, $svgMatch, PREG_OFFSET_CAPTURE) ||
+                    ($svgTagEnd = strpos($svg, '>', $svgMatch[0][1])) === false
+                ) {
+                    return null;
+                }
+
+                $svgTag = substr($svg, $svgMatch[0][1], $svgTagEnd - $svgMatch[0][1] + 1);
+                $dimensions = ImageHelper::parseSvgSize($svgTag);
+            } else {
+                $dimensions = ImageHelper::imageSizeByStream($stream);
+            }
+        } finally {
+            fclose($stream);
+        }
+
+        if (!is_array($dimensions) || count($dimensions) < 2) {
+            return null;
+        }
+
+        $width = (int)$dimensions[0];
+        $height = (int)$dimensions[1];
+
+        if ($width < 1 || $height < 1) {
+            return null;
+        }
+
+        return [$width, $height];
+    }
+
+    /**
+     * Download a volume file with a hard copy bound derived from the source byte limit.
+     */
+    private function _downloadFileWithinLimit(Volume $volume, string $uriPath, string $localPath, int $maxBytes): bool
+    {
+        $input = $volume->getFileStream($uriPath);
+        $output = @fopen($localPath, 'wb');
+
+        if ($output === false) {
+            fclose($input);
+
+            throw new Exception('Unable to open local image path for download.');
+        }
+
+        try {
+            $copyLimit = $maxBytes >= PHP_INT_MAX ? PHP_INT_MAX : max(1, $maxBytes + 1);
+            $bytes = stream_copy_to_stream($input, $output, $copyLimit);
+
+            if ($bytes === false) {
+                throw new Exception('Unable to download image for resize.');
+            }
+
+            return $bytes <= $maxBytes;
+        } finally {
+            fclose($input);
+            fclose($output);
+        }
     }
 
     /**

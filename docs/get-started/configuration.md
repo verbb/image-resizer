@@ -60,6 +60,41 @@ The maximum height in pixels allowed for uploaded images.
 => Enter a value from 0-100 for resized image quality.
 :::
 
+Image Resizer checks each source image against the following global safety limits before decoding it. These limits apply to automatic, bulk, and console resizing. An image that exceeds a limit is left unchanged and recorded as skipped in the resize log.
+
+
+::: reference
+### `maxSourceFileSize`
+
+**Type:** `int` · **Default:** `104857600`
+
+The maximum source image file size, in bytes, that Image Resizer will process. The default is 100 MiB.
+
+This is a global safety limit and cannot be configured per volume.
+:::
+
+
+::: reference
+### `maxSourceDimension`
+
+**Type:** `int` · **Default:** `25000`
+
+The maximum source image width or height, in pixels, that Image Resizer will process.
+
+This is a global safety limit and cannot be configured per volume.
+:::
+
+
+::: reference
+### `maxSourcePixels`
+
+**Type:** `int` · **Default:** `50000000`
+
+The maximum total source image pixel count that Image Resizer will process. The default is 50 megapixels.
+
+This is a global safety limit and cannot be configured per volume.
+:::
+
 
 ::: reference
 ### `skipLarger`
@@ -84,7 +119,7 @@ Whether to save a pre-resize copy in an `originals` folder. Upload backups follo
 
 **Type:** `array` · **Default:** `[]`
 
-Provide any of the above as an array, keyed by the volume ID. Ensure that you set `useGlobalSettings` to `false`.
+Provide `enabled`, `imageWidth`, `imageHeight`, and `imageQuality` as an array, keyed by the volume ID. Ensure that you set `useGlobalSettings` to `false`.
 :::
 
 

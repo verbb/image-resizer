@@ -17,6 +17,8 @@ return [
   'If the resizing process results in a larger image that the previous, do not replace with larger file.' => 'If the resizing process results in a larger image that the previous, do not replace with larger file.',
   'Image already under maximum width/height.' => 'Image already under maximum width/height.',
   'Image cannot be resized (not manipulatable).' => 'Image cannot be resized (not manipulatable).',
+  'Image dimensions could not be safely determined.' => 'Image dimensions could not be safely determined.',
+  'Image exceeds the configured source safety limits.' => 'Image exceeds the configured source safety limits.',
   'Image Height' => 'Image Height',
   'Image Resizer' => 'Image Resizer',
   'Image Resizer will save a pre-resize copy in an `originals` folder. Upload backups follow Craft’s configured image sanitization and metadata settings.' => 'Image Resizer will save a pre-resize copy in an `originals` folder. Upload backups follow Craft’s configured image sanitization and metadata settings.',
