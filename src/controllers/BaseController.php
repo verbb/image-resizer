@@ -93,6 +93,8 @@ class BaseController extends Controller
 
         $assetIds = array_map(fn(Asset $asset): int => (int)$asset->id, $assets);
 
+        ImageResizer::$plugin->getLogs()->initializeTaskSummary($taskId);
+
         Craft::$app->getQueue()->push(new ImageResize([
             'description' => 'Resizing images',
             'taskId' => $taskId,
@@ -116,18 +118,7 @@ class BaseController extends Controller
 
         $taskId = $this->_getTaskId();
 
-        $result = ImageResizer::$plugin->getLogs()->getLogsForTaskId($taskId);
-
-        $summary = [
-            'success' => 0,
-            'skipped' => 0,
-            'error' => 0,
-        ];
-
-        // Split the logs for this task into success/skipped/error
-        foreach ($result as $entry) {
-            $summary[$entry->result]++;
-        }
+        $summary = ImageResizer::$plugin->getLogs()->getTaskSummary($taskId);
 
         return $this->asJson(['summary' => $summary]);
     }

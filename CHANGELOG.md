@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed a medium-severity denial-of-service vulnerability affecting source image decoding.
+- Fixed a low-severity denial-of-service vulnerability affecting resize log retention and reading.
 
 ## 4.0.14 - 2026-10-02
 
