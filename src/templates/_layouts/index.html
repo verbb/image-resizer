@@ -1,6 +1,6 @@
 {% extends parentLayout | default("_layouts/cp") %}
 
-{% do view.registerAssetBundle("verbb\\imageresizer\\assetbundles\\ImageResizerAsset") %}
+{% do view.registerAssetBundle("verbb\\imageresizer\\web\\assets\\cp\\ImageResizerAsset") %}
 
 {% set tabs = {
     logs: { label: "Logs" | t('image-resizer'), url: url('image-resizer/logs') },

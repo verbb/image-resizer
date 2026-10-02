@@ -5,6 +5,5 @@
 
 // ==========================================================================
 
-// @codekit-prepend "_tabs.js"    
-// @codekit-prepend "_resize-element-action.js"    
-
+import './_tabs.js';
+import './_resize-element-action.js';

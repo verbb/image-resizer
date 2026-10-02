@@ -1,7 +1,7 @@
 <?php
 namespace verbb\imageresizer\elementactions;
 
-use verbb\imageresizer\assetbundles\ImageResizerAsset;
+use verbb\imageresizer\web\assets\cp\ImageResizerAsset;
 use verbb\imageresizer\ImageResizer;
 use verbb\imageresizer\models\Settings;
 
