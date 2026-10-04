@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 4.0.15 - 2026-10-05
 
 ### Fixed
 - Fixed a medium-severity denial-of-service vulnerability affecting source image decoding.
