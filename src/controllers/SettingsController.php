@@ -27,7 +27,7 @@ class SettingsController extends BaseSettingsController
             $sourceOptions[] = ['label' => $source->name, 'value' => $source->id];
         }
 
-        $assetTree = Craft::$app->getAssets()->getFolderTreeByVolumeIds(Craft::$app->getVolumes()->getAllVolumeIds());
+        $assetTree = ImageResizer::$plugin->getService()->getAssetFolderTree(Craft::$app->getVolumes()->getAllVolumeIds());
         ImageResizer::$plugin->getService()->getAssetFolders($assetTree, $folderOptions);
 
         return $this->renderTemplate('image-resizer/settings', [

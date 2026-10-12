@@ -5,6 +5,7 @@ use verbb\imageresizer\base\PluginTrait;
 use verbb\imageresizer\models\Settings;
 
 use Craft;
+use craft\enums\CmsEdition;
 use craft\base\Model;
 use craft\base\Plugin;
 use craft\elements\Asset;
@@ -47,7 +48,7 @@ class ImageResizer extends Plugin
             $this->_registerCpRoutes();
         }
 
-        if (Craft::$app->getEdition() !== Craft::Solo) {
+        if (Craft::$app->edition !== CmsEdition::Solo) {
             $this->_registerPermissions();
         }
     }

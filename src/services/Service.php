@@ -11,9 +11,12 @@ use craft\base\Image;
 use craft\elements\Asset;
 use craft\events\AssetEvent;
 use craft\events\RegisterElementActionsEvent;
+use craft\helpers\ArrayHelper;
 use craft\helpers\Assets as AssetsHelper;
 use craft\helpers\Image as ImageHelper;
 use craft\image\Raster;
+
+use yii\db\Expression;
 
 use Throwable;
 
@@ -144,6 +147,42 @@ class Service extends Component
         }
 
         return $quality;
+    }
+
+    public function getAssetFolderTree(array $volumeIds): array
+    {
+        $tree = [];
+        $assetsService = Craft::$app->getAssets();
+
+        foreach ($volumeIds as $volumeId) {
+            $folders = $assetsService->findFolders([
+                'volumeId' => $volumeId,
+                'order' => [new Expression('[[path]] IS NULL DESC'), 'path' => SORT_ASC],
+            ]);
+
+            $subtree = [];
+            $foldersById = [];
+
+            foreach ($folders as $folder) {
+                $folder->setChildren([]);
+
+                if ($folder->parentId && isset($foldersById[$folder->parentId])) {
+                    $foldersById[$folder->parentId]->addChild($folder);
+                } else {
+                    $subtree[] = $folder;
+                }
+
+                $foldersById[$folder->id] = $folder;
+            }
+
+            if ($subtree) {
+                $tree[$volumeId] = reset($subtree);
+            }
+        }
+
+        ArrayHelper::multisort($tree, fn($folder) => $folder->getVolume()->sortOrder);
+
+        return $tree;
     }
 
     public function getAssetFolders(array $tree, array &$folderOptions): void
