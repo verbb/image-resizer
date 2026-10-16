@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed the “Resize on upload” setting appearing enabled after saving when disabled for an individual volume.
+
 ## 4.0.17 - 2026-10-15
 
 ### Changed

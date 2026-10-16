@@ -12,7 +12,7 @@
 
     {% if assetSource %}
         {% set enabledName = 'assetSourceSettings[' ~ assetSource.value ~ '][enabled]' %}
-        {% set enabledValue = settings.assetSourceSettings[assetSource.value].enabled | default(settings.enabled) %}
+        {% set enabledValue = settings.assetSourceSettings[assetSource.value].enabled ?? settings.enabled %}
 
         {% set imageWidthName = 'assetSourceSettings[' ~ assetSource.value ~ '][imageWidth]' %}
         {% set imageWidthValue = settings.assetSourceSettings[assetSource.value].imageWidth | default('') %}
