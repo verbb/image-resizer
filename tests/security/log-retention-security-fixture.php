@@ -221,6 +221,7 @@ namespace {
     fclose($oversizedHandle);
     $logs->resizeLog('rotation', 'error', 'rotation.jpg');
 
+    clearstatcache();
     assertTrue(filesize($activeLog) <= 10 * 1024 * 1024, 'The active log must remain within the 10 MiB limit.');
     assertTrue(filesize($activeLog . '.1') <= 10 * 1024 * 1024, 'A rotated legacy log must be capped at 10 MiB.');
     assertSame('archive-3', file_get_contents($activeLog . '.4'), 'Rotation must evict the oldest archive and retain the next-newest one.');
@@ -230,6 +231,7 @@ namespace {
     $logs->resizeLog('oversized-entry', 'error', str_repeat('f', 1000), ['message' => str_repeat('d', 100000)]);
     $entries = $logs->getLogEntries();
     assertSame('Log entry details exceeded the retained entry limit.', $entries[0]->data['message'] ?? null, 'Oversized records must be replaced with bounded details.');
+    clearstatcache();
     assertTrue(filesize($activeLog) <= 64 * 1024 + 1, 'A single retained record must remain bounded.');
 
     file_put_contents($fixturePath . '/unrelated.log', 'preserve');
