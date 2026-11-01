@@ -238,7 +238,9 @@ class Resize extends Component
             $this->_resizeImage($image, $newWidth, $newHeight);
 
             if (method_exists($image, 'setQuality')) {
-                $image->setQuality(ImageResizer::$plugin->getService()->getImageQuality($workingPath));
+                $imageQuality = (int)ImageResizer::$plugin->getService()->getSettingForAssetSource($asset->getVolumeId(), 'imageQuality');
+
+                $image->setQuality(ImageResizer::$plugin->getService()->getImageQuality($workingPath, $imageQuality));
             }
 
             // Always encode away from the source so encoder or EXIF-rotation failures cannot truncate it.
@@ -530,6 +532,7 @@ class Resize extends Component
 
         if (!@rename($tempPath, $outputPath)) {
             @unlink($tempPath);
+
             throw new Exception('Unable to prepare a temporary image beside ' . $path);
         }
 
@@ -567,6 +570,7 @@ class Resize extends Component
 
         if (@rename($stagedPath, $targetPath)) {
             @unlink($rollbackPath);
+
             return;
         }
 

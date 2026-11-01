@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+- Fixed the per-volume “Quality” setting not being used when resizing images.
+
 ## 4.0.19 - 2026-10-22
 
 ### Changed
