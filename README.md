@@ -17,13 +17,16 @@ Editors should not need to resize every photograph before it reaches Craft. Set 
 - Review which assets were resized and how the operation completed.
 
 ## Documentation
+
 Visit the [Image Resizer Plugin page](https://verbb.io/craft-plugins/image-resizer) for all documentation, guides, pricing and developer resources.
 
 ## Support
-Get in touch with us via the [Image Resizer Support page](https://verbb.io/craft-plugins/image-resizer/support) or by [creating a Github issue](https://github.com/verbb/image-resizer/issues)
+
+Get in touch with us via the [Image Resizer Support page](https://verbb.io/craft-plugins/image-resizer/support) or by [creating a GitHub issue](https://github.com/verbb/image-resizer/issues).
 
 ## Sponsor
-Image Resizer is licensed under the MIT license, meaning it will always be free and open source - we love free stuff! If you'd like to show your support to the plugin regardless, [Sponsor](https://github.com/sponsors/verbb) development.
+
+Image Resizer is licensed under the MIT license, so it will always be free and open source. If you'd like to support it anyway, you can [sponsor its development](https://github.com/sponsors/verbb).
 
 <h2></h2>
 
