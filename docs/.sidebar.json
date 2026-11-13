@@ -12,7 +12,8 @@
         "title": "Feature Tour",
         "collapsable": false,
         "children": [
-            "feature-tour/image-resizer"
+            "feature-tour/image-resizer",
+            "feature-tour/permissions"
         ]
     }
 ]
