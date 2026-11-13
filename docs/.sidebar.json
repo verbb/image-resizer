@@ -15,5 +15,12 @@
             "feature-tour/image-resizer",
             "feature-tour/permissions"
         ]
+    },
+    {
+        "title": "Developers",
+        "collapsable": false,
+        "children": [
+            "developers/console-commands"
+        ]
     }
 ]
