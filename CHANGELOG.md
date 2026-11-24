@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 4.0.21 - 2026-11-24
 
 ### Added
 - Added an empty state to the Logs page, with a link to bulk resizing for admins.
