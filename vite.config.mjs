@@ -4,16 +4,25 @@ import { defineConfig } from 'vite';
 
 const root = resolve(import.meta.dirname, 'src/web/assets/cp');
 
-export default defineConfig(({ mode }) => {
-    const isCssBuild = mode === 'css';
+// `css` and `js` build the main control panel bundle. `kit` builds the Plugin Kit
+// components that only the empty states load, so other pages don't pay for them.
+const entries = {
+    css: 'image-resizer.css',
+    js: 'image-resizer.js',
+    kit: 'plugin-kit.js',
+};
 
-    if (!isCssBuild && mode !== 'js') {
+export default defineConfig(({ mode }) => {
+    if (!entries[mode]) {
         throw new Error(`Unknown asset build mode: ${mode}`);
     }
+
+    const isCssBuild = mode === 'css';
 
     const output = isCssBuild ? {
         assetFileNames: '[name][extname]',
     } : {
+        assetFileNames: '[name][extname]',
         codeSplitting: false,
         entryFileNames: '[name].js',
         format: 'iife',
@@ -21,7 +30,7 @@ export default defineConfig(({ mode }) => {
 
     return {
         root,
-        input: resolve(root, `src/image-resizer.${isCssBuild ? 'css' : 'js'}`),
+        input: resolve(root, 'src', entries[mode]),
         build: {
             outDir: resolve(root, 'dist'),
             emptyOutDir: isCssBuild,

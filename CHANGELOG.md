@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+### Added
+- Added an empty state to the Logs page, with a link to bulk resizing for admins.
+- Added an empty state to the General Settings and Resize Bulk settings when there are no asset volumes, with a link to add one.
+
+### Changed
+- The Logs page now hides “Clear logs” when there are no log entries.
+
 ## 4.0.20 - 2026-11-01
 
 ### Fixed

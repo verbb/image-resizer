@@ -49,5 +49,9 @@
         {{ macros.resizeSetting(settings, additionalSettings, item) }}
 
         {{ not loop.last ? '<hr>' }}
+    {% else %}
+        {% include 'image-resizer/settings/_includes/no-volumes' with {
+            message: 'Each asset volume gets its own resize settings here once you add one.' | t('image-resizer'),
+        } only %}
     {% endfor %}
 </div>

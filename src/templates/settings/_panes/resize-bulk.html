@@ -1,31 +1,37 @@
 {% import '_includes/forms' as forms %}
 {% import 'image-resizer/_macros' as macros %}
 
-<div class="field">
-    <div class="heading">
-        <label for="settings-assetFolders">{{ 'Bulk Resize' | t('image-resizer') }}</label>
+{% if folderOptions %}
+    <div class="field">
+        <div class="heading">
+            <label for="settings-assetFolders">{{ 'Bulk Resize' | t('image-resizer') }}</label>
 
-        <div class="instructions">
-            <p>{{ "For any Asset folder below, click on Bulk Resize to automatically resize all assets within." | t('image-resizer') }}</p>
+            <div class="instructions">
+                <p>{{ "For any Asset folder below, click on Bulk Resize to automatically resize all assets within." | t('image-resizer') }}</p>
+            </div>
+        </div>
+
+        <div class="input ltr">
+            <table class="bulk-resize-table">
+                {% for item in folderOptions %}
+                    <tr>
+                        <td>{{ item.label }}</td>
+
+                        <td>
+                            <div class="btn small bulk-resize-btn" data-id="{{ item.value }}" data-name="{{ item.label | striptags }}">
+                                {{ 'Bulk Resize' | t('image-resizer') }}
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
         </div>
     </div>
-
-    <div class="input ltr">
-        <table class="bulk-resize-table">
-            {% for item in folderOptions %}
-                <tr>
-                    <td>{{ item.label }}</td>
-
-                    <td>
-                        <div class="btn small bulk-resize-btn" data-id="{{ item.value }}" data-name="{{ item.label | striptags }}">
-                            {{ 'Bulk Resize' | t('image-resizer') }}
-                        </div>
-                    </td>
-                </tr>
-            {% endfor %}
-        </table>
-    </div>
-</div>
+{% else %}
+    {% include 'image-resizer/settings/_includes/no-volumes' with {
+        message: 'Bulk resizing works through the folders in your asset volumes, so add a volume first.' | t('image-resizer'),
+    } only %}
+{% endif %}
 
 {% js %}
     new Craft.ImageResizer.BulkResizeAssetFolder('{{ settings.imageWidth }}', '{{ settings.imageHeight }}', {{ currentUser.can('imageResizer-viewLogs') | json_encode | raw }});

@@ -1,0 +1,7 @@
+{% do view.registerAssetBundle('verbb\\imageresizer\\web\\assets\\cp\\PluginKitAsset') %}
+
+<pk-state-panel class="image-resizer-empty" heading="{{ 'No asset volumes' | t('image-resizer') }}">
+    {{ message }}
+
+    <a slot="actions" class="btn" href="{{ url('settings/assets/volumes/new') }}">{{ 'Add an asset volume' | t('image-resizer') }}</a>
+</pk-state-panel>

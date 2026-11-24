@@ -11,62 +11,75 @@
 
 {% block blockContent %}
 
-    {% if currentUser.can('imageResizer-clearLogs') %}
-        <form method="post" accept-charset="UTF-8">
-            {{ actionInput('image-resizer/logs/clear') }}
-            {{ csrfInput() }}
+    {% if not logEntries %}
+        {% do view.registerAssetBundle('verbb\\imageresizer\\web\\assets\\cp\\PluginKitAsset') %}
 
-            <input class="btn right" type="submit" value="{{ 'Clear logs' | t('image-resizer') }}">
-        </form>
-    {% endif %}
+        <pk-state-panel class="image-resizer-empty" heading="{{ 'No resize logs yet' | t('image-resizer') }}">
+            {{ 'Entries appear here when images are resized on upload or in bulk.' | t('image-resizer') }}
 
-    <table id="logs" class="data fullwidth collapsible image-resizer-logs-table">
-        <thead>
-            <tr>
-                <th scope="col">{{ "Filename" | t('image-resizer') }}</th>
-                <th scope="col">{{ "Result" | t('image-resizer') }}</th>
-                <th scope="col">{{ "Timestamp" | t('image-resizer') }}</th>
-            </tr>
-        </thead>
+            {# Bulk resizing lives in the plugin settings, which need an admin with admin changes allowed. #}
+            {% if currentUser.admin and craft.app.config.general.allowAdminChanges %}
+                <a slot="actions" class="btn" href="{{ url('image-resizer/settings/resize-bulk') }}">{{ 'Resize images in bulk' | t('image-resizer') }}</a>
+            {% endif %}
+        </pk-state-panel>
+    {% else %}
+        {% if currentUser.can('imageResizer-clearLogs') %}
+            <form method="post" accept-charset="UTF-8">
+                {{ actionInput('image-resizer/logs/clear') }}
+                {{ csrfInput() }}
 
-        <tbody>
-            {% for entry in logEntries %}
+                <input class="btn right" type="submit" value="{{ 'Clear logs' | t('image-resizer') }}">
+            </form>
+        {% endif %}
+
+        <table id="logs" class="data fullwidth collapsible image-resizer-logs-table">
+            <thead>
                 <tr>
-                    <td class="col-label" data-title="{{ 'Filename' | t('image-resizer') }}">
-                        <span class="">{{ entry.filename }}</span>
-                    </td>
-
-                    <td class="col-label" data-title="{{ 'Result' | t('image-resizer') }}">
-                        <span class="log-result {{ entry.result }}">{{ entry.result }}</span>
-
-                        <span class="log-label {{ entry.result }}">
-                            {{ entry.description }}
-
-                            {% if entry.handle == 'success' %}
-                                {% set prevSize = entry.data.prev.size %}
-                                {% set currSize = entry.data.curr.size %}
-                                {% set saved = prevSize - currSize %}
-
-                                {% set filesize = imageResizerMacro.filesize(saved) %}
-                                {% set percentage = prevSize ? ((saved / prevSize) * 100) | number_format : '?' %}
-
-                                {{ "Saved {perc}% ({num})." | t('image-resizer', { num: filesize, perc: percentage }) }}
-                            {% endif %}
-
-                            {% if entry.handle == 'error' %}
-                                {{ entry.data.message }}
-                            {% endif %}
-                        </span>
-                    </td>
-
-                    <td data-title="{{ 'Timestamp' | t('image-resizer') }}">
-                        <code>
-                            {{ entry.dateTime | date('short') ~ ' ' ~ entry.dateTime | time('short') }}
-                        </code>
-                    </td>
+                    <th scope="col">{{ "Filename" | t('image-resizer') }}</th>
+                    <th scope="col">{{ "Result" | t('image-resizer') }}</th>
+                    <th scope="col">{{ "Timestamp" | t('image-resizer') }}</th>
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+
+            <tbody>
+                {% for entry in logEntries %}
+                    <tr>
+                        <td class="col-label" data-title="{{ 'Filename' | t('image-resizer') }}">
+                            <span class="">{{ entry.filename }}</span>
+                        </td>
+
+                        <td class="col-label" data-title="{{ 'Result' | t('image-resizer') }}">
+                            <span class="log-result {{ entry.result }}">{{ entry.result }}</span>
+
+                            <span class="log-label {{ entry.result }}">
+                                {{ entry.description }}
+
+                                {% if entry.handle == 'success' %}
+                                    {% set prevSize = entry.data.prev.size %}
+                                    {% set currSize = entry.data.curr.size %}
+                                    {% set saved = prevSize - currSize %}
+
+                                    {% set filesize = imageResizerMacro.filesize(saved) %}
+                                    {% set percentage = prevSize ? ((saved / prevSize) * 100) | number_format : '?' %}
+
+                                    {{ "Saved {perc}% ({num})." | t('image-resizer', { num: filesize, perc: percentage }) }}
+                                {% endif %}
+
+                                {% if entry.handle == 'error' %}
+                                    {{ entry.data.message }}
+                                {% endif %}
+                            </span>
+                        </td>
+
+                        <td data-title="{{ 'Timestamp' | t('image-resizer') }}">
+                            <code>
+                                {{ entry.dateTime | date('short') ~ ' ' ~ entry.dateTime | time('short') }}
+                            </code>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
 
 {% endblock %}
